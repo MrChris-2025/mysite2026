@@ -47,6 +47,7 @@
         /* Adjustment for TV/Desktop Height Issues */
         .gallery-card-wrapper {
             max-width: 100%;
+            position: relative;
         }
 
         .gallery-poster-container {
@@ -65,6 +66,23 @@
             backdrop-filter: blur(8px); border-top: 1px solid rgba(255, 255, 255, 0.2);
             z-index: 10;
         }
+
+        .info-icon-btn {
+            position: absolute; bottom: 8px; left: 8px; width: 28px; height: 28px;
+            background: rgba(0, 0, 0, 0.6); color: white; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; z-index: 20;
+            cursor: pointer; border: 1px solid rgba(255,255,255,0.2); transition: all 0.2s;
+            backdrop-filter: blur(4px);
+        }
+        .info-icon-btn:hover { background: var(--accent); transform: scale(1.1); }
+
+        .summary-overlay {
+            position: absolute; inset: 0; background: rgba(0,0,0,0.9);
+            padding: 20px; display: flex; flex-direction: column; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 30;
+            backdrop-filter: blur(8px);
+        }
+        .summary-overlay.active { opacity: 1; pointer-events: auto; }
 
         .delete-btn {
             position: absolute; top: 8px; right: 8px; width: 24px; height: 24px;
@@ -414,6 +432,12 @@
             }
         }
 
+        function toggleSummary(id, event) {
+            event.stopPropagation();
+            const overlay = document.getElementById(`summary-${id}`);
+            overlay.classList.toggle('active');
+        }
+
         function renderGallery() {
             const grid = document.getElementById('galleryGrid');
             grid.innerHTML = galleryData.map(item => {
@@ -426,6 +450,17 @@
                     <div class="premium-card gallery-poster-container rounded-2xl overflow-hidden mb-4 relative shadow-2xl">
                         <img src="https://image.tmdb.org/t/p/w400${item.poster_path}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        
+                        <div id="summary-${item.id}" class="summary-overlay" onclick="event.stopPropagation()">
+                            <h5 class="text-sm font-bold text-white mb-2">${item.title || item.name}</h5>
+                            <p class="text-[11px] text-gray-300 leading-relaxed line-clamp-6">${item.overview || "No summary available."}</p>
+                            <button onclick="toggleSummary(${item.id}, event)" class="mt-4 text-[10px] font-bold text-purple-400 uppercase tracking-widest text-left">Close Info</button>
+                        </div>
+
+                        <div onclick="toggleSummary(${item.id}, event)" class="info-icon-btn">
+                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        
                         ${bannerHtml}
                     </div>
                     <h4 class="text-sm font-bold truncate px-1 text-white group-hover:text-purple-400 transition-colors">${item.title || item.name}</h4>
