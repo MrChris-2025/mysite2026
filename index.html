@@ -44,6 +44,19 @@
             box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.7);
         }
 
+        /* Adjustment for TV/Desktop Height Issues */
+        .gallery-card-wrapper {
+            max-width: 100%;
+        }
+
+        .gallery-poster-container {
+            aspect-ratio: 2/3;
+            width: 100%;
+            max-height: 450px; /* Limits the vertical growth on large screens */
+            margin-left: auto;
+            margin-right: auto;
+        }
+
         .watched-banner {
             position: absolute; bottom: 0; left: 0; right: 0;
             background: rgba(168, 85, 247, 0.95);
@@ -142,11 +155,11 @@
     </header>
 
     <main class="max-w-7xl mx-auto px-6 mt-10">
-        <!-- Player Split Layout (2x2 Grid Appearance on Desktop) -->
+        <!-- Player Split Layout -->
         <section id="playerSection" class="hidden mb-16 animate-in fade-in slide-in-from-top-4 duration-700">
             <div class="flex flex-col md:grid md:grid-cols-10 gap-8">
                 
-                <!-- COLUMN 1: Player & Fullscreen (55%) -->
+                <!-- COLUMN 1: Player & Fullscreen -->
                 <div class="md:col-span-6 flex flex-col gap-4">
                     <div id="videoContainer" class="player-wrapper aspect-video bg-black relative group">
                         <iframe id="mainPlayer" src="" class="w-full h-full" allowfullscreen frameborder="0"></iframe>
@@ -163,7 +176,7 @@
                     </div>
                 </div>
 
-                <!-- COLUMN 2: Controls & Info (45%) -->
+                <!-- COLUMN 2: Controls & Info -->
                 <div class="md:col-span-4 flex flex-col gap-6">
                     <div class="bg-white/5 p-6 rounded-[24px] border border-white/10 flex flex-col h-full justify-between">
                         <div>
@@ -206,14 +219,18 @@
 
         <!-- Gallery -->
         <section id="gallerySection">
-            <div class="flex justify-between items-end mb-10">
-                <div>
-                    <h3 id="galleryTitle" class="text-3xl font-black text-white tracking-tighter mb-1 uppercase">Popular Content</h3>
-                    <p class="text-sm text-gray-500 font-medium">Trending globally now</p>
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-10">
+                <div class="flex items-center gap-4 w-full md:w-auto">
+                    <select id="genreSelect" class="custom-select flex-1 md:w-48 bg-white/5 text-xs font-bold border border-white/10 rounded-xl px-4 py-3 outline-none hover:border-purple-500 transition-colors uppercase tracking-wider">
+                        <option value="">All Genres</option>
+                    </select>
+                    <select id="yearSelect" class="custom-select flex-1 md:w-36 bg-white/5 text-xs font-bold border border-white/10 rounded-xl px-4 py-3 outline-none hover:border-purple-500 transition-colors uppercase tracking-wider">
+                        <option value="">All Years</option>
+                    </select>
                 </div>
             </div>
             
-            <div id="galleryGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 sm:grid-cols-5 xl:grid-cols-6 gap-x-5 gap-y-10"></div>
+            <div id="galleryGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 md:grid-cols-5 xl:grid-cols-6 gap-x-5 gap-y-10"></div>
             
             <div class="flex justify-center items-center gap-8 mt-20 mb-12">
                 <button id="prevBtn" class="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center text-gray-400 hover:bg-purple-600 hover:text-white disabled:opacity-10 transition-all border border-white/10 hover:border-purple-400 shadow-xl">
@@ -251,7 +268,7 @@
         ];
 
         const noSandboxSources = ['videasy', 'vidsrcsu', 'vidsrcvip'];
-        let state = { user: null, type: 'movie', page: 1, query: '', history: {}, current: null, currentEpisodes: [] };
+        let state = { user: null, type: 'movie', page: 1, query: '', history: {}, current: null, currentEpisodes: [], genre: '', year: '' };
         let galleryData = [];
 
         async function init() {
@@ -262,6 +279,8 @@
             });
             state.user = user;
             await fetchHistory();
+            populateYears();
+            await fetchGenres();
             renderSources(); fetchGallery(); setupEvents();
         }
 
@@ -269,6 +288,24 @@
             if (!date) return "--/--/----";
             const d = new Date(date);
             return `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`;
+        }
+
+        function populateYears() {
+            const yearSelect = document.getElementById('yearSelect');
+            const currentYear = new Date().getFullYear();
+            for (let i = currentYear; i >= 1950; i--) {
+                const opt = document.createElement('option');
+                opt.value = i; opt.innerText = i;
+                yearSelect.appendChild(opt);
+            }
+        }
+
+        async function fetchGenres() {
+            const res = await fetch(`https://api.themoviedb.org/3/genre/${state.type}/list?api_key=${CONFIG.TMDB_KEY}`);
+            const data = await res.json();
+            const genreSelect = document.getElementById('genreSelect');
+            genreSelect.innerHTML = '<option value="">All Genres</option>' + 
+                data.genres.map(g => `<option value="${g.id}">${g.name}</option>`).join('');
         }
 
         async function fetchHistory() {
@@ -359,15 +396,20 @@
         }
 
         async function fetchGallery() {
-            const url = state.query 
-                ? `https://api.themoviedb.org/3/search/${state.type}?api_key=${CONFIG.TMDB_KEY}&query=${encodeURIComponent(state.query)}&page=${state.page}`
-                : `https://api.themoviedb.org/3/${state.type}/popular?api_key=${CONFIG.TMDB_KEY}&page=${state.page}`;
+            let url;
+            if (state.query) {
+                url = `https://api.themoviedb.org/3/search/${state.type}?api_key=${CONFIG.TMDB_KEY}&query=${encodeURIComponent(state.query)}&page=${state.page}`;
+            } else {
+                const yearParam = state.type === 'movie' ? 'primary_release_year' : 'first_air_date_year';
+                url = `https://api.themoviedb.org/3/discover/${state.type}?api_key=${CONFIG.TMDB_KEY}&page=${state.page}&sort_by=popularity.desc&with_genres=${state.genre}&${yearParam}=${state.year}`;
+            }
+            
             const res = await fetch(url); const data = await res.json();
             galleryData = data.results; renderGallery();
             document.getElementById('pageTxt').innerText = `Page ${data.page}`;
             document.getElementById('prevBtn').disabled = data.page <= 1;
 
-            if (state.query && state.page === 1) {
+            if ((state.query || state.genre || state.year) && state.page === 1) {
                 document.getElementById('gallerySection').scrollIntoView({ behavior: 'smooth' });
             }
         }
@@ -380,8 +422,8 @@
                 const watchData = episodes.sort((a,b) => b.watchedDate - a.watchedDate)[0];
                 let bannerHtml = watchData ? `<div class="watched-banner">${watchData.type === 'tv' ? `S${watchData.season} E${watchData.episode}` : 'Movie'} Last Watched: ${formatDate(watchData.watchedDate)}</div>` : '';
                 return `
-                <div class="group cursor-pointer" onclick="loadContent(${item.id}, '${state.type}', ${watchData?.season || 1}, ${watchData?.episode || 1})">
-                    <div class="premium-card aspect-[2/3] rounded-2xl overflow-hidden mb-4 relative shadow-2xl">
+                <div class="group cursor-pointer gallery-card-wrapper" onclick="loadContent(${item.id}, '${state.type}', ${watchData?.season || 1}, ${watchData?.episode || 1})">
+                    <div class="premium-card gallery-poster-container rounded-2xl overflow-hidden mb-4 relative shadow-2xl">
                         <img src="https://image.tmdb.org/t/p/w400${item.poster_path}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                         ${bannerHtml}
@@ -493,16 +535,34 @@
                 document.getElementById('showMoviesBtn').classList.add('bg-purple-600', 'text-white');
                 document.getElementById('showTvBtn').classList.remove('bg-purple-600', 'text-white');
                 document.getElementById('showTvBtn').classList.add('text-gray-400');
-                fetchGallery(); 
+                fetchGenres(); fetchGallery(); 
             };
             document.getElementById('showTvBtn').onclick = () => { 
                 state.type = 'tv'; state.page = 1; 
                 document.getElementById('showTvBtn').classList.add('bg-purple-600', 'text-white');
                 document.getElementById('showMoviesBtn').classList.remove('bg-purple-600', 'text-white');
                 document.getElementById('showMoviesBtn').classList.add('text-gray-400');
+                fetchGenres(); fetchGallery(); 
+            };
+            document.getElementById('searchInput').oninput = (e) => { 
+                state.query = e.target.value; state.page = 1; 
+                if (state.query) {
+                    document.getElementById('genreSelect').value = "";
+                    document.getElementById('yearSelect').value = "";
+                    state.genre = ""; state.year = "";
+                }
                 fetchGallery(); 
             };
-            document.getElementById('searchInput').oninput = (e) => { state.query = e.target.value; state.page = 1; fetchGallery(); };
+            document.getElementById('genreSelect').onchange = (e) => {
+                state.genre = e.target.value; state.page = 1;
+                state.query = ""; document.getElementById('searchInput').value = "";
+                fetchGallery();
+            };
+            document.getElementById('yearSelect').onchange = (e) => {
+                state.year = e.target.value; state.page = 1;
+                state.query = ""; document.getElementById('searchInput').value = "";
+                fetchGallery();
+            };
             document.getElementById('prevBtn').onclick = () => { if (state.page > 1) { state.page--; fetchGallery(); } };
             document.getElementById('nextBtn').onclick = () => { state.page++; fetchGallery(); };
             document.getElementById('srcSelect').onchange = updatePlayer;
@@ -525,3 +585,4 @@
     </script>
 </body>
 </html>
+
