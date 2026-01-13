@@ -143,29 +143,35 @@
         .btn-primary { background: var(--accent); color: white; border: none; }
         .btn-primary:hover { background: var(--accent-hover); }
 
-        /* Split Layout for Desktop / Google TV */
-        @media (min-width: 1024px) {
-            .grid-player-layout {
-                display: grid;
-                grid-template-columns: 52% 48%;
+        /* Cinema Split Logic */
+        .cinema-grid {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        @media (min-width: 768px) {
+            .cinema-grid {
+                flex-direction: row;
                 gap: 2rem;
                 padding: 1.5rem;
             }
-            .player-right-panel {
-                display: flex;
-                flex-direction: column;
-                justify-content: flex-start;
+            .cinema-left {
+                flex: 0 0 52%;
+                max-width: 52%;
+            }
+            .cinema-right {
+                flex: 0 0 48%;
+                max-width: 48%;
                 padding-top: 0.5rem;
             }
         }
-        /* Vertical Layout for Mobile */
-        @media (max-width: 1023px) {
-            .grid-player-layout {
-                display: flex;
-                flex-direction: column;
+
+        @media (max-width: 767px) {
+            .cinema-grid {
                 padding: 0.5rem;
             }
-            .player-right-panel {
+            .cinema-right {
                 margin-top: 1.5rem;
                 padding: 1rem;
             }
@@ -202,31 +208,30 @@
     <main class="max-w-7xl mx-auto px-6 mt-10">
         <!-- Player Section -->
         <section id="playerSection" class="hidden mb-16 animate-in fade-in slide-in-from-top-4 duration-700">
-            <div class="player-wrapper grid-player-layout">
+            <div class="player-wrapper cinema-grid">
                 
-                <!-- Left Side: Player -->
-                <div class="flex flex-col gap-4">
+                <!-- 52% Column -->
+                <div class="cinema-left">
                     <div id="videoContainer" class="aspect-video bg-black rounded-2xl overflow-hidden relative group border border-white/5">
                         <iframe id="mainPlayer" src="" class="w-full h-full" allowfullscreen frameborder="0"></iframe>
                     </div>
-                    <!-- Fullscreen Toggle -->
-                    <button id="fullscreenBtn" class="btn-action w-full bg-white/5 border-white/10 hover:border-purple-500/50">
+                    <button id="fullscreenBtn" class="btn-action w-full mt-4 bg-white/5 border-white/10 hover:border-purple-500/50">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
                         Focus Cinema Mode
                     </button>
                 </div>
 
-                <!-- Right Side: Controls & Info -->
-                <div class="player-right-panel">
+                <!-- 48% Column -->
+                <div class="cinema-right">
                     <div class="mb-6">
                         <div class="flex items-center gap-3 mb-2">
                             <span class="px-2 py-0.5 rounded bg-purple-500/10 text-purple-400 text-[10px] font-bold uppercase tracking-widest border border-purple-500/20">Now Playing</span>
                             <span id="playerSub" class="text-xs font-medium text-gray-500"></span>
                         </div>
-                        <h2 id="playerTitle" class="text-3xl font-black text-white tracking-tight leading-tight">Title</h2>
+                        <h2 id="playerTitle" class="text-2xl md:text-3xl font-black text-white tracking-tight leading-tight">Title</h2>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-4 mb-8">
+                    <div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
                         <div class="flex flex-col gap-1.5">
                             <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider ml-1">Server Source</label>
                             <select id="srcSelect" class="custom-select w-full bg-white/5 text-sm font-semibold border border-white/10 rounded-xl px-4 py-3 outline-none hover:border-purple-500 transition-colors"></select>
@@ -245,7 +250,7 @@
 
                     <div id="episodeInfo" class="hidden flex flex-col gap-6 border-t border-white/5 pt-8">
                          <div class="flex items-center justify-between">
-                            <h3 id="epTitleDisplay" class="text-xl font-bold text-white tracking-tight">Episode Name</h3>
+                            <h3 id="epTitleDisplay" class="text-lg font-bold text-white tracking-tight">Episode Name</h3>
                             <div class="flex gap-2">
                                 <button id="prevEpBtn" class="w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 hover:border-purple-500 transition-all">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
@@ -255,11 +260,11 @@
                                 </button>
                             </div>
                          </div>
-                         <div class="flex flex-col sm:flex-row lg:flex-col xl:flex-row gap-5">
-                            <div id="episodePosterContainer" class="w-full sm:w-48 lg:w-full xl:w-48 aspect-video flex-shrink-0 rounded-xl overflow-hidden bg-[#1a1a1a] border border-white/10 shadow-lg">
+                         <div class="flex flex-col xl:flex-row gap-5">
+                            <div id="episodePosterContainer" class="w-full xl:w-48 aspect-video flex-shrink-0 rounded-xl overflow-hidden bg-[#1a1a1a] border border-white/10 shadow-lg">
                                 <img id="episodeStill" src="" class="w-full h-full object-cover" alt="Episode Still">
                             </div>
-                            <p id="epOverview" class="text-gray-400 text-xs leading-relaxed line-clamp-4 xl:line-clamp-none">No description available for this episode.</p>
+                            <p id="epOverview" class="text-gray-400 text-xs leading-relaxed line-clamp-4 xl:line-clamp-none">No description available.</p>
                          </div>
                     </div>
                 </div>
