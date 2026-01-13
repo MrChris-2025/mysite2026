@@ -88,7 +88,7 @@
         .player-wrapper {
             background: #0a0a0a;
             border-radius: 24px;
-            border: 1px solid rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.08);
             overflow: hidden;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
         }
@@ -122,21 +122,6 @@
             background: linear-gradient(to bottom, rgba(168, 85, 247, 0.15) 0%, rgba(5, 5, 5, 0) 100%);
         }
 
-        /* Responsive grid split: 55/45 for Large screens / TV */
-        .player-grid-layout {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-
-        @media (min-width: 1024px) {
-            .player-grid-layout {
-                display: grid;
-                grid-template-columns: 55% 45%;
-                align-items: stretch;
-            }
-        }
-
         .btn-action {
             display: flex;
             align-items: center;
@@ -158,18 +143,13 @@
         .btn-primary { background: var(--accent); color: white; border: none; }
         .btn-primary:hover { background: var(--accent-hover); }
 
-        /* Fullscreen styles for the video container */
-        #videoContainer:fullscreen {
-            width: 100vw;
-            height: 100vh;
-            border-radius: 0;
-            background: black;
-        }
-        #videoContainer:-webkit-full-screen {
-            width: 100vw;
-            height: 100vh;
-            border-radius: 0;
-            background: black;
+        @media (min-width: 1024px) {
+            .horizontal-grid {
+                display: grid;
+                grid-template-columns: 55fr 45fr;
+                gap: 2rem;
+                align-items: stretch;
+            }
         }
     </style>
 </head>
@@ -181,7 +161,7 @@
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-5">
             <div class="flex items-center gap-3 cursor-pointer group" onclick="location.reload()">
                 <div class="w-11 h-11 bg-purple-600 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-500/20 group-hover:scale-110 transition-transform duration-300">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2-2v8a2 2 0 002 2z"></path></svg>
                 </div>
                 <div>
                     <h1 class="text-xl font-black tracking-tighter text-white">STREAM<span class="text-purple-500">VAULT</span></h1>
@@ -201,88 +181,88 @@
     </header>
 
     <main class="max-w-7xl mx-auto px-6 mt-10">
-        <!-- Player Section -->
+        <!-- Player -->
         <section id="playerSection" class="hidden mb-16 animate-in fade-in slide-in-from-top-4 duration-700">
-            <div class="player-wrapper p-3 md:p-5">
-                <div class="player-grid-layout">
-                    <!-- Left Column: Video Player and Fullscreen Action -->
-                    <div class="flex flex-col gap-4">
-                        <div id="videoContainer" class="aspect-video bg-black rounded-2xl overflow-hidden relative border border-white/5 shadow-inner">
-                            <iframe id="mainPlayer" src="" class="w-full h-full" allowfullscreen frameborder="0"></iframe>
+            <div class="horizontal-grid player-wrapper p-4 md:p-6">
+                <!-- Left Side: Video Player -->
+                <div class="flex flex-col gap-4">
+                    <div id="videoContainer" class="aspect-video bg-black rounded-2xl overflow-hidden relative group border border-white/5 shadow-inner">
+                        <iframe id="mainPlayer" src="" class="w-full h-full" allowfullscreen frameborder="0"></iframe>
+                    </div>
+                    <div class="flex gap-3">
+                        <button id="fullscreenBtn" class="btn-action flex-grow sm:flex-grow-0 bg-white/5 hover:bg-white/10">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+                            Enter Fullscreen
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Right Side: Controls and Details -->
+                <div class="flex flex-col mt-8 lg:mt-0">
+                    <div class="pb-6 border-b border-white/10">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="px-2 py-0.5 rounded bg-purple-500/10 text-purple-400 text-[10px] font-bold uppercase tracking-widest border border-purple-500/20">Now Streaming</span>
+                            <span id="playerSub" class="text-xs font-medium text-gray-500"></span>
                         </div>
-                        <div class="flex justify-between items-center px-1">
-                            <div class="flex flex-col">
-                                <span class="px-2 py-0.5 rounded bg-purple-500/10 text-purple-400 text-[9px] font-black uppercase tracking-widest border border-purple-500/20 w-max mb-1">Live Source</span>
-                                <span id="playerSub" class="text-xs font-bold text-gray-500 uppercase tracking-tighter"></span>
+                        <h2 id="playerTitle" class="text-2xl md:text-3xl font-black text-white tracking-tight mb-6">Title</h2>
+                        
+                        <div class="flex flex-col gap-4">
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Server Source</label>
+                                <select id="srcSelect" class="custom-select w-full bg-white/5 text-sm font-semibold border border-white/10 rounded-xl px-4 py-3 outline-none hover:border-purple-500 transition-colors"></select>
                             </div>
-                            <button id="fullscreenBtn" class="btn-action !py-2 !px-4 text-[11px] uppercase tracking-widest text-gray-400 hover:text-white">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
-                                Fullscreen
-                            </button>
+                            
+                            <div id="tvSelectors" class="hidden grid grid-cols-2 gap-3">
+                                <div class="space-y-1">
+                                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Season</label>
+                                    <select id="seasonSelect" class="custom-select w-full bg-white/5 text-sm font-semibold border border-white/10 rounded-xl px-4 py-3 outline-none hover:border-purple-500 transition-colors"></select>
+                                </div>
+                                <div class="space-y-1">
+                                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Episode</label>
+                                    <select id="episodeSelect" class="custom-select w-full bg-white/5 text-sm font-semibold border border-white/10 rounded-xl px-4 py-3 outline-none hover:border-purple-500 transition-colors"></select>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Right Column: Title and Selection Controls -->
-                    <div class="bg-white/[0.03] rounded-2xl p-6 border border-white/5 flex flex-col h-full">
-                        <h2 id="playerTitle" class="text-2xl md:text-3xl font-black text-white tracking-tighter mb-8 leading-none">Title</h2>
-                        
-                        <div class="flex flex-col gap-6">
-                            <div class="grid grid-cols-1 gap-5">
-                                <div class="space-y-2">
-                                    <label class="text-[10px] font-black text-purple-500/70 uppercase tracking-[0.3em] block ml-1">Streaming Source</label>
-                                    <select id="srcSelect" class="custom-select w-full bg-white/5 text-sm font-bold border border-white/10 rounded-xl px-4 py-4 outline-none hover:border-purple-500 transition-all"></select>
-                                </div>
-                                <div id="tvSelectors" class="hidden grid grid-cols-2 gap-4">
-                                    <div class="space-y-2">
-                                        <label class="text-[10px] font-black text-purple-500/70 uppercase tracking-[0.3em] block ml-1">Season</label>
-                                        <select id="seasonSelect" class="custom-select w-full bg-white/5 text-sm font-bold border border-white/10 rounded-xl px-4 py-4 outline-none hover:border-purple-500 transition-all"></select>
-                                    </div>
-                                    <div class="space-y-2">
-                                        <label class="text-[10px] font-black text-purple-500/70 uppercase tracking-[0.3em] block ml-1">Episode</label>
-                                        <select id="episodeSelect" class="custom-select w-full bg-white/5 text-sm font-bold border border-white/10 rounded-xl px-4 py-4 outline-none hover:border-purple-500 transition-all"></select>
-                                    </div>
-                                </div>
+                    <div id="episodeInfo" class="hidden mt-6 flex flex-col gap-6">
+                        <div class="flex items-center justify-between gap-4">
+                            <h3 id="epTitleDisplay" class="text-lg font-bold text-white tracking-tight truncate">Episode Name</h3>
+                            <div class="flex gap-2 flex-shrink-0">
+                                <button id="prevEpBtn" class="w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 hover:border-purple-500 hover:bg-white/10 transition-all">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
+                                </button>
+                                <button id="nextEpBtn" class="w-10 h-10 flex items-center justify-center rounded-xl bg-purple-600 border border-purple-400/20 hover:bg-purple-500 transition-all shadow-lg shadow-purple-500/20">
+                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
+                                </button>
                             </div>
-
-                            <!-- Episode Details (Mobile Stacked, Hidden if Movie) -->
-                            <div id="episodeInfo" class="hidden space-y-5 pt-6 border-t border-white/10 mt-2">
-                                <div class="flex items-center justify-between gap-4">
-                                    <h3 id="epTitleDisplay" class="text-lg font-bold text-white tracking-tight truncate">Episode</h3>
-                                    <div class="flex gap-2 shrink-0">
-                                        <button id="prevEpBtn" class="w-10 h-10 bg-white/5 border border-white/10 rounded-lg flex items-center justify-center hover:border-purple-500 transition-all">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
-                                        </button>
-                                        <button id="nextEpBtn" class="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center shadow-lg shadow-purple-600/20 hover:bg-purple-500 transition-all">
-                                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="w-full aspect-video rounded-xl overflow-hidden bg-black/40 border border-white/5">
-                                    <img id="episodeStill" src="" class="w-full h-full object-cover opacity-80" alt="Still">
-                                </div>
-                                <p id="epOverview" class="text-gray-400 text-xs leading-relaxed line-clamp-4 font-medium italic"></p>
+                        </div>
+                        <div class="flex gap-4">
+                             <div id="episodePosterContainer" class="hidden md:block w-32 h-20 flex-shrink-0 rounded-xl overflow-hidden bg-[#1a1a1a] border border-white/10 shadow-lg">
+                                <img id="episodeStill" src="" class="w-full h-full object-cover" alt="Episode Still">
                             </div>
+                            <p id="epOverview" class="text-gray-400 text-xs leading-relaxed line-clamp-4">No description available for this episode.</p>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- History Section -->
+        <!-- History -->
         <section id="historySection" class="hidden mb-16">
             <div class="flex items-center gap-3 mb-8">
                 <div class="w-1 h-6 bg-purple-500 rounded-full"></div>
-                <h3 class="text-xs font-bold text-gray-500 uppercase tracking-[0.2em]">Jump Back In</h3>
+                <h3 class="text-xs font-bold text-gray-500 uppercase tracking-[0.2em]">Recent Activity</h3>
             </div>
             <div id="historyGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
         </section>
 
-        <!-- Gallery Section -->
+        <!-- Gallery -->
         <section id="gallerySection">
             <div class="flex justify-between items-end mb-10">
                 <div>
-                    <h3 id="galleryTitle" class="text-3xl font-black text-white tracking-tighter mb-1 uppercase">Top Picks</h3>
-                    <p class="text-sm text-gray-500 font-medium">Recently updated content</p>
+                    <h3 id="galleryTitle" class="text-3xl font-black text-white tracking-tighter mb-1 uppercase">Popular Content</h3>
+                    <p class="text-sm text-gray-500 font-medium">Trending globally now</p>
                 </div>
             </div>
             
@@ -293,8 +273,8 @@
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
                 </button>
                 <div class="flex flex-col items-center">
-                    <span class="text-[10px] font-black text-purple-500 uppercase tracking-[0.4em] mb-1">Page</span>
-                    <span id="pageTxt" class="text-lg font-bold text-white tracking-widest">1</span>
+                    <span class="text-[10px] font-black text-purple-500 uppercase tracking-[0.4em] mb-1">Navigation</span>
+                    <span id="pageTxt" class="text-lg font-bold text-white tracking-widest uppercase">Page 1</span>
                 </div>
                 <button id="nextBtn" class="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center text-gray-400 hover:bg-purple-600 hover:text-white transition-all border border-white/10 hover:border-purple-400 shadow-xl">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
@@ -437,13 +417,8 @@
                 : `https://api.themoviedb.org/3/${state.type}/popular?api_key=${CONFIG.TMDB_KEY}&page=${state.page}`;
             const res = await fetch(url); const data = await res.json();
             galleryData = data.results; renderGallery();
-            document.getElementById('pageTxt').innerText = `${data.page}`;
+            document.getElementById('pageTxt').innerText = `Page ${data.page}`;
             document.getElementById('prevBtn').disabled = data.page <= 1;
-            
-            // Auto scroll to gallery when searching
-            if(state.query && galleryData.length > 0) {
-                document.getElementById('gallerySection').scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
         }
 
         function renderGallery() {
@@ -484,7 +459,7 @@
             } else {
                 document.getElementById('tvSelectors').classList.add('hidden');
                 document.getElementById('episodeInfo').classList.add('hidden');
-                document.getElementById('playerSub').innerText = "Full Feature";
+                document.getElementById('playerSub').innerText = "Movie Stream";
                 updatePlayer(); saveToWatched(state.current);
             }
         }
@@ -515,9 +490,9 @@
         function updateEpisodeDetails(eNum) {
             const episode = state.currentEpisodes.find(ep => ep.episode_number == eNum);
             if (!episode) return;
-            document.getElementById('playerSub').innerText = `S${episode.season_number} • E${eNum}`;
+            document.getElementById('playerSub').innerText = `Season ${episode.season_number} • Episode ${eNum}`;
             document.getElementById('epTitleDisplay').innerText = episode.name;
-            document.getElementById('epOverview').innerText = episode.overview || "Episode information unavailable.";
+            document.getElementById('epOverview').innerText = episode.overview || "No description available for this episode.";
             const stillUrl = episode.still_path ? `https://image.tmdb.org/t/p/w500${episode.still_path}` : `https://image.tmdb.org/t/p/w500${state.current.backdrop_path}`;
             document.getElementById('episodeStill').src = stillUrl;
             const sNum = document.getElementById('seasonSelect').value;
@@ -557,16 +532,6 @@
             updateEpisodeDetails(e); updateEpisodeDropdown(s, e); updatePlayer(); saveToWatched(state.current, s, e);
         }
 
-        function toggleFullscreen() {
-            const el = document.getElementById('videoContainer');
-            if (!document.fullscreenElement) {
-                if (el.requestFullscreen) { el.requestFullscreen(); }
-                else if (el.webkitRequestFullscreen) { el.webkitRequestFullscreen(); }
-            } else {
-                if (document.exitFullscreen) { document.exitFullscreen(); }
-            }
-        }
-
         function renderSources() { document.getElementById('srcSelect').innerHTML = availableSources.map(x => `<option value="${x.id}">${x.name}</option>`).join(''); }
 
         function setupEvents() {
@@ -584,7 +549,15 @@
                 document.getElementById('showMoviesBtn').classList.add('text-gray-400');
                 fetchGallery(); 
             };
-            document.getElementById('searchInput').oninput = (e) => { state.query = e.target.value; state.page = 1; fetchGallery(); };
+            document.getElementById('searchInput').oninput = (e) => { 
+                state.query = e.target.value; 
+                state.page = 1; 
+                fetchGallery();
+                // Scroll down to gallery on search
+                if (state.query.length > 0) {
+                    document.getElementById('gallerySection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            };
             document.getElementById('prevBtn').onclick = () => { if (state.page > 1) { state.page--; fetchGallery(); } };
             document.getElementById('nextBtn').onclick = () => { state.page++; fetchGallery(); };
             document.getElementById('srcSelect').onchange = updatePlayer;
@@ -596,7 +569,17 @@
             };
             document.getElementById('prevEpBtn').onclick = () => navigateEpisode('prev');
             document.getElementById('nextEpBtn').onclick = () => navigateEpisode('next');
-            document.getElementById('fullscreenBtn').onclick = toggleFullscreen;
+
+            document.getElementById('fullscreenBtn').onclick = () => {
+                const iframe = document.getElementById('mainPlayer');
+                if (iframe.requestFullscreen) {
+                    iframe.requestFullscreen();
+                } else if (iframe.webkitRequestFullscreen) {
+                    iframe.webkitRequestFullscreen();
+                } else if (iframe.msRequestFullscreen) {
+                    iframe.msRequestFullscreen();
+                }
+            };
         }
         init();
     </script>
