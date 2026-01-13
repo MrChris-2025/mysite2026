@@ -143,37 +143,27 @@
         .btn-primary { background: var(--accent); color: white; border: none; }
         .btn-primary:hover { background: var(--accent-hover); }
 
-        /* Cinema Split Logic */
-        .cinema-grid {
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-        }
-
-        @media (min-width: 768px) {
-            .cinema-grid {
-                flex-direction: row;
-                gap: 2rem;
+        /* Conditional Grid Layout for Non-Mobile */
+        @media (min-width: 1024px) {
+            .grid-player-layout {
+                display: grid;
+                grid-template-columns: 52% 48%;
+                gap: 1.5rem;
                 padding: 1.5rem;
             }
-            .cinema-left {
-                flex: 0 0 52%;
-                max-width: 52%;
-            }
-            .cinema-right {
-                flex: 0 0 48%;
-                max-width: 48%;
-                padding-top: 0.5rem;
+            .player-right-panel {
+                padding-left: 1rem;
             }
         }
-
-        @media (max-width: 767px) {
-            .cinema-grid {
-                padding: 0.5rem;
-            }
-            .cinema-right {
-                margin-top: 1.5rem;
+        /* Preserve Stacked Layout for Mobile */
+        @media (max-width: 1023px) {
+            .grid-player-layout {
+                display: flex;
+                flex-direction: column;
                 padding: 1rem;
+            }
+            .player-right-panel {
+                margin-top: 1.5rem;
             }
         }
     </style>
@@ -208,32 +198,33 @@
     <main class="max-w-7xl mx-auto px-6 mt-10">
         <!-- Player Section -->
         <section id="playerSection" class="hidden mb-16 animate-in fade-in slide-in-from-top-4 duration-700">
-            <div class="player-wrapper cinema-grid">
+            <div class="player-wrapper grid-player-layout">
                 
-                <!-- 52% Column -->
-                <div class="cinema-left">
+                <!-- Left Column (52% on Desktop, 100% on Mobile) -->
+                <div class="flex flex-col gap-4">
                     <div id="videoContainer" class="aspect-video bg-black rounded-2xl overflow-hidden relative group border border-white/5">
                         <iframe id="mainPlayer" src="" class="w-full h-full" allowfullscreen frameborder="0"></iframe>
                     </div>
-                    <button id="fullscreenBtn" class="btn-action w-full mt-4 bg-white/5 border-white/10 hover:border-purple-500/50">
+                    <!-- Fullscreen Toggle Button -->
+                    <button id="fullscreenBtn" class="btn-action w-full bg-white/5 border-white/10 hover:border-purple-500/50">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
                         Focus Cinema Mode
                     </button>
                 </div>
-
-                <!-- 48% Column -->
-                <div class="cinema-right">
+                
+                <!-- Right Column (48% on Desktop, 100% on Mobile) -->
+                <div class="player-right-panel flex flex-col">
                     <div class="mb-6">
                         <div class="flex items-center gap-3 mb-2">
-                            <span class="px-2 py-0.5 rounded bg-purple-500/10 text-purple-400 text-[10px] font-bold uppercase tracking-widest border border-purple-500/20">Now Playing</span>
+                            <span class="px-2 py-0.5 rounded bg-purple-500/10 text-purple-400 text-[10px] font-bold uppercase tracking-widest border border-purple-500/20">Now Streaming</span>
                             <span id="playerSub" class="text-xs font-medium text-gray-500"></span>
                         </div>
-                        <h2 id="playerTitle" class="text-2xl md:text-3xl font-black text-white tracking-tight leading-tight">Title</h2>
+                        <h2 id="playerTitle" class="text-3xl font-black text-white tracking-tight leading-tight">Title</h2>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
+                    <div class="grid grid-cols-2 gap-3 mb-6">
                         <div class="flex flex-col gap-1.5">
-                            <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider ml-1">Server Source</label>
+                            <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider ml-1">Server</label>
                             <select id="srcSelect" class="custom-select w-full bg-white/5 text-sm font-semibold border border-white/10 rounded-xl px-4 py-3 outline-none hover:border-purple-500 transition-colors"></select>
                         </div>
                         <div id="tvSelectors" class="hidden grid grid-cols-2 gap-3">
@@ -248,7 +239,7 @@
                         </div>
                     </div>
 
-                    <div id="episodeInfo" class="hidden flex flex-col gap-6 border-t border-white/5 pt-8">
+                    <div id="episodeInfo" class="hidden flex flex-col gap-4 border-t border-white/5 pt-6 mt-auto">
                          <div class="flex items-center justify-between">
                             <h3 id="epTitleDisplay" class="text-lg font-bold text-white tracking-tight">Episode Name</h3>
                             <div class="flex gap-2">
@@ -260,11 +251,11 @@
                                 </button>
                             </div>
                          </div>
-                         <div class="flex flex-col xl:flex-row gap-5">
-                            <div id="episodePosterContainer" class="w-full xl:w-48 aspect-video flex-shrink-0 rounded-xl overflow-hidden bg-[#1a1a1a] border border-white/10 shadow-lg">
+                         <div class="flex gap-4">
+                            <div id="episodePosterContainer" class="w-32 aspect-video flex-shrink-0 rounded-lg overflow-hidden bg-[#1a1a1a] border border-white/10">
                                 <img id="episodeStill" src="" class="w-full h-full object-cover" alt="Episode Still">
                             </div>
-                            <p id="epOverview" class="text-gray-400 text-xs leading-relaxed line-clamp-4 xl:line-clamp-none">No description available.</p>
+                            <p id="epOverview" class="text-gray-400 text-xs leading-relaxed line-clamp-3">No description available for this episode.</p>
                          </div>
                     </div>
                 </div>
