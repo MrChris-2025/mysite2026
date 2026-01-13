@@ -122,18 +122,18 @@
             background: linear-gradient(to bottom, rgba(168, 85, 247, 0.15) 0%, rgba(5, 5, 5, 0) 100%);
         }
 
-        /* 55/45 split container */
+        /* Responsive grid split: 55/45 for Large screens / TV */
         .player-grid-layout {
             display: flex;
             flex-direction: column;
             gap: 1.5rem;
         }
 
-        @media (min-width: 768px) {
+        @media (min-width: 1024px) {
             .player-grid-layout {
                 display: grid;
                 grid-template-columns: 55% 45%;
-                align-items: start;
+                align-items: stretch;
             }
         }
 
@@ -158,8 +158,19 @@
         .btn-primary { background: var(--accent); color: white; border: none; }
         .btn-primary:hover { background: var(--accent-hover); }
 
-        #videoContainer:fullscreen { width: 100vw; height: 100vh; border-radius: 0; background: black; }
-        #videoContainer:-webkit-full-screen { width: 100vw; height: 100vh; border-radius: 0; background: black; }
+        /* Fullscreen styles for the video container */
+        #videoContainer:fullscreen {
+            width: 100vw;
+            height: 100vh;
+            border-radius: 0;
+            background: black;
+        }
+        #videoContainer:-webkit-full-screen {
+            width: 100vw;
+            height: 100vh;
+            border-radius: 0;
+            background: black;
+        }
     </style>
 </head>
 <body class="pb-24">
@@ -194,7 +205,7 @@
         <section id="playerSection" class="hidden mb-16 animate-in fade-in slide-in-from-top-4 duration-700">
             <div class="player-wrapper p-3 md:p-5">
                 <div class="player-grid-layout">
-                    <!-- Left: Video Player -->
+                    <!-- Left Column: Video Player and Fullscreen Action -->
                     <div class="flex flex-col gap-4">
                         <div id="videoContainer" class="aspect-video bg-black rounded-2xl overflow-hidden relative border border-white/5 shadow-inner">
                             <iframe id="mainPlayer" src="" class="w-full h-full" allowfullscreen frameborder="0"></iframe>
@@ -211,7 +222,7 @@
                         </div>
                     </div>
 
-                    <!-- Right: Selection & Info -->
+                    <!-- Right Column: Title and Selection Controls -->
                     <div class="bg-white/[0.03] rounded-2xl p-6 border border-white/5 flex flex-col h-full">
                         <h2 id="playerTitle" class="text-2xl md:text-3xl font-black text-white tracking-tighter mb-8 leading-none">Title</h2>
                         
@@ -233,7 +244,7 @@
                                 </div>
                             </div>
 
-                            <!-- Episode Details Sidebar -->
+                            <!-- Episode Details (Mobile Stacked, Hidden if Movie) -->
                             <div id="episodeInfo" class="hidden space-y-5 pt-6 border-t border-white/10 mt-2">
                                 <div class="flex items-center justify-between gap-4">
                                     <h3 id="epTitleDisplay" class="text-lg font-bold text-white tracking-tight truncate">Episode</h3>
@@ -429,6 +440,7 @@
             document.getElementById('pageTxt').innerText = `${data.page}`;
             document.getElementById('prevBtn').disabled = data.page <= 1;
             
+            // Auto scroll to gallery when searching
             if(state.query && galleryData.length > 0) {
                 document.getElementById('gallerySection').scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
@@ -548,10 +560,10 @@
         function toggleFullscreen() {
             const el = document.getElementById('videoContainer');
             if (!document.fullscreenElement) {
-                if (el.requestFullscreen) el.requestFullscreen();
-                else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+                if (el.requestFullscreen) { el.requestFullscreen(); }
+                else if (el.webkitRequestFullscreen) { el.webkitRequestFullscreen(); }
             } else {
-                if (document.exitFullscreen) document.exitFullscreen();
+                if (document.exitFullscreen) { document.exitFullscreen(); }
             }
         }
 
