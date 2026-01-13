@@ -66,11 +66,10 @@
         .ep-watched { color: #22c55e !important; font-weight: bold; }
 
         .player-wrapper {
-            background: #0a0a0a;
+            background: #000;
             border-radius: 24px;
             border: 1px solid rgba(255,255,255,0.1);
             overflow: hidden;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
         }
 
         .input-pill {
@@ -94,10 +93,6 @@
         }
         option { background-color: #1a1a1a; color: white; }
 
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: var(--bg-dark); }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; border: 2px solid var(--bg-dark); }
-
         .hero-gradient {
             background: linear-gradient(to bottom, rgba(168, 85, 247, 0.15) 0%, rgba(5, 5, 5, 0) 100%);
         }
@@ -114,11 +109,9 @@
         .btn-primary { background: var(--accent); color: white; border: none; }
         .btn-primary:hover { background: var(--accent-hover); }
 
-        /* Fullscreen Helper */
-        .fullscreen-active {
-            position: fixed !important; inset: 0 !important; width: 100vw !important; height: 100vh !important;
-            z-index: 9999 !important; border-radius: 0 !important; background: black;
-        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-dark); }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; border: 2px solid var(--bg-dark); }
     </style>
 </head>
 <body class="pb-24">
@@ -149,17 +142,18 @@
     </header>
 
     <main class="max-w-7xl mx-auto px-6 mt-10">
-        <!-- Player Split Layout -->
+        <!-- Player Split Layout (2x2 Grid Appearance on Desktop) -->
         <section id="playerSection" class="hidden mb-16 animate-in fade-in slide-in-from-top-4 duration-700">
-            <div class="flex flex-col lg:grid lg:grid-cols-10 gap-6">
-                <!-- Left: Video (55%) -->
-                <div class="lg:col-span-6 space-y-4">
-                    <div id="videoContainer" class="aspect-video bg-black rounded-2xl overflow-hidden relative group player-wrapper">
+            <div class="flex flex-col md:grid md:grid-cols-10 gap-8">
+                
+                <!-- COLUMN 1: Player & Fullscreen (55%) -->
+                <div class="md:col-span-6 flex flex-col gap-4">
+                    <div id="videoContainer" class="player-wrapper aspect-video bg-black relative group">
                         <iframe id="mainPlayer" src="" class="w-full h-full" allowfullscreen frameborder="0"></iframe>
                     </div>
-                    <div class="flex justify-between items-center px-2">
-                        <div class="flex items-center gap-3">
-                            <span class="px-2 py-0.5 rounded bg-purple-500/10 text-purple-400 text-[10px] font-bold uppercase tracking-widest border border-purple-500/20">Streaming Now</span>
+                    <div class="flex justify-between items-center px-1">
+                         <div class="flex items-center gap-3">
+                            <span class="px-2 py-0.5 rounded bg-purple-500/10 text-purple-400 text-[10px] font-bold uppercase tracking-widest border border-purple-500/20">Cinema Mode</span>
                         </div>
                         <button id="fullscreenBtn" class="btn-action !py-2 !px-4 text-xs">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
@@ -168,42 +162,39 @@
                     </div>
                 </div>
 
-                <!-- Right: Controls (45%) -->
-                <div class="lg:col-span-4 flex flex-col gap-6">
-                    <div class="bg-white/5 p-6 rounded-3xl border border-white/10">
-                        <h2 id="playerTitle" class="text-2xl font-black text-white tracking-tight mb-2">Title</h2>
-                        <span id="playerSub" class="text-xs font-medium text-purple-400 mb-6 block"></span>
-                        
-                        <div class="space-y-4">
-                            <div>
-                                <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 block">Select Server</label>
-                                <select id="srcSelect" class="custom-select w-full bg-white/5 text-sm font-semibold border border-white/10 rounded-xl px-4 py-3 outline-none hover:border-purple-500 transition-colors"></select>
-                            </div>
+                <!-- COLUMN 2: Controls & Info (45%) -->
+                <div class="md:col-span-4 flex flex-col gap-6">
+                    <div class="bg-white/5 p-6 rounded-[24px] border border-white/10 flex flex-col h-full justify-between">
+                        <div>
+                            <h2 id="playerTitle" class="text-3xl font-black text-white tracking-tight leading-tight mb-1">Title</h2>
+                            <p id="playerSub" class="text-sm font-semibold text-purple-400 mb-6"></p>
                             
-                            <div id="tvSelectors" class="hidden grid grid-cols-2 gap-3">
-                                <div>
-                                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 block">Season</label>
-                                    <select id="seasonSelect" class="custom-select w-full bg-white/5 text-sm font-semibold border border-white/10 rounded-xl px-4 py-3 outline-none hover:border-purple-500 transition-colors"></select>
+                            <div class="space-y-5">
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block">Stream Server</label>
+                                    <select id="srcSelect" class="custom-select w-full bg-white/5 text-sm font-semibold border border-white/10 rounded-xl px-4 py-3 outline-none hover:border-purple-500 transition-colors"></select>
                                 </div>
-                                <div>
-                                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 block">Episode</label>
-                                    <select id="episodeSelect" class="custom-select w-full bg-white/5 text-sm font-semibold border border-white/10 rounded-xl px-4 py-3 outline-none hover:border-purple-500 transition-colors"></select>
+                                
+                                <div id="tvSelectors" class="hidden grid grid-cols-2 gap-4">
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block">Season</label>
+                                        <select id="seasonSelect" class="custom-select w-full bg-white/5 text-sm font-semibold border border-white/10 rounded-xl px-4 py-3 outline-none hover:border-purple-500 transition-colors"></select>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block">Episode</label>
+                                        <select id="episodeSelect" class="custom-select w-full bg-white/5 text-sm font-semibold border border-white/10 rounded-xl px-4 py-3 outline-none hover:border-purple-500 transition-colors"></select>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Episode Info -->
-                    <div id="episodeInfo" class="hidden flex-grow bg-white/5 p-6 rounded-3xl border border-white/10">
-                        <div id="episodePosterContainer" class="w-full aspect-video rounded-xl overflow-hidden bg-[#1a1a1a] border border-white/05 mb-4">
-                            <img id="episodeStill" src="" class="w-full h-full object-cover" alt="Episode Still">
-                        </div>
-                        <h3 id="epTitleDisplay" class="text-lg font-bold text-white mb-2">Episode Name</h3>
-                        <p id="epOverview" class="text-gray-400 text-xs leading-relaxed line-clamp-4 mb-6">No description available for this episode.</p>
-                        
-                        <div class="flex gap-2">
-                            <button id="prevEpBtn" class="btn-action flex-1 justify-center">Prev</button>
-                            <button id="nextEpBtn" class="btn-action btn-primary flex-1 justify-center">Next</button>
+                        <div id="episodeInfo" class="hidden mt-8 pt-6 border-t border-white/10">
+                            <h3 id="epTitleDisplay" class="text-lg font-bold text-white mb-2">Episode Name</h3>
+                            <p id="epOverview" class="text-gray-400 text-xs leading-relaxed line-clamp-3 mb-6">No description available.</p>
+                            <div class="flex gap-2">
+                                <button id="prevEpBtn" class="btn-action flex-1 justify-center">Prev</button>
+                                <button id="nextEpBtn" class="btn-action btn-primary flex-1 justify-center">Next</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -459,8 +450,6 @@
             document.getElementById('playerSub').innerText = `Season ${episode.season_number} • Episode ${eNum}`;
             document.getElementById('epTitleDisplay').innerText = episode.name;
             document.getElementById('epOverview').innerText = episode.overview || "No description available for this episode.";
-            const stillUrl = episode.still_path ? `https://image.tmdb.org/t/p/w500${episode.still_path}` : `https://image.tmdb.org/t/p/w500${state.current.backdrop_path}`;
-            document.getElementById('episodeStill').src = stillUrl;
             const sNum = document.getElementById('seasonSelect').value;
             const maxEpisodes = state.currentEpisodes.length;
             const maxSeasons = state.current.seasons.filter(x => x.season_number > 0).length;
@@ -527,16 +516,11 @@
             };
             document.getElementById('prevEpBtn').onclick = () => navigateEpisode('prev');
             document.getElementById('nextEpBtn').onclick = () => navigateEpisode('next');
-
             document.getElementById('fullscreenBtn').onclick = () => {
-                const container = document.getElementById('videoContainer');
-                if (!document.fullscreenElement) {
-                    container.requestFullscreen().catch(err => {
-                        container.classList.add('fullscreen-active');
-                    });
-                } else {
-                    document.exitFullscreen();
-                }
+                const iframe = document.getElementById('mainPlayer');
+                if (iframe.requestFullscreen) iframe.requestFullscreen();
+                else if (iframe.webkitRequestFullscreen) iframe.webkitRequestFullscreen();
+                else if (iframe.msRequestFullscreen) iframe.msRequestFullscreen();
             };
         }
         init();
