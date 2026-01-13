@@ -152,12 +152,9 @@
                         <iframe id="mainPlayer" src="" class="w-full h-full" allowfullscreen frameborder="0"></iframe>
                     </div>
                     <div class="flex justify-between items-center px-1">
-                         <div class="flex items-center gap-3">
-
-
-
-
-
+                        <div class="flex items-center gap-2">
+                             <button id="prevEpBtn" class="btn-action !py-2 !px-4 text-xs">Prev</button>
+                             <button id="nextEpBtn" class="btn-action btn-primary !py-2 !px-4 text-xs">Next</button>
                         </div>
                         <button id="fullscreenBtn" class="btn-action !py-2 !px-4 text-xs">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
@@ -175,24 +172,14 @@
                             
                             <div class="space-y-5">
                                 <div class="space-y-2">
-
-
-
                                     <select id="srcSelect" class="custom-select w-full bg-white/5 text-sm font-semibold border border-white/10 rounded-xl px-4 py-3 outline-none hover:border-purple-500 transition-colors"></select>
                                 </div>
                                 
                                 <div id="tvSelectors" class="hidden grid grid-cols-2 gap-4">
                                     <div class="space-y-2">
-
-
-
                                         <select id="seasonSelect" class="custom-select w-full bg-white/5 text-sm font-semibold border border-white/10 rounded-xl px-4 py-3 outline-none hover:border-purple-500 transition-colors"></select>
                                     </div>
                                     <div class="space-y-2">
-
-
-
-
                                         <select id="episodeSelect" class="custom-select w-full bg-white/5 text-sm font-semibold border border-white/10 rounded-xl px-4 py-3 outline-none hover:border-purple-500 transition-colors"></select>
                                     </div>
                                 </div>
@@ -202,10 +189,6 @@
                         <div id="episodeInfo" class="hidden mt-8 pt-6 border-t border-white/10">
                             <h3 id="epTitleDisplay" class="text-lg font-bold text-white mb-2">Episode Name</h3>
                             <p id="epOverview" class="text-gray-400 text-xs leading-relaxed line-clamp-3 mb-6">No description available.</p>
-                            <div class="flex gap-2">
-                                <button id="prevEpBtn" class="btn-action flex-1 justify-center">Prev</button>
-                                <button id="nextEpBtn" class="btn-action btn-primary flex-1 justify-center">Next</button>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -420,6 +403,8 @@
             if (type === 'tv') {
                 document.getElementById('tvSelectors').classList.remove('hidden');
                 document.getElementById('episodeInfo').classList.remove('hidden');
+                document.getElementById('prevEpBtn').classList.remove('hidden');
+                document.getElementById('nextEpBtn').classList.remove('hidden');
                 const seasons = state.current.seasons.filter(x => x.season_number > 0);
                 const sSelect = document.getElementById('seasonSelect');
                 sSelect.innerHTML = seasons.map(x => `<option value="${x.season_number}">Season ${x.season_number}</option>`).join('');
@@ -427,6 +412,8 @@
             } else {
                 document.getElementById('tvSelectors').classList.add('hidden');
                 document.getElementById('episodeInfo').classList.add('hidden');
+                document.getElementById('prevEpBtn').classList.add('hidden');
+                document.getElementById('nextEpBtn').classList.add('hidden');
                 document.getElementById('playerSub').innerText = "Movie Stream";
                 updatePlayer(); saveToWatched(state.current);
             }
