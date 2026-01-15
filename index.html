@@ -44,16 +44,10 @@
             box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.7);
         }
 
-        /* Adjustment for TV/Desktop Height Issues */
-        .gallery-card-wrapper {
-            max-width: 100%;
-            position: relative;
-        }
-
         .gallery-poster-container {
             aspect-ratio: 2/3;
             width: 100%;
-            max-height: 450px; /* Limits the vertical growth on large screens */
+            max-height: 450px;
             margin-left: auto;
             margin-right: auto;
         }
@@ -146,7 +140,6 @@
     </style>
 </head>
 <body class="pb-24">
-
     <div class="fixed top-0 left-0 w-full h-96 hero-gradient -z-10 pointer-events-none"></div>
 
     <header class="sticky top-0 z-50 glass-nav py-4 px-6">
@@ -173,11 +166,8 @@
     </header>
 
     <main class="max-w-7xl mx-auto px-6 mt-10">
-        <!-- Player Split Layout -->
         <section id="playerSection" class="hidden mb-16 animate-in fade-in slide-in-from-top-4 duration-700">
             <div class="flex flex-col md:grid md:grid-cols-10 gap-8">
-                
-                <!-- COLUMN 1: Player & Fullscreen -->
                 <div class="md:col-span-6 flex flex-col gap-4">
                     <div id="videoContainer" class="player-wrapper aspect-video bg-black relative group">
                         <iframe id="mainPlayer" src="" class="w-full h-full" allowfullscreen frameborder="0"></iframe>
@@ -194,7 +184,6 @@
                     </div>
                 </div>
 
-                <!-- COLUMN 2: Controls & Info -->
                 <div class="md:col-span-4 flex flex-col gap-6">
                     <div class="bg-white/5 p-6 rounded-[24px] border border-white/10 flex flex-col h-full justify-between">
                         <div>
@@ -205,7 +194,6 @@
                                 <div class="space-y-2">
                                     <select id="srcSelect" class="custom-select w-full bg-white/5 text-sm font-semibold border border-white/10 rounded-xl px-4 py-3 outline-none hover:border-purple-500 transition-colors"></select>
                                 </div>
-                                
                                 <div id="tvSelectors" class="hidden grid grid-cols-2 gap-4">
                                     <div class="space-y-2">
                                         <select id="seasonSelect" class="custom-select w-full bg-white/5 text-sm font-semibold border border-white/10 rounded-xl px-4 py-3 outline-none hover:border-purple-500 transition-colors"></select>
@@ -226,7 +214,6 @@
             </div>
         </section>
 
-        <!-- History -->
         <section id="historySection" class="hidden mb-16">
             <div class="flex items-center gap-3 mb-8">
                 <div class="w-1 h-6 bg-purple-500 rounded-full"></div>
@@ -235,7 +222,6 @@
             <div id="historyGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
         </section>
 
-        <!-- Gallery -->
         <section id="gallerySection">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-10">
                 <div class="flex items-center gap-4 w-full md:w-auto">
@@ -269,7 +255,8 @@
         const CONFIG = {
             PARSE_APP_ID: "GUIFjcRB8wEOGXbBfBl8zu0yCRXLwcOTTT4dGcOT",
             PARSE_JS_KEY: "qqX1cAGsgv3yg2n8Gda2Le1CH7OUQDB7BvQdONRf",
-            TMDB_KEY: '1070730380f5fee0d87cf0382670b255'
+            TMDB_KEY: '1070730380f5fee0d87cf0382670b255',
+            SAVE_BUFFER_MS: 30000 
         };
 
         const availableSources = [
@@ -288,6 +275,7 @@
         const noSandboxSources = ['videasy', 'vidsrcsu', 'vidsrcvip'];
         let state = { user: null, type: 'movie', page: 1, query: '', history: {}, current: null, currentEpisodes: [], genre: '', year: '' };
         let galleryData = [];
+        let saveTimeout = null;
 
         async function init() {
             Parse.initialize(CONFIG.PARSE_APP_ID, CONFIG.PARSE_JS_KEY);
@@ -347,7 +335,14 @@
             } catch (e) { console.error(e); }
         }
 
-        async function saveToWatched(item, s = 0, e = 0) {
+        function triggerSaveBuffer(item, s = 0, e = 0) {
+            if (saveTimeout) clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(() => {
+                performActualSave(item, s, e);
+            }, CONFIG.SAVE_BUFFER_MS);
+        }
+
+        async function performActualSave(item, s = 0, e = 0) {
             const WatchedItem = Parse.Object.extend("WatchedItem");
             const tmdbId = item.id.toString();
             const key = `${s}-${e}`;
@@ -359,7 +354,8 @@
                 const saved = await record.save();
                 if(!state.history[tmdbId]) state.history[tmdbId] = {};
                 state.history[tmdbId][key] = { id: saved.id, obj: saved, type: state.type, season: s, episode: e, title: item.title || item.name, poster: item.poster_path, watchedDate: new Date() };
-                renderHistory(); renderGallery();
+                renderHistory(); 
+                renderGallery(); 
             } catch (err) { console.error(err); }
         }
 
@@ -372,7 +368,8 @@
                 const results = await query.find();
                 await Parse.Object.destroyAll(results);
                 delete state.history[tmdbId];
-                renderHistory(); renderGallery();
+                renderHistory(); 
+                renderGallery(); 
                 if (state.current && state.current.id.toString() === tmdbId) {
                     const s = document.getElementById('seasonSelect').value;
                     const e = document.getElementById('episodeSelect').value;
@@ -421,12 +418,10 @@
                 const yearParam = state.type === 'movie' ? 'primary_release_year' : 'first_air_date_year';
                 url = `https://api.themoviedb.org/3/discover/${state.type}?api_key=${CONFIG.TMDB_KEY}&page=${state.page}&sort_by=popularity.desc&with_genres=${state.genre}&${yearParam}=${state.year}`;
             }
-            
             const res = await fetch(url); const data = await res.json();
             galleryData = data.results; renderGallery();
             document.getElementById('pageTxt').innerText = `Page ${data.page}`;
             document.getElementById('prevBtn').disabled = data.page <= 1;
-
             if ((state.query || state.genre || state.year) && state.page === 1) {
                 document.getElementById('gallerySection').scrollIntoView({ behavior: 'smooth' });
             }
@@ -450,17 +445,14 @@
                     <div class="premium-card gallery-poster-container rounded-2xl overflow-hidden mb-4 relative shadow-2xl">
                         <img src="https://image.tmdb.org/t/p/w400${item.poster_path}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                        
                         <div id="summary-${item.id}" class="summary-overlay" onclick="event.stopPropagation()">
                             <h5 class="text-sm font-bold text-white mb-2">${item.title || item.name}</h5>
                             <p class="text-[11px] text-gray-300 leading-relaxed line-clamp-6">${item.overview || "No summary available."}</p>
                             <button onclick="toggleSummary(${item.id}, event)" class="mt-4 text-[10px] font-bold text-purple-400 uppercase tracking-widest text-left">Close Info</button>
                         </div>
-
                         <div onclick="toggleSummary(${item.id}, event)" class="info-icon-btn">
                              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         </div>
-                        
                         ${bannerHtml}
                     </div>
                     <h4 class="text-sm font-bold truncate px-1 text-white group-hover:text-purple-400 transition-colors">${item.title || item.name}</h4>
@@ -492,7 +484,7 @@
                 document.getElementById('prevEpBtn').classList.add('hidden');
                 document.getElementById('nextEpBtn').classList.add('hidden');
                 document.getElementById('playerSub').innerText = "Movie Stream";
-                updatePlayer(); saveToWatched(state.current);
+                updatePlayer(); triggerSaveBuffer(state.current);
             }
         }
 
@@ -503,7 +495,7 @@
             updateEpisodeDropdown(sNum, eNum);
             updateEpisodeDetails(eNum);
             updatePlayer(); 
-            saveToWatched(state.current, sNum, eNum);
+            triggerSaveBuffer(state.current, sNum, eNum);
         }
 
         function updateEpisodeDropdown(sNum, currentENum) {
@@ -559,7 +551,7 @@
                 }
             }
             document.getElementById('episodeSelect').value = e;
-            updateEpisodeDetails(e); updateEpisodeDropdown(s, e); updatePlayer(); saveToWatched(state.current, s, e);
+            updateEpisodeDetails(e); updateEpisodeDropdown(s, e); updatePlayer(); triggerSaveBuffer(state.current, s, e);
         }
 
         function renderSources() { document.getElementById('srcSelect').innerHTML = availableSources.map(x => `<option value="${x.id}">${x.name}</option>`).join(''); }
@@ -605,7 +597,7 @@
             document.getElementById('episodeSelect').onchange = (e) => {
                 const s = document.getElementById('seasonSelect').value;
                 const eVal = e.target.value;
-                updateEpisodeDetails(eVal); updateEpisodeDropdown(s, eVal); updatePlayer(); saveToWatched(state.current, s, eVal);
+                updateEpisodeDetails(eVal); updateEpisodeDropdown(s, eVal); updatePlayer(); triggerSaveBuffer(state.current, s, eVal);
             };
             document.getElementById('prevEpBtn').onclick = () => navigateEpisode('prev');
             document.getElementById('nextEpBtn').onclick = () => navigateEpisode('next');
