@@ -262,17 +262,25 @@
         const availableSources = [
             { id: 'videasy', name: 'VidEasy', urls: { movie: 'https://player.videasy.net/movie/{id}?color=8834ec', tv: 'https://player.videasy.net/tv/{id}/{season}/{episode}?nextEpisode=true&color=8834ec' } },
             { id: 'vidsrcsu', name: 'vidsrc.su', urls: { movie: 'https://vidsrc.su/embed/movie/{id}', tv: 'https://vidsrc.su/embed/tv/{id}/{season}/{episode}' } },
-            { id: 'vidsrcvip', name: 'vidsrc.vip', urls: { movie: 'https://vidsrc.vip/embed/movie/{id}', tv: 'https://vidsrc.vip/embed/tv/{id}/{season}/{episode}' } },
-            { id: 'vidsrccc', name: "VidSrcCC", urls: { movie: "https://vidsrc.cc/v2/embed/movie/{id}?autoPlay=false", tv: "https://vidsrc.cc/v2/embed/tv/{id}/{season}/{episode}?nextEpisode=true&autoPlay=false" } },
-            { id: 'flicky', name: 'Flicky', urls: { movie: 'https://flicky.host/embed/movie/?id={id}', tv: 'https://flicky.host/embed/tv/?id={id}&season={season}&episode={episode}' } },
+            { id: 'vidfast', name: 'vidfast', urls: { movie: 'https://www.vidfast.net/movie/{id}', tv: 'https://www.vidfast.net /tv/{id}/{season}/{episode}' } },
+
+    { id: 'vidsrcpk', name: 'VidSrcPk', urls: { movie: 'https://vidsrc.win/movie/?id={id}', tv: 'https://vidsrc.win/tv.html?id={id}&season={s}&episode={e}' } },
+
+    { id: 'vidnest', name: 'VidNest', urls: { movie: 'https://vidnest.fun/movie/{id}', tv: 'https://vidnest.fun/tv/{id}/{s}/{e}' } },
+    { id: 'bludclart', name: 'Bludclart', urls: { movie: 'https://watch.bludclart.com/movie/{id}', tv: 'https://www.vidking.net/embed/tv/{id}/{s}/{e}' } },
+
             { id: 'wplayme', name: 'Wplay.me', urls: { movie: 'https://embed.wplay.me/embed/movie/{id}', tv: 'https://embed.wplay.me/embed/tv/{id}/{season}/{episode}' } },
             { id: 'rive', name: 'RiveStream', urls: { movie: 'https://rivestream.org/embed?type=movie&id={id}', tv: 'https://rivestream.org/embed?type=tv&id={id}&season={season}&episode={episode}' } },
             { id: 'vidpop', name: 'Vidpop', urls: { movie: 'https://www.vidpop.xyz/embed/?id={id}', tv: 'https://www.vidpop.xyz/embed/?id={id}&season={season}&episode={episode}' } },
-            { id: 'vidjoy', name: 'VidJoy', urls: { movie: 'https://vidjoy.pro/embed/movie/{id}', tv: 'https://vidjoy.pro/embed/tv/{id}/{season}/{episode}' } },
+
+    { id: 'hexa', name: 'Hexa', urls: { movie: 'https://hexa.watch/watch/movie/{id}', tv: 'https://hexa.watch/watch/tv/{id}/{s}/{e}' } },
+
+    { id: 'spenflix', name: 'SpenFlix', urls: { movie: 'https://spencerdevs.xyz/movie/{id}', tv: 'https://spencerdevs.xyz/tv/{id}/{s}/{e}' } },
+
             { id: 'pstream', name: 'P-Stream', urls: { movie: 'https://iframe.pstream.org/embed/tmdb-movie-{id}', tv: 'https://iframe.pstream.org/embed/tmdb-tv-{id}/{season}/{episode}' } }
         ];
 
-        const noSandboxSources = ['videasy', 'vidsrcsu', 'vidsrcvip'];
+        const noSandboxSources = ['videasy', 'vidsrcsu', 'vidfast'];
         let state = { user: null, type: 'movie', page: 1, query: '', history: {}, current: null, currentEpisodes: [], genre: '', year: '' };
         let galleryData = [];
         let saveTimeout = null;
