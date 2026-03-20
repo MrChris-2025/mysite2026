@@ -81,9 +81,9 @@
 
         .summary-overlay {
             position: absolute; inset: 0; background: rgba(0,0,0,0.9);
-            padding: 12px; display: flex; flex-direction: column; justify-content: center;
+            padding: 14px; display: flex; flex-direction: column; justify-content: center;
             opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 30;
-            backdrop-filter: blur(8px);
+            backdrop-filter: blur(12px);
         }
         .summary-overlay.active { opacity: 1; pointer-events: auto; }
 
@@ -155,15 +155,19 @@
                 <h1 class="text-lg font-black tracking-tighter text-white">AintThat<span class="text-purple-500">BETTER</span></h1>
             </div>
 
-            <!-- Compact Dual Live Search -->
-            <div class="relative w-full max-w-md">
+            <!-- Smaller Search Bar -->
+            <div class="relative w-full max-w-[240px]">
                 <input type="text" id="searchInput" placeholder="Search..." class="w-full input-pill rounded-lg py-2 px-10 focus:outline-none text-xs font-medium">
                 <svg class="w-4 h-4 absolute left-3.5 top-2.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
             </div>
 
-            <div class="flex bg-white/5 p-1 rounded-lg border border-white/10">
-                <button id="showMoviesBtn" class="px-4 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-purple-600 text-white shadow-md transition-all">Movies</button>
-                <button id="showTvBtn" class="px-4 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wider text-gray-400 hover:text-white transition-all">Series</button>
+            <div class="flex items-center gap-6">
+                <div class="flex bg-white/5 p-1 rounded-lg border border-white/10">
+                    <button id="showMoviesBtn" class="px-4 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-purple-600 text-white shadow-md transition-all">Movies</button>
+                    <button id="showTvBtn" class="px-4 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wider text-gray-400 hover:text-white transition-all">Series</button>
+                </div>
+                <!-- 12-Hour Clock -->
+                <div id="clock" class="text-xs font-bold text-white tracking-widest min-w-[70px] text-right">00:00 AM</div>
             </div>
         </div>
     </header>
@@ -231,7 +235,6 @@
                 </select>
             </div>
             
-            <!-- Optimized Grid for Smaller Cards (More columns) -->
             <div id="galleryGrid" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-9 gap-x-4 gap-y-8"></div>
             
             <div class="flex justify-center items-center gap-6 mt-16 mb-8">
@@ -268,6 +271,9 @@
             { id: 'vidpop', name: 'Vidpop', urls: { movie: 'https://www.vidpop.xyz/embed/?id={id}', tv: 'https://www.vidpop.xyz/embed/?id={id}&season={season}&episode={episode}' } },
             { id: 'hexa', name: 'Hexa', urls: { movie: 'https://hexa.watch/watch/movie/{id}', tv: 'https://hexa.watch/watch/tv/{id}/{season}/{episode}' } },
             { id: 'spenflix', name: 'SpenFlix', urls: { movie: 'https://spencerdevs.xyz/movie/{id}', tv: 'https://spencerdevs.xyz/tv/{id}/{season}/{episode}' } },
+            { id: 'quickwatch', name: 'QuickWatch', urls: { movie: 'https://www.quickwatch.co/watch/{id}', tv: 'https://www.quickwatch.co/watch/{id}/{season}/{episode}' } },
+            { id: 'amri', name: 'Amri.gg', urls: { movie: 'https://amri.gg/movie/{id}', tv: 'https://amri.gg/tv/{id}/{season}/{episode}' } },
+            { id: 'mzone', name: 'MZone', urls: { movie: 'https://www.m-zone.org/watch/movie/{id}', tv: 'https://www.m-zone.org/watch/tv/{id}?{season}/{episode}' } }
             { id: 'pstream', name: 'P-Stream', urls: { movie: 'https://iframe.pstream.org/embed/tmdb-movie-{id}', tv: 'https://iframe.pstream.org/embed/tmdb-tv-{id}/{season}/{episode}' } }
         ];
 
@@ -275,6 +281,17 @@
         let state = { user: null, type: 'movie', page: 1, query: '', history: {}, current: null, currentEpisodes: [], genre: '', year: '' };
         let galleryData = [];
         let saveTimeout = null;
+
+        function updateClock() {
+            const clockEl = document.getElementById('clock');
+            const now = new Date();
+            let hours = now.getHours();
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // the hour '0' should be '12'
+            clockEl.textContent = `${hours}:${minutes} ${ampm}`;
+        }
 
         async function init() {
             Parse.initialize(CONFIG.PARSE_APP_ID, CONFIG.PARSE_JS_KEY);
@@ -287,12 +304,9 @@
             populateYears();
             await fetchGenres();
             renderSources(); fetchGallery(); setupEvents();
-        }
-
-        function formatDate(date) {
-            if (!date) return "--/--/----";
-            const d = new Date(date);
-            return `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`;
+            
+            updateClock();
+            setInterval(updateClock, 30000);
         }
 
         function populateYears() {
@@ -441,9 +455,9 @@
                         <img src="https://image.tmdb.org/t/p/w400${item.poster_path}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                         <div id="summary-${item.id}" class="summary-overlay" onclick="event.stopPropagation()">
-                            <h5 class="text-[10px] font-bold text-white mb-1">${item.title || item.name}</h5>
-                            <p class="text-[9px] text-gray-300 leading-tight line-clamp-5">${item.overview || "No summary."}</p>
-                            <button onclick="toggleSummary(${item.id}, event)" class="mt-2 text-[8px] font-bold text-purple-400 uppercase tracking-widest text-left">Close</button>
+                            <h5 class="text-sm font-black text-white mb-2">${item.title || item.name}</h5>
+                            <p class="text-[11px] text-gray-200 leading-normal line-clamp-6">${item.overview || "No summary."}</p>
+                            <button onclick="toggleSummary(${item.id}, event)" class="mt-4 text-[10px] font-black text-purple-400 uppercase tracking-widest text-left">Close</button>
                         </div>
                         <div onclick="toggleSummary(${item.id}, event)" class="info-icon-btn">
                              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -578,7 +592,6 @@
                 fetchGenres(); fetchGallery(); 
             };
 
-            // Dual Live Search
             let searchTimeout;
             document.getElementById('searchInput').oninput = (e) => { 
                 clearTimeout(searchTimeout);
@@ -621,7 +634,6 @@
                 else if (iframe.webkitRequestFullscreen) iframe.webkitRequestFullscreen();
             };
 
-            // D-Pad Helper: allow Enter key to trigger clicks on focused items
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' && document.activeElement && document.activeElement !== document.body) {
                     document.activeElement.click();
