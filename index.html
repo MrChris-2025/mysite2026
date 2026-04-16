@@ -56,7 +56,7 @@
         .gallery-poster-container {
             aspect-ratio: 2/3;
             width: 100%;
-            max-height: 270px; /* Reduced from 450px */
+            max-height: 270px;
             margin-left: auto;
             margin-right: auto;
         }
@@ -68,6 +68,15 @@
             font-weight: 700; text-align: center; line-height: 1.2;
             backdrop-filter: blur(8px); border-top: 1px solid rgba(255, 255, 255, 0.2);
             z-index: 10;
+        }
+
+        .new-release-banner {
+            position: absolute; top: 8px; left: -25px;
+            background: #ef4444; color: white; font-size: 8px;
+            font-weight: 900; text-align: center; width: 100px;
+            transform: rotate(-45deg); z-index: 15;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            text-transform: uppercase; letter-spacing: 0.5px;
         }
 
         .info-icon-btn {
@@ -155,7 +164,6 @@
                 <h1 class="text-lg font-black tracking-tighter text-white">AintThat<span class="text-purple-500">BETTER</span></h1>
             </div>
 
-            <!-- Smaller Search Bar -->
             <div class="relative w-full max-w-[240px]">
                 <input type="text" id="searchInput" placeholder="Search..." class="w-full input-pill rounded-lg py-2 px-10 focus:outline-none text-xs font-medium">
                 <svg class="w-4 h-4 absolute left-3.5 top-2.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
@@ -166,7 +174,6 @@
                     <button id="showMoviesBtn" class="px-4 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-purple-600 text-white shadow-md transition-all">Movies</button>
                     <button id="showTvBtn" class="px-4 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wider text-gray-400 hover:text-white transition-all">Series</button>
                 </div>
-                <!-- 12-Hour Clock -->
                 <div id="clock" class="text-xs font-bold text-white tracking-widest min-w-[70px] text-right">00:00 AM</div>
             </div>
         </div>
@@ -180,7 +187,7 @@
                         <iframe id="mainPlayer" src="" class="w-full h-full" allowfullscreen frameborder="0"></iframe>
                     </div>
                     <div class="flex justify-between items-center px-1">
-                        <div><!-- Empty div for left alignment balance --></div>
+                        <div></div>
                         <div class="flex items-center gap-2">
                              <button id="fullscreenBtn" class="btn-action !py-1.5 !px-3 text-[11px]">
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
@@ -268,7 +275,7 @@
             { id: 'cc', name: 'CC', urls: { movie: 'https://vidsrc.cc/v2/embed/movie/{id}?autoPlay=false', tv: 'https://vidsrc.cc/v2/embed/tv/{id}/{season}/{episode}?autoPlay=false' } },
             { id: 'vidking', name: 'Vidking', urls: { movie: 'https://www.vidking.net/embed/movie/{id}', tv: 'https://www.vidking.net/embed/tv/{id}/{season}/{episode}' } },
             { id: 'wplayme', name: 'Wplay.me', urls: { movie: 'https://embed.wplay.me/embed/movie/{id}', tv: 'https://embed.wplay.me/embed/tv/{id}/{season}/{episode}' } },
-                        { id: 'pulp', name: 'Pulp', urls: { movie: 'https://tv.pulp.watch/player/movie/{id}', tv: 'https://tv.pulp.watch/player/tv/{id}?season={season}&episode={episode}' } },
+            { id: 'pulp', name: 'Pulp', urls: { movie: 'https://tv.pulp.watch/player/movie/{id}', tv: 'https://tv.pulp.watch/player/tv/{id}?season={season}&episode={episode}' } },
             { id: 'vyla', name: 'Vyla', urls: { movie: 'Https://vyla.pages.dev/player?type=movie&id={id}', tv: 'Https://vyla.pages.dev/player?type=tv&id={id}&s={season}&e={episode}' } },
             { id: 'rive', name: 'RiveStream', urls: { movie: 'https://rivestream.org/embed?type=movie&id={id}', tv: 'https://rivestream.org/embed?type=tv&id={id}&season={season}&episode={episode}' } },
             { id: 'vidpop', name: 'Vidpop', urls: { movie: 'https://www.vidpop.xyz/embed/?id={id}', tv: 'https://www.vidpop.xyz/embed/?id={id}&season={season}&episode={episode}' } },
@@ -290,7 +297,7 @@
             const minutes = String(now.getMinutes()).padStart(2, '0');
             const ampm = hours >= 12 ? 'PM' : 'AM';
             hours = hours % 12;
-            hours = hours ? hours : 12; // the hour '0' should be '12'
+            hours = hours ? hours : 12;
             clockEl.textContent = `${hours}:${minutes} ${ampm}`;
         }
 
@@ -305,7 +312,6 @@
             populateYears();
             await fetchGenres();
             renderSources(); fetchGallery(); setupEvents();
-            
             updateClock();
             setInterval(updateClock, 30000);
         }
@@ -339,10 +345,12 @@
                     const tmdbId = item.get("tmdbId");
                     const s = item.get("lastWatchedSeason");
                     const e = item.get("lastWatchedEpisode");
+                    const isRemoved = item.get("isRemovedFromRecent") || false;
                     if(!state.history[tmdbId]) state.history[tmdbId] = {};
                     state.history[tmdbId][`${s}-${e}`] = {
                         id: item.id, obj: item, type: item.get("mediaType"), season: s, episode: e,
-                        title: item.get("title"), poster: item.get("posterPath"), watchedDate: item.get("watchedDate") || item.updatedAt
+                        title: item.get("title"), poster: item.get("posterPath"), watchedDate: item.get("watchedDate") || item.updatedAt,
+                        isRemoved: isRemoved
                     };
                 });
                 renderHistory(); renderGallery();
@@ -364,10 +372,11 @@
             record.set("user", state.user); record.set("tmdbId", tmdbId); record.set("mediaType", state.type); 
             record.set("lastWatchedSeason", parseInt(s)); record.set("lastWatchedEpisode", parseInt(e)); 
             record.set("title", item.title || item.name); record.set("posterPath", item.poster_path); record.set("watchedDate", new Date());
+            record.set("isRemovedFromRecent", false);
             try {
                 const saved = await record.save();
                 if(!state.history[tmdbId]) state.history[tmdbId] = {};
-                state.history[tmdbId][key] = { id: saved.id, obj: saved, type: state.type, season: s, episode: e, title: item.title || item.name, poster: item.poster_path, watchedDate: new Date() };
+                state.history[tmdbId][key] = { id: saved.id, obj: saved, type: state.type, season: s, episode: e, title: item.title || item.name, poster: item.poster_path, watchedDate: new Date(), isRemoved: false };
                 renderHistory(); 
                 renderGallery(); 
             } catch (err) { console.error(err); }
@@ -380,8 +389,13 @@
                 query.equalTo("user", state.user);
                 query.equalTo("tmdbId", tmdbId);
                 const results = await query.find();
-                await Parse.Object.destroyAll(results);
-                delete state.history[tmdbId];
+                for(let res of results) {
+                    res.set("isRemovedFromRecent", true);
+                }
+                await Parse.Object.saveAll(results);
+                if(state.history[tmdbId]) {
+                    Object.keys(state.history[tmdbId]).forEach(k => state.history[tmdbId][k].isRemoved = true);
+                }
                 renderHistory(); 
                 renderGallery(); 
                 if (state.current && state.current.id.toString() === tmdbId) {
@@ -397,7 +411,8 @@
             const section = document.getElementById('historySection');
             const uniqueShowsLatest = [];
             for (const tmdbId in state.history) {
-                const episodes = Object.values(state.history[tmdbId]);
+                const episodes = Object.values(state.history[tmdbId]).filter(ep => !ep.isRemoved);
+                if (episodes.length === 0) continue;
                 const latest = episodes.sort((a,b) => b.watchedDate - a.watchedDate)[0];
                 uniqueShowsLatest.push({ tmdbId, ...latest });
             }
@@ -445,14 +460,29 @@
 
         function renderGallery() {
             const grid = document.getElementById('galleryGrid');
+            const now = new Date();
             grid.innerHTML = galleryData.map(item => {
                 const historyObj = state.history[item.id.toString()] || {};
                 const episodes = Object.values(historyObj);
                 const watchData = episodes.sort((a,b) => b.watchedDate - a.watchedDate)[0];
                 let bannerHtml = watchData ? `<div class="watched-banner">${watchData.type === 'tv' ? `S${watchData.season} E${watchData.episode}` : 'Movie'}</div>` : '';
+                
+                // New Release Banner Logic (10 days or less)
+                const releaseDateStr = item.release_date || item.first_air_date;
+                let newReleaseHtml = '';
+                if (releaseDateStr) {
+                    const releaseDate = new Date(releaseDateStr);
+                    const diffTime = Math.abs(now - releaseDate);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    if (diffDays <= 10 && releaseDate <= now) {
+                        newReleaseHtml = `<div class="new-release-banner">New</div>`;
+                    }
+                }
+
                 return `
                 <div tabindex="0" class="group cursor-pointer gallery-card-wrapper" onclick="loadContent(${item.id}, '${state.type}', ${watchData?.season || 1}, ${watchData?.episode || 1})">
                     <div class="premium-card gallery-poster-container rounded-xl overflow-hidden mb-2 relative">
+                        ${newReleaseHtml}
                         <img src="https://image.tmdb.org/t/p/w400${item.poster_path}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                         <div id="summary-${item.id}" class="summary-overlay" onclick="event.stopPropagation()">
@@ -466,7 +496,7 @@
                         ${bannerHtml}
                     </div>
                     <h4 class="text-[10px] font-bold truncate px-1 text-white group-hover:text-purple-400 transition-colors">${item.title || item.name}</h4>
-                    <p class="text-[8px] text-gray-500 font-black px-1 mt-0.5 uppercase tracking-widest">${(item.release_date || item.first_air_date || '').split('-')[0] || 'N/A'}</p>
+                    <p class="text-[8px] text-gray-500 font-black px-1 mt-0.5 uppercase tracking-widest">${releaseDateStr || 'N/A'}</p>
                 </div>
                 `;
             }).join('');
@@ -645,4 +675,3 @@
     </script>
 </body>
 </html>
-
