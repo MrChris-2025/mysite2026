@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -68,6 +69,14 @@
             font-weight: 700; text-align: center; line-height: 1.2;
             backdrop-filter: blur(8px); border-top: 1px solid rgba(255, 255, 255, 0.2);
             z-index: 10;
+        }
+
+        .new-release-banner {
+            position: absolute; top: 0; left: 0; right: 0;
+            background: rgba(255, 0, 0, 0.9);
+            padding: 3px 2px; color: white; font-size: 6.5px;
+            font-weight: 800; text-align: center; text-transform: uppercase;
+            letter-spacing: 0.5px; z-index: 10;
         }
 
         .info-icon-btn {
@@ -279,7 +288,8 @@
         ];
 
         const noSandboxSources = ['videasy', 'vidsrcsu', 'vidfast'];
-        let state = { user: null, type: 'movie', page: 1, query: '', history: {}, current: null, currentEpisodes: [], genre: '', year: '' };
+        // permanentWatched stores tmdbId mapping to display details even if deleted from activity
+        let state = { user: null, type: 'movie', page: 1, query: '', history: {}, permanentWatched: {}, current: null, currentEpisodes: [], genre: '', year: '' };
         let galleryData = [];
         let saveTimeout = null;
 
@@ -335,15 +345,19 @@
             try {
                 const results = await query.find();
                 state.history = {};
+                // We don't reset permanentWatched here so it persists across local session deletions
                 results.forEach(item => {
                     const tmdbId = item.get("tmdbId");
                     const s = item.get("lastWatchedSeason");
                     const e = item.get("lastWatchedEpisode");
                     if(!state.history[tmdbId]) state.history[tmdbId] = {};
-                    state.history[tmdbId][`${s}-${e}`] = {
+                    const data = {
                         id: item.id, obj: item, type: item.get("mediaType"), season: s, episode: e,
                         title: item.get("title"), poster: item.get("posterPath"), watchedDate: item.get("watchedDate") || item.updatedAt
                     };
+                    state.history[tmdbId][`${s}-${e}`] = data;
+                    // Mark as permanently watched
+                    state.permanentWatched[tmdbId] = data;
                 });
                 renderHistory(); renderGallery();
             } catch (e) { console.error(e); }
@@ -366,8 +380,10 @@
             record.set("title", item.title || item.name); record.set("posterPath", item.poster_path); record.set("watchedDate", new Date());
             try {
                 const saved = await record.save();
+                const data = { id: saved.id, obj: saved, type: state.type, season: s, episode: e, title: item.title || item.name, poster: item.poster_path, watchedDate: new Date() };
                 if(!state.history[tmdbId]) state.history[tmdbId] = {};
-                state.history[tmdbId][key] = { id: saved.id, obj: saved, type: state.type, season: s, episode: e, title: item.title || item.name, poster: item.poster_path, watchedDate: new Date() };
+                state.history[tmdbId][key] = data;
+                state.permanentWatched[tmdbId] = data; // Ensure permanent tracking
                 renderHistory(); 
                 renderGallery(); 
             } catch (err) { console.error(err); }
@@ -382,6 +398,7 @@
                 const results = await query.find();
                 await Parse.Object.destroyAll(results);
                 delete state.history[tmdbId];
+                // Note: We do NOT delete from state.permanentWatched here
                 renderHistory(); 
                 renderGallery(); 
                 if (state.current && state.current.id.toString() === tmdbId) {
@@ -445,11 +462,17 @@
 
         function renderGallery() {
             const grid = document.getElementById('galleryGrid');
+            const now = new Date();
             grid.innerHTML = galleryData.map(item => {
-                const historyObj = state.history[item.id.toString()] || {};
-                const episodes = Object.values(historyObj);
-                const watchData = episodes.sort((a,b) => b.watchedDate - a.watchedDate)[0];
+                const relDateStr = item.release_date || item.first_air_date || '';
+                const relDate = relDateStr ? new Date(relDateStr) : null;
+                const isNew = relDate && (now - relDate) / (1000 * 60 * 60 * 24) <= 10;
+                
+                // Use permanentWatched for the banner so it doesn't disappear when deleted from history
+                const watchData = state.permanentWatched[item.id.toString()];
                 let bannerHtml = watchData ? `<div class="watched-banner">${watchData.type === 'tv' ? `S${watchData.season} E${watchData.episode}` : 'Movie'}</div>` : '';
+                let newHtml = isNew ? `<div class="new-release-banner">New Release</div>` : '';
+
                 return `
                 <div tabindex="0" class="group cursor-pointer gallery-card-wrapper" onclick="loadContent(${item.id}, '${state.type}', ${watchData?.season || 1}, ${watchData?.episode || 1})">
                     <div class="premium-card gallery-poster-container rounded-xl overflow-hidden mb-2 relative">
@@ -463,10 +486,11 @@
                         <div onclick="toggleSummary(${item.id}, event)" class="info-icon-btn">
                              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         </div>
+                        ${newHtml}
                         ${bannerHtml}
                     </div>
                     <h4 class="text-[10px] font-bold truncate px-1 text-white group-hover:text-purple-400 transition-colors">${item.title || item.name}</h4>
-                    <p class="text-[8px] text-gray-500 font-black px-1 mt-0.5 uppercase tracking-widest">${(item.release_date || item.first_air_date || '').split('-')[0] || 'N/A'}</p>
+                    <p class="text-[8px] text-gray-500 font-black px-1 mt-0.5 uppercase tracking-widest">${relDateStr || 'N/A'}</p>
                 </div>
                 `;
             }).join('');
@@ -577,6 +601,11 @@
 
         function renderSources() { document.getElementById('srcSelect').innerHTML = availableSources.map(x => `<option value="${x.id}">${x.name}</option>`).join(''); }
 
+        function scrollToGallery() {
+            const el = document.getElementById('gallerySection');
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
         function setupEvents() {
             document.getElementById('showMoviesBtn').onclick = () => { 
                 state.type = 'movie'; state.page = 1; 
@@ -618,8 +647,8 @@
                 state.query = ""; document.getElementById('searchInput').value = "";
                 fetchGallery();
             };
-            document.getElementById('prevBtn').onclick = () => { if (state.page > 1) { state.page--; fetchGallery(); } };
-            document.getElementById('nextBtn').onclick = () => { state.page++; fetchGallery(); };
+            document.getElementById('prevBtn').onclick = () => { if (state.page > 1) { state.page--; fetchGallery(); scrollToGallery(); } };
+            document.getElementById('nextBtn').onclick = () => { state.page++; fetchGallery(); scrollToGallery(); };
             document.getElementById('srcSelect').onchange = updatePlayer;
             document.getElementById('seasonSelect').onchange = (e) => updateEpisodes(e.target.value);
             document.getElementById('episodeSelect').onchange = (e) => {
