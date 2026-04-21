@@ -673,33 +673,31 @@
     </script>
 
     <script>
-        /**
- * AUTO-LOAD LOGIC
- * Responsibilities: Detect video completion and trigger next episode
- */
-
 window.addEventListener('message', (event) => {
-  // 1. Validation
   if (event.data.type !== 'PLAYER_EVENT') return;
   
   const { player_status, player_info } = event.data.data;
 
-  // 2. Only trigger on "completed" status for TV shows
   if (player_status === 'completed' && player_info.mediaType === 'tv') {
-    console.log("Episode finished. Loading next...");
-    
+    // 1. Extract IDs and Numbers
     const id = player_info.tmdb || player_info.imdb;
-    const currentSeason = parseInt(player_info.season);
+    
+    // Ensure we are working with numbers to prevent string concatenation (e.g., "1" + 1 = "11")
+    const season = parseInt(player_info.season);
     const nextEpisode = parseInt(player_info.episode) + 1;
     
     const iframe = document.querySelector('iframe#video-player');
     
-    // 3. Update the iframe source
-    // Note: This logic assumes the next episode exists in the same season.
-    // Complex logic for season-wrapping would require a TV metadata API call.
-    iframe.src = `https://vaplayer.ru/embed/tv/{id}/{currentSeason}/{nextEpisode}`;
+    if (iframe && id) {
+      console.log(`Loading Season ${season}, Episode ${nextEpisode}...`);
+
+      // 2. The Unified URL Template
+      // Using backticks allows the variables to be injected dynamically
+      iframe.src = `https://vaplayer.ru/embed/tv/${id}/${season}/${nextEpisode}`;
+    }
   }
 });
+
 
     </script>
 </body>
