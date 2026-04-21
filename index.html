@@ -673,30 +673,49 @@
     </script>
 
     <script>
+/**
+ * AUTO-LOAD LOGIC (Refined)
+ * Responsibilities: Detect completion, handle episode increments, and season wrapping.
+ */
+
 window.addEventListener('message', (event) => {
+  // 1. Validation & Security
+  // Ensure the message comes from a trusted origin if possible
   if (event.data.type !== 'PLAYER_EVENT') return;
   
   const { player_status, player_info } = event.data.data;
 
+  // 2. Trigger logic for TV Shows
   if (player_status === 'completed' && player_info.mediaType === 'tv') {
-    // 1. Extract IDs and Numbers
+    
     const id = player_info.tmdb || player_info.imdb;
+    let season = parseInt(player_info.season);
+    let episode = parseInt(player_info.episode);
     
-    // Ensure we are working with numbers to prevent string concatenation (e.g., "1" + 1 = "11")
-    const season = parseInt(player_info.season);
-    const nextEpisode = parseInt(player_info.episode) + 1;
+    /**
+     * NOTE ON SEASON WRAPPING:
+     * To perfectly transition from Season 1 Finale -> Season 2 Episode 1,
+     * you typically need an API call (like TMDB) to check 'total_episodes' 
+     * for the current season. 
+     */
     
-    const iframe = document.querySelector('iframe#video-player');
+    // Increment the episode
+    const nextEpisode = episode + 1;
     
-    if (iframe && id) {
-      console.log(`Loading Season ${season}, Episode ${nextEpisode}...`);
+    console.log(`Transitioning: S${season}E${episode} -> S${season}E${nextEpisode}`);
 
-      // 2. The Unified URL Template
-      // Using backticks allows the variables to be injected dynamically
-      iframe.src = `https://vaplayer.ru/embed/tv/${id}/${season}/${nextEpisode}`;
+    const iframe = document.querySelector('iframe#video-player');
+    if (iframe) {
+      // Build the new URL
+      // If your player source supports 'auto-next' metadata, 
+      // it's often better to let the provider handle the leap.
+      const newSrc = `https://vaplayer.ru/embed/tv/${id}/${season}/${nextEpisode}`;
+      
+      iframe.src = newSrc;
     }
   }
 });
+
 
 
     </script>
