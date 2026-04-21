@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -689,35 +690,17 @@ window.addEventListener('message', (event) => {
   if (player_status === 'completed' && player_info.mediaType === 'tv') {
     
     const id = player_info.tmdb || player_info.imdb;
-    let season = parseInt(player_info.season);
-    let episode = parseInt(player_info.episode);
     
-    /**
-     * NOTE ON SEASON WRAPPING:
-     * To perfectly transition from Season 1 Finale -> Season 2 Episode 1,
-     * you typically need an API call (like TMDB) to check 'total_episodes' 
-     * for the current season. 
-     */
-    
-    // Increment the episode
-    const nextEpisode = episode + 1;
-    
-    console.log(`Transitioning: S${season}E${episode} -> S${season}E${nextEpisode}`);
+    // Instead of just building a string, we trigger the app's native navigation 
+    // to ensure history, UI state, and dropdowns are updated.
+    console.log(`VaPlayer reported completion for TMDB:${id}. Auto-advancing...`);
 
-    const iframe = document.querySelector('iframe#video-player');
-    if (iframe) {
-      // Build the new URL
-      // If your player source supports 'auto-next' metadata, 
-      // it's often better to let the provider handle the leap.
-      const newSrc = `https://vaplayer.ru/embed/tv/${id}/${season}/${nextEpisode}`;
-      
-      iframe.src = newSrc;
-    }
+    // Call the application's native 'Next' navigation logic
+    navigateEpisode('next');
   }
 });
-
-
-
     </script>
 </body>
 </html>
+
+```
