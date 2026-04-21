@@ -697,7 +697,7 @@ window.addEventListener('message', (event) => {
     // 3. Update the iframe source
     // Note: This logic assumes the next episode exists in the same season.
     // Complex logic for season-wrapping would require a TV metadata API call.
-    iframe.src = `https://vaplayer.ru/embed/tv/{id}/{currentSeason}/{nextEpisode}`;
+    iframe.src = `https://vaplayer.ru/embed/tv/{id}/{season}/{nextEpisode}`;
   }
 });
 
