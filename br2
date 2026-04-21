@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>VylaStream</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #000000;
+            color: #ffffff;
+            overflow: hidden; 
+        }
+        .glass {
+            background: rgba(43, 10, 84, 0.4);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+        .aspect-video-custom {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            background: #000;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            transition: all 0.3s ease-in-out;
+        }
+        .aspect-video-custom iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .almost-fullscreen {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 9999 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border-radius: 0 !important;
+            background: #000 !important;
+        }
+        .almost-fullscreen .aspect-video-custom {
+            padding-bottom: 0 !important;
+            height: 100% !important;
+            width: 100% !important;
+            border-radius: 0 !important;
+        }
+
+        #next-ep-tab {
+            display: none;
+        }
+        .almost-fullscreen #next-ep-tab.is-tv {
+            display: block;
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #000000; }
+        ::-webkit-scrollbar-thumb { background: #4c1d95; border-radius: 10px; }
+        
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.5rem center;
+            background-size: 0.8rem;
+        }
+
+        .custom-scroll {
+            scrollbar-gutter: stable;
+        }
+        
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;  
+            overflow: hidden;
+        }
+        
+        .line-clamp-4 {
+            display: -webkit-box;
+            -webkit-line-clamp: 4;
+            -webkit-box-orient: vertical;  
+            overflow: hidden;
+        }
+
+        .active-glow {
+            border: 1px solid rgba(139, 92, 246, 0.4);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.15);
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            padding: 4px;
+            z-index: 10;
+            display: none;
+        }
+        .history-item:hover .delete-btn {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            body { overflow: auto; height: auto; min-height: 100vh; }
+            main { flex-direction: column; overflow: visible; height: auto; }
+            .flex-1.overflow-hidden { overflow: visible; height: auto; }
+            #results-list { max-height: 600px; }
+        }
+    </style>
+</head>
+<body class="h-screen flex flex-col">
+
+    <header class="p-4 glass flex flex-col md:flex-row justify-between items-center z-50 gap-4">
+        <div class="flex items-center justify-between w-full md:w-auto gap-4">
+            <h1 class="text-xl md:text-2xl font-bold bg-gradient-to-r from-violet-400 to-purple-600 bg-clip-text text-transparent">AhhhYeah
+            </h1>
+            <div class="flex gap-2 md:ml-8">
+                <button onclick="setView('movie')" id="btn-movie" class="text-xs md:text-sm font-medium hover:text-violet-400 transition-colors px-2 md:px-3 py-1">Movies</button>
+                <button onclick="setView('tv')" id="btn-tv" class="text-xs md:text-sm font-medium text-violet-400 transition-colors border-b-2 border-violet-500 px-2 md:px-3 py-1">TV Shows</button>
+            </div>
+        </div>
+                
+        <div class="flex items-center justify-between w-full md:w-auto gap-3 md:gap-6">
+            <a href="https://mysite2026.netlify.app" class="font-medium text-violet-400 text-sm hover:text-violet-300">BR</a>
+            <div id="clock" class="text-sm md:text-lg font-medium tracking-wider text-slate-100">00:00 AM</div>
+            <div class="relative flex-1 md:w-64">
+                <input type="text" id="search-input" placeholder="Search..." class="w-full bg-violet-950/40 border border-violet-800/50 rounded-full px-4 py-1.5 md:py-2 text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all text-white placeholder-slate-400">
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 overflow-hidden flex p-2 md:p-4 gap-4">
+        
+        <div class="flex-1 flex flex-col gap-4 overflow-y-auto pr-0 md:pr-2">
+            <div id="player-wrapper" class="glass p-1.5 md:p-2 rounded-2xl shadow-2xl relative group shrink-0 transition-all duration-300">
+                <div class="aspect-video-custom" id="player-container">
+                    <div id="player-placeholder" class="absolute inset-0 flex flex-col items-center justify-center bg-black rounded-xl text-slate-500">
+                        <svg class="w-12 h-12 md:w-16 md:h-16 mb-4 opacity-30 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+
+                    </div>
+                </div>
+
+                <div id="next-ep-tab" class="absolute top-4 right-16 z-[10000] group/tab">
+                    <button onclick="nextEpisode()" class="flex items-center gap-2 bg-violet-900/90 hover:bg-violet-700 backdrop-blur-md text-white text-xs font-bold py-2.5 px-4 rounded-lg border border-violet-400/30 shadow-2xl transition-all transform hover:scale-105">
+                        <span class="max-w-0 md:max-w-xs overflow-hidden whitespace-nowrap group-hover/tab:max-w-xs transition-all duration-300 ease-in-out">Next Episode</span>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    </button>
+                </div>
+
+                <button onclick="toggleAlmostFullscreen()" class="absolute top-4 right-4 p-2.5 bg-black/80 hover:bg-violet-600 text-white rounded-lg opacity-100 md:opacity-0 group-hover:opacity-100 transition-all z-[10000] border border-white/20 shadow-xl" title="Theater Mode">
+                    <svg id="fullscreen-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
+                </button>
+            </div>
+
+           
+           
+           
+           
+           
+           
+           
+           
+            <div class="glass p-4 md:p-1 rounded-2xl space-y-4 shrink-0">
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex flex-col flex-1 min-w-[200px]">
+                        <h2 id="current-title" class="text-lg md:text-xl font-semibold text-white truncate"></h2>
+                        <div class="flex flex-wrap items-center gap-3 md:gap-4 mt-2">
+                            <p id="current-info" class="text-xs md:text-sm text-slate-400">Select a source</p>
+                            <div class="flex items-center bg-violet-950/50 rounded-lg p-1 border border-violet-800/40">
+                                <span class="text-[9px] md:text-[10px] uppercase font-bold px-2 text-violet-400/60">Server</span>
+                                <select id="source-select" onchange="updatePlayer()" class="bg-transparent text-white text-[11px] md:text-xs font-bold focus:outline-none pr-6 cursor-pointer">
+                                    <!-- Populated by JS -->
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="w-full md:w-80 lg:w-96 flex flex-col gap-4 overflow-hidden">
+            <div id="selection-card" class="hidden shrink-0 glass p-4 rounded-2xl active-glow flex flex-col gap-4 relative">
+                <button onclick="closeSelection()" class="absolute top-3 right-3 p-1.5 hover:bg-violet-800/50 rounded-full text-slate-400 hover:text-white transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+
+                <div class="flex gap-3 pr-6">
+                    <img id="sel-poster" src="" class="w-16 h-24 object-cover rounded-lg shadow-md border border-violet-500/20">
+                    <div class="flex-1 overflow-hidden">
+                        <h3 id="sel-title" class="font-bold text-sm text-white truncate">Title</h3>
+                        <p id="sel-meta" class="text-[10px] text-violet-300/70 uppercase mt-1">Meta Info</p>
+                        <div class="mt-2 flex items-center gap-1">
+                            <span class="text-[10px] bg-violet-600/30 text-violet-200 px-2 py-0.5 rounded border border-violet-500/30 font-bold uppercase">Now Playing</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tv-controls" class="hidden border-t border-violet-800/30 pt-3 flex flex-col gap-3">
+                    <div class="flex gap-2">
+                        <select id="season-select" class="flex-1 bg-violet-950/40 border border-violet-800/50 rounded-lg px-3 py-2 text-xs focus:outline-none text-white"></select>
+                        <select id="episode-select" class="flex-1 bg-violet-950/40 border border-violet-800/50 rounded-lg px-3 py-2 text-xs focus:outline-none text-white"></select>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="prevEpisode()" class="flex-1 py-2 bg-violet-900/40 hover:bg-violet-800 rounded-lg transition-colors border border-violet-800/50 flex items-center justify-center gap-2 text-xs text-white">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                            Prev
+                        </button>
+                        <button onclick="nextEpisode()" class="flex-1 py-2 bg-violet-900/40 hover:bg-violet-800 rounded-lg transition-colors border border-violet-800/50 flex items-center justify-center gap-2 text-xs text-white">
+                            Next
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="border-t border-violet-800/30 pt-3">
+                    <h4 id="sel-summary-label" class="text-[10px] font-bold text-violet-400 uppercase tracking-widest mb-1">Episode Summary</h4>
+                    <p id="sel-summary" class="text-xs text-slate-300 leading-relaxed italic line-clamp-4">No summary available.</p>
+                </div>
+            </div>
+
+            <div class="flex flex-col shrink-0 gap-3 px-1">
+                <div class="flex items-center justify-between">
+                    <div class="flex bg-violet-950/40 p-1 rounded-lg border border-violet-800/50">
+                        <button onclick="setSidebarMode('trending')" id="mode-trending" class="px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md bg-violet-600 text-white transition-all">Trending</button>
+                        <button onclick="setSidebarMode('recent')" id="mode-recent" class="px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md text-violet-400 hover:text-white transition-all">Recent</button>
+                    </div>
+                    <div class="flex gap-1 overflow-hidden">
+                        <select id="filter-genre" onchange="fetchDiscovery()" class="bg-violet-950/40 border border-violet-800/50 text-[9px] md:text-[10px] rounded px-1 py-1 text-slate-200 focus:outline-none max-w-[80px]">
+                            <option value="">Genres</option>
+                        </select>
+                        <select id="filter-year" onchange="fetchDiscovery()" class="bg-violet-950/40 border border-violet-800/50 text-[9px] md:text-[10px] rounded px-1 py-1 text-slate-200 focus:outline-none max-w-[70px]">
+                            <option value="">Year</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="results-list" class="flex-1 overflow-y-auto space-y-3 pr-2 custom-scroll pb-10 md:pb-0">
+                <div class="animate-pulse bg-violet-950/40 h-24 rounded-xl"></div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        const CONFIG = {
+            PARSE_APP_ID: "GUIFjcRB8wEOGXbBfBl8zu0yCRXLwcOTTT4dGcOT",
+            PARSE_JS_KEY: "qqX1cAGsgv3yg2n8Gda2Le1CH7OUQDB7BvQdONRf",
+            TMDB_KEY: '1070730380f5fee0d87cf0382670b255',
+            SAVE_BUFFER_MS: 30000 
+        };
+
+        const availableSources = [
+            { id: 'vyla', name: 'Vyla (Primary)', urls: { movie: 'https://vyla-api.pages.dev/api/player?type=movie&id={id}', tv: 'https://vyla-api.pages.dev/api/player?type=tv&id={id}&season={season}&episode={episode}' } },
+            { id: 'videasy', name: 'VidEasy', urls: { movie: 'https://player.videasy.net/movie/{id}?color=8834ec', tv: 'https://player.videasy.net/tv/{id}/{season}/{episode}?autoPlay=true&nextEpisode=true&color=8834ec' } },
+            { id: 'vidsrcsu', name: 'vidsrc.su', urls: { movie: 'https://vidsrc.su/movie/{id}?pausescreen=true', tv: 'https://vidsrc.su/tv/{id}/{season}/{episode}?autonextepisode=true' } },
+            { id: 'vidfast', name: 'vidfast', urls: { movie: 'https://www.vidfast.net/movie/{id}', tv: 'https://www.vidfast.net/tv/{id}/{season}/{episode}?autoPlay=true' } },
+            { id: 'vidsrcwin', name: 'VidSrcWin', urls: { movie: 'https://vidsrc.win/watch/{id}', tv: 'https://vidsrc.win/watch/{id}?{season}/{episode}' } },
+            { id: 'cc', name: 'CC', urls: { movie: 'https://vidsrc.cc/v2/embed/movie/{id}?autoPlay=false', tv: 'https://vidsrc.cc/v2/embed/tv/{id}/{season}/{episode}?autoPlay=false' } },
+            { id: 'vidking', name: 'Vidking', urls: { movie: 'https://www.vidking.net/embed/movie/{id}', tv: 'https://www.vidking.net/embed/tv/{id}/{season}/{episode}' } },
+            { id: 'wplayme', name: 'Wplay.me', urls: { movie: 'https://embed.wplay.me/embed/movie/{id}', tv: 'https://embed.wplay.me/embed/tv/{id}/{season}/{episode}' } },
+            { id: 'pulp', name: 'Pulp', urls: { movie: 'https://tv.pulp.watch/player/movie/{id}', tv: 'https://tv.pulp.watch/player/tv/{id}?season={season}&episode={episode}' } },
+            { id: 'rive', name: 'RiveStream', urls: { movie: 'https://rivestream.org/embed?type=movie&id={id}', tv: 'https://rivestream.org/embed?type=tv&id={id}&season={season}&episode={episode}' } },
+            { id: 'vidpop', name: 'Vidpop', urls: { movie: 'https://www.vidpop.xyz/embed/?id={id}', tv: 'https://www.vidpop.xyz/embed/?id={id}&season={season}&episode={episode}' } },
+            { id: 'spenflix', name: 'SpenFlix', urls: { movie: 'https://spencerdevs.xyz/movie/{id}', tv: 'https://spencerdevs.xyz/tv/{id}/{season}/{episode}' } },
+            { id: 'cinezo', name: 'Cinezo', urls: { movie: 'https://api.cinezo.net/movie/{id}', tv: 'https://api.cinezo.net/tv/{id}/{season}/{episode}?autoplayNext=true' } },
+            { id: 'mzone', name: 'MZone', urls: { movie: 'https://www.m-zone.org/watch/movie/{id}', tv: 'https://www.m-zone.org/watch/tv/{id}?{season}/{episode}' } },
+            { id: 'pstream', name: 'P-Stream', urls: { movie: 'https://iframe.pstream.net/media/tmdb-movie-{id}', tv: 'https://iframe.pstream.net/media/tmdb-tv-{id}/{season}/{episode}' } }
+        ];
+
+        const noSandboxSources = ['videasy', 'vidsrcsu', 'vidfast'];
+        const IMG_URL = 'https://image.tmdb.org/t/p/w500';
+        
+        let state = { 
+            user: null, 
+            type: 'tv',
+            currentId: null, 
+            currentSeason: 1, 
+            currentEpisode: 1, 
+            history: {}, 
+            showData: null,
+            sidebarMode: 'trending'
+        };
+        let saveTimeout = null;
+
+        function updateClock() {
+            const now = new Date();
+            let h = now.getHours(), m = String(now.getMinutes()).padStart(2, '0'), ampm = h >= 12 ? 'PM' : 'AM';
+            h = h % 12 || 12;
+            document.getElementById('clock').textContent = `${h}:${m} ${ampm}`;
+        }
+
+        async function init() {
+            Parse.initialize(CONFIG.PARSE_APP_ID, CONFIG.PARSE_JS_KEY);
+            Parse.serverURL = "https://parseapi.back4app.com";
+            
+            try {
+                let user = Parse.User.current() || await Parse.User.logIn("vault_user", "vault_pass").catch(() => {
+                    const u = new Parse.User(); u.set("username", "vault_user"); u.set("password", "vault_pass"); return u.signUp();
+                });
+                state.user = user;
+                await fetchHistory();
+            } catch(e) { console.error("Auth error", e); }
+
+            renderSources();
+            populateYears();
+            await fetchGenres();
+            fetchTrending();
+            updateClock();
+            setInterval(updateClock, 60000);
+        }
+
+        function renderSources() {
+            const select = document.getElementById('source-select');
+            select.innerHTML = availableSources.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+        }
+
+        function populateYears() {
+            const yearSelect = document.getElementById('filter-year');
+            const startYear = new Date().getFullYear();
+            for(let i = startYear; i >= 1950; i--) {
+                const opt = document.createElement('option');
+                opt.value = i; opt.textContent = i;
+                yearSelect.appendChild(opt);
+            }
+        }
+
+        function setSidebarMode(mode) {
+            state.sidebarMode = mode;
+            const btnTrending = document.getElementById('mode-trending');
+            const btnRecent = document.getElementById('mode-recent');
+            
+            if (mode === 'trending') {
+                btnTrending.className = "px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md bg-violet-600 text-white transition-all";
+                btnRecent.className = "px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md text-violet-400 hover:text-white transition-all";
+                fetchTrending();
+            } else {
+                btnRecent.className = "px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md bg-violet-600 text-white transition-all";
+                btnTrending.className = "px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md text-violet-400 hover:text-white transition-all";
+                renderHistoryResults();
+            }
+        }
+
+        async function fetchHistory() {
+            const query = new Parse.Query("WatchedItem");
+            query.equalTo("user", state.user);
+            query.descending("watchedDate");
+            try {
+                const results = await query.find();
+                state.history = {};
+                results.forEach(item => {
+                    const tmdbId = item.get("tmdbId");
+                    const s = item.get("lastWatchedSeason") || 0;
+                    const e = item.get("lastWatchedEpisode") || 0;
+                    const isRemoved = item.get("isRemovedFromRecent") || false;
+                    if(!state.history[tmdbId]) state.history[tmdbId] = {};
+                    state.history[tmdbId][`${s}-${e}`] = {
+                        id: item.id, obj: item, type: item.get("mediaType"), season: s, episode: e,
+                        title: item.get("title"), poster: item.get("posterPath"), 
+                        watchedDate: item.get("watchedDate") || item.updatedAt,
+                        isRemoved: isRemoved
+                    };
+                });
+                if (state.sidebarMode === 'recent') renderHistoryResults();
+            } catch (e) { console.error(e); }
+        }
+
+        function renderHistoryResults() {
+            const list = document.getElementById('results-list');
+            const uniqueShowsLatest = [];
+            
+            for (const tmdbId in state.history) {
+                const episodes = Object.values(state.history[tmdbId]).filter(ep => !ep.isRemoved);
+                if (episodes.length === 0) continue;
+                const latest = episodes.sort((a,b) => b.watchedDate - a.watchedDate)[0];
+                uniqueShowsLatest.push({ tmdbId, ...latest });
+            }
+            
+            const sortedRecent = uniqueShowsLatest.sort((a,b) => b.watchedDate - a.watchedDate).slice(0, 20);
+            
+            if (sortedRecent.length === 0) {
+                list.innerHTML = '<div class="p-8 text-center text-slate-500 text-sm italic">No recent history</div>';
+                return;
+            }
+
+            list.innerHTML = '';
+            sortedRecent.forEach(data => {
+                const card = document.createElement('div');
+                card.className = "history-item glass p-3 rounded-xl cursor-pointer hover:bg-violet-900/30 transition-all flex gap-3 group border border-transparent hover:border-violet-500/30 shrink-0 relative";
+                card.onclick = () => loadFromHistory(data.tmdbId, data.type, data.season, data.episode);
+                card.innerHTML = `
+                    <div onclick="deleteHistoryItem('${data.tmdbId}', event)" class="delete-btn">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </div>
+                    <img src="https://image.tmdb.org/t/p/w200${data.poster}" class="w-14 h-20 md:w-16 md:h-24 object-cover rounded-md shadow-lg border border-violet-500/10">
+                    <div class="flex flex-col justify-start overflow-hidden py-0.5">
+                        <h4 class="font-bold text-xs md:text-sm truncate group-hover:text-violet-400 transition-colors text-white">${data.title}</h4>
+                        <span class="text-[9px] md:text-[10px] text-violet-400 font-extrabold uppercase mt-1">${data.type === 'tv' ? `S${data.season} E${data.episode}` : 'Movie'}</span>
+                        <p class="text-[9px] text-slate-500 mt-2 uppercase">Watched ${new Date(data.watchedDate).toLocaleDateString()}</p>
+                    </div>
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        async function loadFromHistory(id, type, s, e) {
+            currentView = type;
+            const res = await fetch(`https://api.themoviedb.org/3/${type}/${id}?api_key=${CONFIG.TMDB_KEY}`);
+            const item = await res.json();
+            await selectItem(item);
+            if (type === 'tv') {
+                state.currentSeason = s;
+                state.currentEpisode = e;
+                document.getElementById('season-select').value = s;
+                updateEpisodeDropdown();
+                document.getElementById('episode-select').value = e;
+            }
+            updatePlayer();
+        }
+
+        async function deleteHistoryItem(tmdbId, event) {
+            event.stopPropagation();
+            try {
+                const query = new Parse.Query("WatchedItem");
+                query.equalTo("user", state.user);
+                query.equalTo("tmdbId", tmdbId.toString());
+                const results = await query.find();
+                for(let res of results) {
+                    res.set("isRemovedFromRecent", true);
+                }
+                await Parse.Object.saveAll(results);
+                if(state.history[tmdbId]) {
+                    Object.keys(state.history[tmdbId]).forEach(k => state.history[tmdbId][k].isRemoved = true);
+                }
+                renderHistoryResults();
+            } catch (err) { console.error(err); }
+        }
+
+        function triggerSaveBuffer() {
+            if (saveTimeout) clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(() => {
+                performActualSave();
+            }, CONFIG.SAVE_BUFFER_MS);
+        }
+
+        async function performActualSave() {
+            if (!state.currentId || !state.showData) return;
+            const WatchedItem = Parse.Object.extend("WatchedItem");
+            const tmdbId = state.currentId.toString();
+            const s = state.type === 'tv' ? state.currentSeason : 0;
+            const e = state.type === 'tv' ? state.currentEpisode : 0;
+            const key = `${s}-${e}`;
+            
+            let record = (state.history[tmdbId] && state.history[tmdbId][key]) ? state.history[tmdbId][key].obj : new WatchedItem();
+            
+            record.set("user", state.user); 
+            record.set("tmdbId", tmdbId); 
+            record.set("mediaType", state.type); 
+            record.set("lastWatchedSeason", parseInt(s)); 
+            record.set("lastWatchedEpisode", parseInt(e)); 
+            record.set("title", state.showData.title || state.showData.name); 
+            record.set("posterPath", state.showData.poster_path); 
+            record.set("watchedDate", new Date());
+            record.set("isRemovedFromRecent", false);
+
+            try {
+                const saved = await record.save();
+                if(!state.history[tmdbId]) state.history[tmdbId] = {};
+                state.history[tmdbId][key] = { id: saved.id, obj: saved, type: state.type, season: s, episode: e, title: state.showData.title || state.showData.name, poster: state.showData.poster_path, watchedDate: new Date(), isRemoved: false };
+                if (state.sidebarMode === 'recent') renderHistoryResults();
+            } catch (err) { console.error(err); }
+        }
+
+        let currentView = 'tv';
+
+        async function setView(view) {
+            currentView = view;
+            state.type = view;
+            document.getElementById('btn-movie').className = view === 'movie' ? 'text-xs md:text-sm font-medium text-violet-400 transition-colors border-b-2 border-violet-500 px-2 md:px-3 py-1' : 'text-xs md:text-sm font-medium text-slate-400 hover:text-violet-400 transition-colors px-2 md:px-3 py-1';
+            document.getElementById('btn-tv').className = view === 'tv' ? 'text-xs md:text-sm font-medium text-violet-400 transition-colors border-b-2 border-violet-500 px-2 md:px-3 py-1' : 'text-xs md:text-sm font-medium text-slate-400 hover:text-violet-400 transition-colors px-2 md:px-3 py-1';
+            document.getElementById('filter-genre').value = "";
+            document.getElementById('filter-year').value = "";
+            closeSelection(); 
+            await fetchGenres();
+            setSidebarMode('trending');
+        }
+
+        async function fetchGenres() {
+            try {
+                const res = await fetch(`https://api.themoviedb.org/3/genre/${currentView}/list?api_key=${CONFIG.TMDB_KEY}`);
+                const data = await res.json();
+                const gSelect = document.getElementById('filter-genre');
+                gSelect.innerHTML = '<option value="">Genres</option>';
+                data.genres.forEach(g => {
+                    const opt = document.createElement('option');
+                    opt.value = g.id; opt.textContent = g.name;
+                    gSelect.appendChild(opt);
+                });
+            } catch(e) { console.error(e); }
+        }
+
+        async function fetchTrending() {
+            try {
+                const res = await fetch(`https://api.themoviedb.org/3/trending/${currentView}/day?api_key=${CONFIG.TMDB_KEY}`);
+                const data = await res.json(); 
+                if (state.sidebarMode === 'trending') renderResults(data.results);
+            } catch (err) { console.error(err); }
+        }
+
+        async function fetchDiscovery() {
+            state.sidebarMode = 'trending'; 
+            document.getElementById('mode-trending').className = "px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md bg-violet-600 text-white transition-all";
+            document.getElementById('mode-recent').className = "px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md text-violet-400 hover:text-white transition-all";
+
+            const genre = document.getElementById('filter-genre').value;
+            const year = document.getElementById('filter-year').value;
+            if (!genre && !year) return fetchTrending();
+            const yearParam = currentView === 'tv' ? 'first_air_date_year' : 'primary_release_year';
+            const url = `https://api.themoviedb.org/3/discover/${currentView}?api_key=${CONFIG.TMDB_KEY}&with_genres=${genre}&${yearParam}=${year}&sort_by=popularity.desc`;
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                renderResults(data.results);
+            } catch(e) { console.error(e); }
+        }
+
+        function renderResults(items) {
+            const list = document.getElementById('results-list');
+            list.innerHTML = '';
+            if (!items || items.length === 0) {
+                list.innerHTML = '<div class="p-8 text-center text-slate-500 text-sm italic">No results found</div>';
+                return;
+            }
+            items.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "glass p-3 rounded-xl cursor-pointer hover:bg-violet-900/40 transition-all flex gap-3 group border border-transparent hover:border-violet-500/30 shrink-0";
+                card.onclick = () => { 
+                    selectItem(item);
+                    if (window.innerWidth < 768) window.scrollTo({ top: 0, behavior: 'smooth' });
+                };
+                card.innerHTML = `
+                    <img src="${IMG_URL + item.poster_path}" class="w-14 h-20 md:w-16 md:h-24 object-cover rounded-md shadow-lg border border-violet-500/10" onerror="this.src='https://via.placeholder.com/150x225?text=No+Image'">
+                    <div class="flex flex-col justify-start overflow-hidden py-0.5">
+                        <h4 class="font-medium text-xs md:text-sm truncate group-hover:text-violet-400 transition-colors text-white">${item.title || item.name}</h4>
+                        <p class="text-[9px] md:text-[10px] text-violet-400/70 mt-0.5 uppercase tracking-tighter">${(item.release_date || item.first_air_date || '').split('-')[0]} • ⭐ ${item.vote_average.toFixed(1)}</p>
+                        <p class="text-[10px] md:text-[11px] text-slate-400 mt-2 line-clamp-2 leading-tight">${item.overview || 'No summary available.'}</p>
+                    </div>
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        async function selectItem(item) {
+            state.currentId = item.id;
+            state.type = currentView;
+            document.getElementById('selection-card').classList.remove('hidden');
+            document.getElementById('sel-poster').src = IMG_URL + item.poster_path;
+            document.getElementById('sel-title').textContent = item.title || item.name;
+            document.getElementById('current-title').textContent = item.title || item.name;
+            
+            const res = await fetch(`https://api.themoviedb.org/3/${currentView}/${state.currentId}?api_key=${CONFIG.TMDB_KEY}`);
+            state.showData = await res.json();
+
+            if (currentView === 'tv') {
+                document.getElementById('tv-controls').classList.remove('hidden');
+                document.getElementById('next-ep-tab').classList.add('is-tv');
+                document.getElementById('sel-summary-label').textContent = 'Episode Summary';
+                state.currentSeason = 1; state.currentEpisode = 1;
+                populateSeasonDropdown();
+                updatePlayer();
+            } else {
+                document.getElementById('tv-controls').classList.add('hidden');
+                document.getElementById('next-ep-tab').classList.remove('is-tv');
+                document.getElementById('current-info').textContent = `Released: ${item.release_date || 'N/A'}`;
+                document.getElementById('sel-meta').textContent = `Movie • ${item.release_date || 'N/A'}`;
+                document.getElementById('sel-summary-label').textContent = 'Movie Overview';
+                document.getElementById('sel-summary').textContent = item.overview || "No summary available.";
+                updatePlayer();
+            }
+        }
+
+        function closeSelection() {
+            state.currentId = null;
+            if (saveTimeout) clearTimeout(saveTimeout);
+            document.getElementById('selection-card').classList.add('hidden');
+            document.getElementById('next-ep-tab').classList.remove('is-tv');
+            document.getElementById('current-title').textContent = "VylaStream";
+            document.getElementById('current-info').textContent = "Select a title below";
+            document.getElementById('player-container').innerHTML = `
+                <div id="player-placeholder" class="absolute inset-0 flex flex-col items-center justify-center bg-black rounded-xl text-slate-500">
+                    <svg class="w-12 h-12 md:w-16 md:h-16 mb-4 opacity-30 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <p class="font-medium text-sm md:text-base text-slate-300">Ready to Stream</p>
+                </div>
+            `;
+        }
+
+        function populateSeasonDropdown() {
+            const sSelect = document.getElementById('season-select');
+            sSelect.innerHTML = '';
+            const seasons = state.showData.seasons.filter(s => s.season_number > 0);
+            seasons.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.season_number; opt.textContent = `Season ${s.season_number}`;
+                sSelect.appendChild(opt);
+            });
+            if(seasons.length > 0) state.currentSeason = seasons[0].season_number;
+            sSelect.value = state.currentSeason;
+            sSelect.onchange = (e) => { state.currentSeason = parseInt(e.target.value); state.currentEpisode = 1; updateEpisodeDropdown(); updatePlayer(); };
+            updateEpisodeDropdown();
+        }
+
+        function updateEpisodeDropdown() {
+            const eSelect = document.getElementById('episode-select'); eSelect.innerHTML = '';
+            const seasonData = state.showData.seasons.find(s => s.season_number === state.currentSeason);
+            const count = seasonData ? seasonData.episode_count : 1;
+            for(let i = 1; i <= count; i++) {
+                const opt = document.createElement('option');
+                opt.value = i; opt.textContent = `Episode ${i}`;
+                eSelect.appendChild(opt);
+            }
+            eSelect.value = state.currentEpisode;
+            eSelect.onchange = (e) => { state.currentEpisode = parseInt(e.target.value); updatePlayer(); };
+        }
+
+        async function updatePlayer() {
+            if(!state.currentId) return;
+            const container = document.getElementById('player-container');
+            const sourceId = document.getElementById('source-select').value;
+            const source = availableSources.find(s => s.id === sourceId);
+            
+            let url = "";
+            const isNoSandbox = noSandboxSources.includes(sourceId);
+
+            if (state.type === 'tv') {
+                url = source.urls.tv
+                    .replace('{id}', state.currentId)
+                    .replace('[tmdbId]', state.currentId)
+                    .replace('{season}', state.currentSeason)
+                    .replace('[seasonId]', state.currentSeason)
+                    .replace('{episode}', state.currentEpisode)
+                    .replace('[episodeId]', state.currentEpisode);
+                
+                document.getElementById('current-info').textContent = `Watching S${state.currentSeason}, E${state.currentEpisode}`;
+                document.getElementById('sel-meta').textContent = `S${state.currentSeason} E${state.currentEpisode}`;
+                
+                try {
+                    const epRes = await fetch(`https://api.themoviedb.org/3/tv/${state.currentId}/season/${state.currentSeason}/episode/${state.currentEpisode}?api_key=${CONFIG.TMDB_KEY}`);
+                    const epData = await epRes.json();
+                    document.getElementById('sel-summary').textContent = epData.overview || state.showData.overview || "No specific episode summary available.";
+                } catch(e) { 
+                    document.getElementById('sel-summary').textContent = state.showData.overview || "No summary available.";
+                }
+            } else {
+                url = source.urls.movie
+                    .replace('{id}', state.currentId)
+                    .replace('[tmdbId]', state.currentId);
+            }
+
+            const sandbox = isNoSandbox ? "" : 'sandbox="allow-same-origin allow-scripts"';
+            container.innerHTML = `<iframe src="${url}" allowfullscreen frameborder="0" ${sandbox}></iframe>`;
+            
+            triggerSaveBuffer();
+        }
+
+        function nextEpisode() {
+            const seasonData = state.showData.seasons.find(s => s.season_number === state.currentSeason);
+            if (!seasonData) return;
+            const count = seasonData.episode_count;
+            if (state.currentEpisode < count) { 
+                state.currentEpisode++; 
+            } else {
+                const nextS = state.showData.seasons.find(s => s.season_number === state.currentSeason + 1);
+                if (nextS) { 
+                    state.currentSeason++; 
+                    state.currentEpisode = 1; 
+                    document.getElementById('season-select').value = state.currentSeason; 
+                    updateEpisodeDropdown(); 
+                }
+            }
+            document.getElementById('episode-select').value = state.currentEpisode; 
+            updatePlayer();
+        }
+
+        function prevEpisode() {
+            if (state.currentEpisode > 1) { 
+                state.currentEpisode--; 
+            } else if (state.currentSeason > 1) {
+                state.currentSeason--;
+                const prevS = state.showData.seasons.find(s => s.season_number === state.currentSeason);
+                state.currentEpisode = prevS ? prevS.episode_count : 1;
+                document.getElementById('season-select').value = state.currentSeason; 
+                updateEpisodeDropdown();
+            }
+            document.getElementById('episode-select').value = state.currentEpisode; 
+            updatePlayer();
+        }
+
+        function toggleAlmostFullscreen() {
+            const wrapper = document.getElementById('player-wrapper');
+            const icon = document.getElementById('fullscreen-icon');
+            wrapper.classList.toggle('almost-fullscreen');
+            if (wrapper.classList.contains('almost-fullscreen')) {
+                icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />`;
+            } else {
+                icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />`;
+            }
+        }
+
+        let searchTimeout;
+        document.getElementById('search-input').addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                const q = e.target.value;
+                if(!q) fetchTrending();
+                else {
+                    state.sidebarMode = 'trending';
+                    document.getElementById('mode-trending').click();
+                    fetch(`https://api.themoviedb.org/3/search/${currentView}?api_key=${CONFIG.TMDB_KEY}&query=${encodeURIComponent(q)}`)
+                        .then(r => r.json()).then(d => renderResults(d.results));
+                }
+            }, 500);
+        });
+
+        init();
+    </script>
+</body>
+</html>
