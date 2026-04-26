@@ -287,7 +287,7 @@
             { id: 'cc', name: 'CC', urls: { movie: 'https://vidsrc.cc/v2/embed/movie/{id}?autoPlay=false', tv: 'https://vidsrc.cc/v2/embed/tv/{id}/{season}/{episode}?autoPlay=false' } },
             { id: 'wplayme', name: 'Wplay.me', urls: { movie: 'https://embed.wplay.me/embed/movie/{id}', tv: 'https://embed.wplay.me/embed/tv/{id}/{season}/{episode}' } },
 
-                        { id: 'vidrush', name: 'VidRush', urls: { movie: 'https://player.vidrush.net/embed/movie/{tmdbId}', tv: 'https://player.vidrush.net/embed/tv/{tmdbId}/{season}/{episode}' } },
+
             
                         { id: 'pulp', name: 'Pulp', urls: { movie: 'https://tv.pulp.watch/player/movie/{id}', tv: 'https://tv.pulp.watch/player/tv/{id}?season={season}&episode={episode}' } },
             { id: 'vyla', name: 'Vyla', urls: { movie: 'Https://vyla.pages.dev/player?type=movie&id={id}', tv: 'Https://vyla.pages.dev/player?type=tv&id={id}&s={season}&e={episode}' } },
@@ -296,7 +296,7 @@
             { id: 'pstream', name: 'P-Stream', urls: { movie: 'https://hexa.su/watch/movie/{id}', tv: 'https://hexa.su/watch/tv/{id}/{season}/{episode}' } }
         ];
 
-        const noSandboxSources = ['videasy', 'vidsrcsu', 'wplayme', 'vidrush','vidfast'];
+        const noSandboxSources = ['videasy', 'vidsrcsu', 'wplayme','vidfast'];
         // permanentWatched stores tmdbId mapping to display details even if deleted from activity
         let state = { user: null, type: 'movie', page: 1, query: '', history: {}, permanentWatched: {}, current: null, currentEpisodes: [], genre: '', year: '' };
         let galleryData = [];
