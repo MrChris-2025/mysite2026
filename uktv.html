@@ -206,6 +206,7 @@
             display: flex; align-items: center; justify-content: center;
             font-size: 11px; font-weight: 800; letter-spacing: 1.5px; color: #f3e8ff;
             text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            float: left;
         }
 
         .time-row {
@@ -305,39 +306,42 @@
 
         .epg-outer-container::-webkit-scrollbar { width: 0; height: 0; }
 
-        /* Jump to Live Styling */
+        /* Jump to Live Sticky Styling (Next to Live Now Corner) */
         .jump-live-btn {
-            position: absolute;
-            bottom: 24px;
-            right: 24px;
-            z-index: 110;
-            background: rgba(147, 51, 234, 0.25);
-            border: 1px solid rgba(168, 85, 247, 0.4);
+            position: sticky;
+            top: 8px;
+            left: calc(var(--channel-width) + 12px);
+            z-index: 105; /* Floating above timeline elements */
+            height: 34px;
+            background: rgba(147, 51, 234, 0.35);
+            border: 1px solid rgba(168, 85, 247, 0.5);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border-radius: 9999px;
-            padding: 10px 20px;
-            font-size: 12px;
-            font-weight: 700;
+            padding: 0 14px;
+            font-size: 11px;
+            font-weight: 800;
             letter-spacing: 0.5px;
             color: #f3e8ff;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             cursor: pointer;
-            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5), 0 0 15px rgba(147, 51, 234, 0.2);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4), 0 0 10px rgba(147, 51, 234, 0.2);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            float: left;
+            margin-right: -150px; /* Pulls timeline elements back in layout line under the button */
         }
 
         .jump-live-btn:hover {
-            background: rgba(147, 51, 234, 0.4);
-            border-color: rgba(168, 85, 247, 0.6);
-            transform: translateY(-2px);
-            box-shadow: 0 15px 30px -10px rgba(0,0,0,0.7), 0 0 25px rgba(147, 51, 234, 0.4);
+            background: rgba(147, 51, 234, 0.55);
+            border-color: rgba(168, 85, 247, 0.8);
+            transform: scale(1.03);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5), 0 0 15px rgba(147, 51, 234, 0.4);
         }
 
         .jump-live-btn:active {
-            transform: translateY(1px);
+            transform: scale(0.97);
         }
 
         .live-dot {
@@ -392,15 +396,18 @@
     </div>
 
     <div class="epg-container">
-        <!-- Floating Jump to Live Button -->
-        <button id="jump-btn" class="jump-live-btn" onclick="scrollToLive()">
-            <span class="live-dot"></span>
-            JUMP TO LIVE
-        </button>
-
         <div class="epg-outer-container" id="viewport">
             <div class="epg-grid">
+                <!-- Header Column Header (LIVE NOW) -->
                 <div class="epg-corner">LIVE NOW</div>
+                
+                <!-- Floating Jump to Live Button Sticky Anchor -->
+                <button id="jump-btn" class="jump-live-btn" onclick="scrollToLive()">
+                    <span class="live-dot"></span>
+                    JUMP TO LIVE
+                </button>
+
+                <!-- Rest of EPG Header & Rows -->
                 <div class="time-row" id="time-row"></div>
                 <div class="channel-column" id="channel-col"></div>
                 <div class="program-content" id="program-grid">
