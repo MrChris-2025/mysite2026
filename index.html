@@ -283,14 +283,19 @@
         const availableSources = [
             { id: 'videasy', name: 'VidEasy', urls: { movie: 'https://player.videasy.net/movie/{id}?color=8834ec', tv: 'https://player.videasy.net/tv/{id}/{season}/{episode}?autoplayNextEpisode=true?autoPlay=true&nextEpisode=true&color=8834ec' } },
             { id: 'vidfast', name: 'vidfast', urls: { movie: 'https://www.vidfast.net/movie/{id}', tv: 'https://www.vidfast.net/tv/{id}/{season}/{episode}?autoPlay=true' } },
-            { id: 'vidsrcwin', name: 'VidSrcWin', urls: { movie: 'https://vidsrc.win/watch/{id}', tv: 'https://vidsrc.win/watch/{id}?{season}/{episode}' } },
-            { id: 'cc', name: 'CC', urls: { movie: 'https://vidsrc.cc/v2/embed/movie/{id}?autoPlay=false', tv: 'https://vidsrc.cc/v2/embed/tv/{id}/{season}/{episode}?autoPlay=false' } },
+            { id: 'streamvault', name: 'StreamVault', urls: { movie: 'https://streamvaultsrc.click/embed/movie/{id}', tv: 'https://streamvaultsrc.click/embed/tv/{id}/{season}/{episode}' } },
+            { id: 'vixsrc', name: 'vixsrc', urls: { movie: 'https://vixsrc.to/movie/{id}', tv: 'https://vixsrc.to/tv/{id}/{season}/{episode}' } },
+            { id: '1Embed', name: '1Embed', urls: { movie: 'https://1embed.cc/embed/movie/{id}', tv: 'https://1embed.cc/embed/tv/{id}/{season}/{episode}' } },
             { id: 'wplayme', name: 'Wplay.me', urls: { movie: 'https://play.xpass.top/e/movie/{id}', tv: 'https://play.xpass.top/e/tv/{id}/{season}/{episode}' } },
-            { id: 'pulp', name: 'Pulp', urls: { movie: 'https://tv.pulp.watch/player/movie/{id}', tv: 'https://tv.pulp.watch/player/tv/{id}?season={season}&episode={episode}' } },
-            { id: 'vyla', name: 'Vyla', urls: { movie: 'Https://vyla-player.pages.dev/player?type=movie&id={id}', tv: 'Https://vyla-player.pages.dev/?type=tv&id={id}&season={season}&episode={episode}' } },
-            { id: 'cinezo', name: 'Cinezo', urls: { movie: 'https://api.cinezo.net/movie/{id}', tv: 'https://api.cinezo.net/tv/{id}/{season}/{episode}?autoplayNext=true?startAt=630' } },
+            { id: 'meow', name: 'Meow', urls: { movie: 'https://meowtv.ru/play/movie/{id}', tv: 'https://meowtv.ru/play/tv/{id}/{season}/{episode}' } },
+            { id: 'xprime', name: 'XPrime', urls: { movie: 'https://xprime.su/watch/{id}', tv: 'https://xprime.su/watch/{id}/{season}/{episode}' } },
+            { id: 'cinezo', name: 'Cinezo', urls: { movie: 'https://api.cinezo.net/movie/{id}', tv: 'https://api.cinezo.net/tv/{id}/{season}/{episode}?autoplayNext=true?startAt=630' } },     
+            { id: 'vyla', name: 'Vyla', urls: { movie: 'https://vyla.pages.dev/movie/{id}', tv: 'https://vyla.pages.dev/tv/{id}/{season}/{episode}' } },
+            { id: 'cinemaos', name: 'Cinemaos', urls: { movie: 'https://cinemaos.tech/player/{id}', tv: 'https://cinemaos.live/tv/watch/{id}&{season}&{episode}' } },
+            { id: 'spencer', name: 'Spencer', urls: { movie: 'https://spencerdevs.xyz/movie/{id}', tv: 'https://spencerdevs.xyz/tv/{id}/{season}/{episode}' } },
+            { id: 'flixtrz', name: 'Flixtrz', urls: { movie: 'https://flixtrz.com/movie/{id}', tv: 'https://flixtrz.com/tv/{id}/{season}/{episode}' } },
             { id: 'vaplayer', name: 'VaPlayer', urls: { movie: 'https://vaplayer.ru/embed/movie/{id}', tv: 'https://vaplayer.ru/embed/tv/{id}/{season}/{episode}' } },
-            { id: 'pstream', name: 'P-Stream', urls: { movie: 'https://hexa.su/watch/movie/{id}', tv: 'https://pstream.net/media/tmdb-tv-{id}-/{season}/{episode}' } }
+            { id: 'filmu', name: 'FilmU', urls: { movie: 'https://embed.filmu.in/movie/{tmdb_id}', tv: 'https://embed.filmu.in/tv/{tmdb_id}/{season}/{episode}' } }
         ];
 
         const noSandboxSources = ['videasy', 'wplayme', 'vidfast'];
