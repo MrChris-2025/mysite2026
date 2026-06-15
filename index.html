@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="//.nekoweb-api/static/site.js" defer></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>aint That Better?</title>
+    <title>aintThatBetter</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
     <style>
@@ -24,7 +25,6 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Focus states for D-pad navigation */
         :focus {
             outline: none;
             border-color: var(--accent) !important;
@@ -52,7 +52,6 @@
             box-shadow: 0 10px 20px -5px rgba(168, 85, 247, 0.3);
         }
 
-        /* 40% Smaller Cards */
         .gallery-poster-container {
             aspect-ratio: 2/3;
             width: 100%;
@@ -61,28 +60,39 @@
             margin-right: auto;
         }
 
+        /* Banner Revamp */
         .watched-banner {
             position: absolute; bottom: 0; left: 0; right: 0;
-            background: rgba(168, 85, 247, 0.95);
-            padding: 4px 2px; color: white; font-size: 7px;
-            font-weight: 700; text-align: center; line-height: 1.2;
-            backdrop-filter: blur(8px); border-top: 1px solid rgba(255, 255, 255, 0.2);
+            background: linear-gradient(180deg, rgba(147, 51, 234, 0.85) 0%, rgba(107, 33, 168, 0.95) 100%);
+            padding: 5px 4px; color: white; font-size: 8px;
+            font-weight: 800; text-align: center; line-height: 1.2;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            backdrop-filter: blur(8px); border-top: 1px solid rgba(255, 255, 255, 0.15);
             z-index: 10;
         }
 
         .new-release-banner {
             position: absolute; top: 0; left: 0; right: 0;
-            background: rgba(255, 0, 0, 0.9);
-            padding: 3px 2px; color: white; font-size: 6.5px;
+            background: rgba(34, 197, 94, 0.95);
+            padding: 4px 4px; color: white; font-size: 7.5px;
             font-weight: 800; text-align: center; text-transform: uppercase;
             letter-spacing: 0.5px; z-index: 10;
         }
 
         .airdate-banner {
             position: absolute; top: 0; left: 0; right: 0;
-            background: rgba(48, 25, 52, 1);
-            padding: 3px 2px; color: white; font-size: 6.5px;
+            background: rgba(168, 85, 247, 0.95);
+            padding: 4px 4px; color: white; font-size: 7.5px;
             font-weight: 800; text-align: center; text-transform: uppercase;
+            letter-spacing: 0.5px; z-index: 11;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .upcoming-banner {
+            position: absolute; top: 0; left: 0; right: 0;
+            background: rgba(234, 179, 8, 0.95);
+            padding: 4px 4px; color: #000; font-size: 7px;
+            font-weight: 900; text-align: center; text-transform: uppercase;
             letter-spacing: 0.5px; z-index: 11;
             box-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
@@ -97,7 +107,7 @@
         .info-icon-btn:hover { background: var(--accent); transform: scale(1.1); }
 
         .summary-overlay {
-            position: absolute; inset: 0; background: rgba(0,0,0,0.9);
+            position: absolute; inset: 0; background: rgba(0,0,0,0.95);
             padding: 14px; display: flex; flex-direction: column; justify-content: center;
             opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 30;
             backdrop-filter: blur(12px);
@@ -105,8 +115,8 @@
         .summary-overlay.active { opacity: 1; pointer-events: auto; }
 
         .delete-btn {
-            position: absolute; top: 8px; right: 8px; width: 24px; height: 24px;
-            background: rgba(239, 68, 68, 0.9); color: white; border-radius: 8px;
+            position: absolute; top: 4px; right: 4px; width: 18px; height: 18px;
+            background: rgba(239, 68, 68, 0.9); color: white; border-radius: 6px;
             display: flex; align-items: center; justify-content: center; z-index: 60;
             cursor: pointer; border: 1px solid rgba(255,255,255,0.2); transition: all 0.2s; opacity: 0;
         }
@@ -170,7 +180,6 @@
             padding: 4px 12px;
             height: 32px;
         }
-        /* Slowed down text speed from 25s to 95s */
         .marquee-content {
             display: inline-block;
             animation: marquee 95s linear infinite;
@@ -205,7 +214,7 @@
                 </div>
             </div>
 
-            <a href="/br3" class="font-medium text-violet-400 text-sm hover:text-violet-300">BR</a>
+
             
             <div class="flex items-center gap-6">
                 <div id="clock" class="text-base font-black text-white tracking-widest min-w-[95px] text-right bg-white/5 px-3 py-1.5 rounded-lg border border-white/10">00:00 AM</div>
@@ -218,7 +227,9 @@
             <div class="flex flex-col md:grid md:grid-cols-10 gap-6">
                 <div class="md:col-span-6 flex flex-col gap-3">
                     <div id="videoContainer" class="player-wrapper aspect-video bg-black relative">
-                        <iframe id="mainPlayer" src="" class="w-full h-full" allowfullscreen frameborder="0"></iframe>
+                        <div id="player-wrapper" class="w-full h-full">
+                            <iframe id="mainPlayer" src="" class="w-full h-full" allowfullscreen frameborder="0"></iframe>
+                        </div>
                     </div>
                     <div class="flex justify-between items-center px-1">
                         <div></div>
@@ -240,8 +251,12 @@
                             <p id="playerSub" class="text-[11px] font-semibold text-purple-400 mb-4"></p>
                             
                             <div class="space-y-4">
-                                <div class="space-y-1">
-                                    <select id="srcSelect" class="custom-select w-full bg-white/5 text-[11px] font-semibold border border-white/10 rounded-lg px-3 py-2.5 outline-none hover:border-purple-500"></select>
+                                <div class="space-y-1 relative">
+                                    <button type="button" id="serverSelectorBtn" class="w-full bg-white/5 text-[11px] font-semibold border border-white/10 rounded-lg px-3 py-2.5 text-left outline-none hover:border-purple-500 flex justify-between items-center">
+                                        <span id="selected-source-text">Server 1: Vixsrc</span>
+                                        <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    </button>
+                                    <div id="sources-menu-options" class="hidden absolute top-full left-0 md:left-auto md:right-0 w-full md:w-[450px] mt-2 bg-[#0c0c0d]/95 border border-white/10 rounded-xl shadow-2xl z-50 p-3 grid grid-cols-2 sm:grid-cols-3 gap-2 backdrop-blur-md"></div>
                                 </div>
                                 <div id="tvSelectors" class="hidden grid grid-cols-2 gap-3">
                                     <select id="seasonSelect" class="custom-select w-full bg-white/5 text-[11px] font-semibold border border-white/10 rounded-lg px-3 py-2.5 outline-none"></select>
@@ -252,21 +267,23 @@
 
                         <div id="episodeInfo" class="hidden mt-6 pt-4 border-t border-white/5">
                             <h3 id="epTitleDisplay" class="text-base font-bold text-white mb-1">Episode Name</h3>
-                            <p id="epOverview" class="text-gray-400 text-[10px] leading-relaxed line-clamp-3">No description.</p>
+                            <p id="epOverview" class="text-gray-400 text-[14px] leading-relaxed line-clamp-3">No description.</p>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
+        <!-- History/Recent Section -->
         <section id="historySection" class="hidden mb-12">
-            <div class="flex items-center gap-2 mb-6">
+            <div class="flex items-center gap-2 mb-4">
                 <div class="w-1 h-4 bg-purple-500 rounded-full"></div>
-                <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Recent</h3>
+                <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Recent Activity</h3>
             </div>
-            <div id="historyGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3"></div>
+            <div id="historyGrid" class="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-2"></div>
         </section>
 
+        <!-- Media Gallery -->
         <section id="gallerySection">
             <div class="flex flex-wrap items-center justify-between gap-3 mb-8">
                 <div class="flex items-center gap-3">
@@ -319,33 +336,42 @@
             SAVE_BUFFER_MS: 30000 
         };
 
-        const availableSources = [
-            { id: 'videasy', name: 'VidEasy', urls: { movie: 'https://player.videasy.net/movie/{id}?color=8834ec', tv: 'https://player.videasy.net/tv/{id}/{season}/{episode}?autoplayNextEpisode=true?autoPlay=true&nextEpisode=true&color=8834ec' } },
-            { id: 'vidfast', name: 'vidfast', urls: { movie: 'https://www.vidfast.net/movie/{id}', tv: 'https://www.vidfast.net/tv/{id}/{season}/{episode}?autoPlay=true' } },
-            { id: 'streamvault', name: 'StreamVault', urls: { movie: 'https://streamvaultsrc.click/embed/movie/{id}', tv: 'https://streamvaultsrc.click/embed/tv/{id}/{season}/{episode}' } },
-            
-            
-            { id: 'vynx', name: 'vynx', urls: { movie: 'https://tv.vynx.cc/watch/{id}?type=movie', tv: 'https://tv.vynx.cc/watch/{id}?type=tv&season={season}&episode={episode}&title' } },
-            
-            
-            
-            
-            { id: 'vixsrc', name: 'vixsrc', urls: { movie: 'https://vixsrc.to/movie/{id}', tv: 'https://vixsrc.to/tv/{id}/{season}/{episode}' } },
-            { id: '1Embed', name: '1Embed', urls: { movie: 'https://1embed.cc/embed/movie/{id}', tv: 'https://1embed.cc/embed/tv/{id}/{season}/{episode}' } },
-            { id: 'wplayme', name: 'Wplay.me', urls: { movie: 'https://play.xpass.top/e/movie/{id}', tv: 'https://play.xpass.top/e/tv/{id}/{season}/{episode}' } },
-            { id: 'meow', name: 'Meow', urls: { movie: 'https://meowtv.ru/play/movie/{id}', tv: 'https://meowtv.ru/play/tv/{id}/{season}/{episode}' } },
-            { id: 'xprime', name: 'XPrime', urls: { movie: 'https://xprime.su/watch/{id}', tv: 'https://xprime.su/watch/{id}/{season}/{episode}' } },
-            { id: 'cinezo', name: 'Cinezo', urls: { movie: 'https://api.cinezo.net/movie/{id}', tv: 'https://api.cinezo.net/tv/{id}/{season}/{episode}?autoplayNext=true?startAt=630' } },     
-            { id: 'vyla', name: 'Vyla', urls: { movie: 'https://vyla.pages.dev/movie/{id}', tv: 'https://vyla.pages.dev/tv/{id}/{season}/{episode}' } },
-            { id: 'cinemaos', name: 'Cinemaos', urls: { movie: 'https://cinemaos.tech/player/{id}', tv: 'https://cinemaos.live/tv/watch/{id}&{season}&{episode}' } },
-            { id: 'spencer', name: 'Spencer', urls: { movie: 'https://spencerdevs.xyz/movie/{id}', tv: 'https://spencerdevs.xyz/tv/{id}/{season}/{episode}' } },
-            { id: 'flixtrz', name: 'Flixtrz', urls: { movie: 'https://flixtrz.com/movie/{id}', tv: 'https://flixtrz.com/tv/{id}/{season}/{episode}' } },
-            { id: 'vaplayer', name: 'VaPlayer', urls: { movie: 'https://vaplayer.ru/embed/movie/{id}', tv: 'https://vaplayer.ru/embed/tv/{id}/{season}/{episode}' } },
-            { id: 'filmu', name: 'FilmU', urls: { movie: 'https://embed.filmu.in/movie/{tmdb_id}', tv: 'https://embed.filmu.in/tv/{tmdb_id}/{season}/{episode}' } }
+        let activeServer = "videasy"; 
+        let currentTvDetails = { id: null, season: 1, episode: 1, totalEpisodes: 0 };
+        let cachedSeasonEpisodes = [];
+
+        const serversList = [
+            { id: 'vixsrc', name: 'Server 1: Vixsrc' },
+            { id: 'vault', name: 'Server 2: Vault' },
+            { id: 'xpass', name: 'Server 3: XPass' },
+            { id: 'vaplayer', name: 'Server 4: VAPlayer' },
+            { id: 'filmu', name: 'Server 5: Filmu' },
+            { id: 'videasy', name: 'Server 6: Videasy' },
+            { id: 'vidfast', name: 'Server 7: VidFast' },
+            { id: 'cinemaos', name: 'Server 8: CinemaOS' },
+            { id: 'spencerdevs', name: 'Server 9: SpencerDevs' },
+            { id: 'vyla', name: 'Server 10: Vyla' },
+            { id: 'cinezo', name: 'Server 11: Cinezo' },
+            { id: 'oneembed', name: 'Server 12: 1Embed' }
         ];
 
-        const noSandboxSources = ['videasy', 'vixsrc', 'wplayme', 'vidfast'];
-        let state = { user: null, type: 'movie', page: 1, query: '', history: {}, permanentWatched: {}, airDates: {}, current: null, currentEpisodes: [], genre: '', year: '' };
+        const noSandboxSources = ['vixsrc', 'xpass', 'videasy', 'vidfast'];
+        
+        // Define targeted country list (ISO codes)
+        const allowedCountries = ['US', 'GB', 'AU', 'NZ', 'ZA', 'CA'];
+
+        let state = { 
+            user: null, 
+            type: 'movie', 
+            page: 1, 
+            query: '', 
+            history: {}, // Loaded from Parse. Excludes hidden items.
+            permanentWatched: {}, // Retains all watched details, even if hidden from Recent list
+            liveDetails: {}, // Live details from TMDB (status, next episode, upcoming seasons, etc)
+            genre: '', 
+            year: '' 
+        };
+        
         let galleryData = [];
         let saveTimeout = null;
         let scrollInterval = null;
@@ -406,6 +432,10 @@
                     if (!item._embedded || !item._embedded.show) return false;
                     const show = item._embedded.show;
                     
+                    // Filter schedule strictly by requested target countries as well
+                    const countryCode = show.network?.country?.code || show.webChannel?.country?.code || '';
+                    if (countryCode && !allowedCountries.includes(countryCode)) return false;
+
                     const isReality = show.type === 'Reality';
                     const hasDatingKeywords = show.genres?.some(g => g.toLowerCase().includes('romance')) || 
                                               show.name?.toLowerCase().includes('dating') || 
@@ -459,7 +489,9 @@
             await fetchHistory();
             populateYears();
             await fetchGenres();
-            renderSources(); fetchGallery(); setupEvents();
+            populateSourcesDropdown(); 
+            fetchGallery(); 
+            setupEvents();
             updateClock();
             fetchUpcomingDatingShows();
             setInterval(updateClock, 30000);
@@ -490,19 +522,40 @@
             try {
                 const results = await query.find();
                 state.history = {};
+                state.permanentWatched = {};
+                
                 results.forEach(item => {
                     const tmdbId = item.get("tmdbId");
                     const s = item.get("lastWatchedSeason");
                     const e = item.get("lastWatchedEpisode");
+                    const isHidden = item.get("hiddenFromHistory") === true;
+                    
                     if(!state.history[tmdbId]) state.history[tmdbId] = {};
+                    
                     const data = {
-                        id: item.id, obj: item, type: item.get("mediaType"), season: s, episode: e,
-                        title: item.get("title"), poster: item.get("posterPath"), watchedDate: item.get("watchedDate") || item.updatedAt
+                        id: item.id, 
+                        obj: item, 
+                        type: item.get("mediaType"), 
+                        season: s, 
+                        episode: e,
+                        title: item.get("title"), 
+                        poster: item.get("posterPath"), 
+                        watchedDate: item.get("watchedDate") || item.updatedAt,
+                        hidden: isHidden
                     };
-                    state.history[tmdbId][`${s}-${e}`] = data;
-                    state.permanentWatched[tmdbId] = data;
+
+                    // Only place in active history display list if NOT hidden by the user
+                    if (!isHidden) {
+                        state.history[tmdbId][`${s}-${e}`] = data;
+                    }
+                    
+                    // KEEP permanently on state.permanentWatched so the card banner is preserved forever
+                    if (!state.permanentWatched[tmdbId] || new Date(data.watchedDate) > new Date(state.permanentWatched[tmdbId].watchedDate)) {
+                        state.permanentWatched[tmdbId] = data;
+                    }
                 });
-                renderHistory(); renderGallery();
+                renderHistory(); 
+                renderGallery();
             } catch (e) { console.error(e); }
         }
 
@@ -517,21 +570,49 @@
             const WatchedItem = Parse.Object.extend("WatchedItem");
             const tmdbId = item.id.toString();
             const key = `${s}-${e}`;
-            let record = (state.history[tmdbId] && state.history[tmdbId][key]) ? state.history[tmdbId][key].obj : new WatchedItem();
-            record.set("user", state.user); record.set("tmdbId", tmdbId); record.set("mediaType", state.type); 
-            record.set("lastWatchedSeason", parseInt(s)); record.set("lastWatchedEpisode", parseInt(e)); 
-            record.set("title", item.title || item.name); record.set("posterPath", item.poster_path); record.set("watchedDate", new Date());
+            
+            // Check if record exists
+            let record;
+            if (state.history[tmdbId] && state.history[tmdbId][key]) {
+                record = state.history[tmdbId][key].obj;
+            } else {
+                record = new WatchedItem();
+            }
+
+            record.set("user", state.user); 
+            record.set("tmdbId", tmdbId); 
+            record.set("mediaType", state.type); 
+            record.set("lastWatchedSeason", parseInt(s)); 
+            record.set("lastWatchedEpisode", parseInt(e)); 
+            record.set("title", item.title || item.name); 
+            record.set("posterPath", item.poster_path); 
+            record.set("watchedDate", new Date());
+            record.set("hiddenFromHistory", false); // Default visible in recent flow
+
             try {
                 const saved = await record.save();
-                const data = { id: saved.id, obj: saved, type: state.type, season: s, episode: e, title: item.title || item.name, poster: item.poster_path, watchedDate: new Date() };
+                const data = { 
+                    id: saved.id, 
+                    obj: saved, 
+                    type: state.type, 
+                    season: s, 
+                    episode: e, 
+                    title: item.title || item.name, 
+                    poster: item.poster_path, 
+                    watchedDate: new Date(),
+                    hidden: false
+                };
+                
                 if(!state.history[tmdbId]) state.history[tmdbId] = {};
                 state.history[tmdbId][key] = data;
                 state.permanentWatched[tmdbId] = data;
+                
                 renderHistory(); 
                 renderGallery(); 
             } catch (err) { console.error(err); }
         }
 
+        // Remapping dynamic deletion to hide item from recent, but maintain watch state permanently on cards
         async function deleteHistoryItem(tmdbId, event) {
             event.stopPropagation();
             try {
@@ -539,10 +620,19 @@
                 query.equalTo("user", state.user);
                 query.equalTo("tmdbId", tmdbId);
                 const results = await query.find();
-                await Parse.Object.destroyAll(results);
+                
+                // Flag hidden so it vanishes from recent, but persists in DB for Permanent Watched states
+                for (let doc of results) {
+                    doc.set("hiddenFromHistory", true);
+                }
+                await Parse.Object.saveAll(results);
+                
+                // Clear state cache for the recent flow
                 delete state.history[tmdbId];
+                
                 renderHistory(); 
                 renderGallery(); 
+                
                 if (state.current && state.current.id.toString() === tmdbId) {
                     const s = document.getElementById('seasonSelect').value;
                     const e = document.getElementById('episodeSelect').value;
@@ -555,83 +645,174 @@
             const grid = document.getElementById('historyGrid');
             const section = document.getElementById('historySection');
             const uniqueShowsLatest = [];
+            
             for (const tmdbId in state.history) {
-                const episodes = Object.values(state.history[tmdbId]);
+                const episodes = Object.values(state.history[tmdbId]).filter(x => !x.hidden);
+                if (episodes.length === 0) continue;
                 const latest = episodes.sort((a,b) => b.watchedDate - a.watchedDate)[0];
                 uniqueShowsLatest.push({ tmdbId, ...latest });
             }
-            const sortedRecent = uniqueShowsLatest.sort((a,b) => b.watchedDate - a.watchedDate).slice(0, 8);
+            
+            const sortedRecent = uniqueShowsLatest.sort((a,b) => b.watchedDate - a.watchedDate).slice(0, 16);
             if (sortedRecent.length === 0) { section.classList.add('hidden'); return; }
             section.classList.remove('hidden');
-            grid.innerHTML = sortedRecent.map((data) => `
-                <div tabindex="0" class="history-card premium-card group flex items-center gap-3 p-2 rounded-xl cursor-pointer" 
+            
+            grid.innerHTML = sortedRecent.map((data) => {
+                const wDate = new Date(data.watchedDate);
+                const formattedDate = isNaN(wDate.getTime()) ? '' : `${wDate.getMonth() + 1}/${wDate.getDate()}/${wDate.getFullYear()}`;
+
+                return `
+                <div tabindex="0" class="history-card premium-card group flex items-center gap-2 p-1.5 rounded-lg cursor-pointer select-none" 
                      onclick="loadContent(${data.tmdbId}, '${data.type}', ${data.season}, ${data.episode})">
                     <div onclick="deleteHistoryItem('${data.tmdbId}', event)" class="delete-btn">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </div>
-                    <div class="w-10 h-14 flex-shrink-0 overflow-hidden rounded-lg shadow-md">
+                    <div class="w-7 h-10 flex-shrink-0 overflow-hidden rounded shadow-sm bg-neutral-900">
                         <img src="https://image.tmdb.org/t/p/w200${data.poster}" class="w-full h-full object-cover">
                     </div>
-                    <div class="overflow-hidden">
-                        <h4 class="text-xs font-bold truncate text-white mb-0.5">${data.title}</h4>
-                        <div class="flex flex-col gap-0">
-                             <span class="text-[9px] text-purple-400 font-extrabold uppercase">${data.type === 'tv' ? `S${data.season} E${data.episode}` : 'Movie'}</span>
+                    <div class="overflow-hidden min-w-0 flex-1 flex flex-col justify-center">
+                        <h4 class="text-[10px] font-bold truncate text-white leading-tight mb-0.5">${data.title}</h4>
+                        <div class="flex flex-col gap-0 leading-none">
+                             <span class="text-[8px] text-purple-400 font-extrabold uppercase tracking-wide mb-0.5">${data.type === 'tv' ? `S${data.season} E${data.episode}` : 'Movie'}</span>
+                             ${formattedDate ? `<span class="text-[7.5px] text-gray-500 font-medium">Watched: ${formattedDate}</span>` : ''}
                         </div>
                     </div>
                 </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         async function fetchGallery() {
             let url;
+            const regionJoin = allowedCountries.join('|');
+            
             if (state.query) {
                 url = `https://api.themoviedb.org/3/search/${state.type}?api_key=${CONFIG.TMDB_KEY}&query=${encodeURIComponent(state.query)}&page=${state.page}`;
             } else {
                 const yearParam = state.type === 'movie' ? 'primary_release_year' : 'first_air_date_year';
-                url = `https://api.themoviedb.org/3/discover/${state.type}?api_key=${CONFIG.TMDB_KEY}&page=${state.page}&sort_by=popularity.desc&with_genres=${state.genre}&${yearParam}=${state.year}`;
+                // Enforce origin country query params at core discovery layer for accuracy
+                url = `https://api.themoviedb.org/3/discover/${state.type}?api_key=${CONFIG.TMDB_KEY}&page=${state.page}&sort_by=popularity.desc&with_genres=${state.genre}&${yearParam}=${state.year}&with_origin_country=${regionJoin}`;
             }
-            const res = await fetch(url); const data = await res.json();
-            galleryData = data.results; 
             
-            if (state.type === 'tv') {
-                galleryData.forEach(item => fetchNextEpisodeAirDate(item.id));
+            const res = await fetch(url); 
+            const data = await res.json();
+            
+            let filteredResults = data.results || [];
+
+            // Perform robust client-side validation on Search responses to keep filtering clean
+            if (state.query) {
+                // Fetch basic production info or use origin_country attributes
+                filteredResults = filteredResults.filter(item => {
+                    const countries = item.origin_country || [];
+                    if (countries.length === 0) return true; // Keep if unspecified to avoid over-filtering search
+                    return countries.some(c => allowedCountries.includes(c));
+                });
             }
+
+            galleryData = filteredResults; 
+            
+            // Instantly resolve details (live air dates & premiere states) for the cards in parallel
+            galleryData.forEach(item => fetchLiveDetails(item.id, state.type));
             
             renderGallery();
             document.getElementById('pageTxt').innerText = `Page ${data.page}`;
             document.getElementById('prevBtn').disabled = data.page <= 1;
         }
 
-        async function fetchNextEpisodeAirDate(tmdbId) {
-            if (state.airDates[tmdbId]) return;
+        // Deep TMDB Fetching of schedules, returning show flags and premiere countdowns
+        async function fetchLiveDetails(tmdbId, mediaType) {
+            if (state.liveDetails[tmdbId]) return;
             try {
-                const res = await fetch(`https://api.tvmaze.com/lookup/shows?thetvdb=${tmdbId}`).catch(() => 
-                    fetch(`https://api.tvmaze.com/lookup/shows?tvrage=${tmdbId}`)
-                );
+                const res = await fetch(`https://api.themoviedb.org/3/${mediaType}/${tmdbId}?api_key=${CONFIG.TMDB_KEY}`);
+                if (!res.ok) return;
+                const details = await res.json();
                 
-                const tmdbRes = await fetch(`https://api.themoviedb.org/3/tv/${tmdbId}/external_ids?api_key=${CONFIG.TMDB_KEY}`);
-                const ids = await tmdbRes.json();
-                
-                let tvMazeRes;
-                if (ids.tvdb_id) {
-                    tvMazeRes = await fetch(`https://api.tvmaze.com/lookup/shows?thetvdb=${ids.tvdb_id}`);
-                } else if (ids.imdb_id) {
-                    tvMazeRes = await fetch(`https://api.tvmaze.com/lookup/shows?imdb=${ids.imdb_id}`);
-                }
+                let nextEpDate = null;
+                let isUpcoming = false;
+                let futurePremiereString = null;
+                const today = new Date();
+                today.setHours(0,0,0,0);
 
-                if (tvMazeRes && tvMazeRes.ok) {
-                    const show = await tvMazeRes.json();
-                    if (show._links && show._links.nextepisode) {
-                        const epRes = await fetch(show._links.nextepisode.href);
-                        const epData = await epRes.json();
-                        if (epData.airdate) {
-                            const [y, m, d] = epData.airdate.split('-');
-                            state.airDates[tmdbId] = `${m}/${d}/${y}`;
-                            renderGallery(); 
+                if (mediaType === 'tv') {
+                    // Check TMDB's native next episode metadata
+                    if (details.next_episode_to_air) {
+                        const airDate = new Date(details.next_episode_to_air.air_date);
+                        nextEpDate = `${airDate.getMonth() + 1}/${airDate.getDate()}/${airDate.getFullYear()}`;
+                        
+                        // Detect upcoming new season premiere
+                        if (details.next_episode_to_air.episode_number === 1) {
+                            const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+                            const suffix = (airDate.getDate() == 1 || airDate.getDate() == 21 || airDate.getDate() == 31) ? "st" : (airDate.getDate() == 2 || airDate.getDate() == 22) ? "nd" : (airDate.getDate() == 3 || airDate.getDate() == 23) ? "rd" : "th";
+                            const formattedPremiereDate = `${months[airDate.getMonth()]} ${airDate.getDate()}${suffix}, ${airDate.getFullYear()}`;
+                            futurePremiereString = `Season ${details.next_episode_to_air.season_number} premiere: ${formattedPremiereDate}`;
+                        }
+                    } else if (details.status === "Returning Series" && details.seasons) {
+                        // Scan for scheduled future seasons
+                        const futureSeason = details.seasons.find(s => s.air_date && new Date(s.air_date) > today);
+                        if (futureSeason) {
+                            const airDate = new Date(futureSeason.air_date);
+                            const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+                            const suffix = (airDate.getDate() == 1 || airDate.getDate() == 21 || airDate.getDate() == 31) ? "st" : (airDate.getDate() == 2 || airDate.getDate() == 22) ? "nd" : (airDate.getDate() == 3 || airDate.getDate() == 23) ? "rd" : "th";
+                            const formattedPremiereDate = `${months[airDate.getMonth()]} ${airDate.getDate()}${suffix}, ${airDate.getFullYear()}`;
+                            futurePremiereString = `Season ${futureSeason.season_number} premiere: ${formattedPremiereDate}`;
+                        }
+                    }
+                } else if (mediaType === 'movie') {
+                    if (details.release_date) {
+                        const relDate = new Date(details.release_date);
+                        if (relDate > today) {
+                            isUpcoming = true;
                         }
                     }
                 }
-            } catch (e) { }
+
+                state.liveDetails[tmdbId] = {
+                    status: details.status,
+                    nextEpDate: nextEpDate,
+                    isUpcoming: isUpcoming,
+                    futurePremiereString: futurePremiereString,
+                    releaseDate: details.release_date || details.first_air_date || ''
+                };
+                
+                // Trigger localized UI refresh for this card to prevent global re-render flashes
+                updateCardVisuals(tmdbId);
+            } catch (err) { console.error(err); }
+        }
+
+        function updateCardVisuals(tmdbId) {
+            const cardWrap = document.getElementById(`card-wrap-${tmdbId}`);
+            if (!cardWrap) return;
+            
+            const live = state.liveDetails[tmdbId];
+            if (!live) return;
+
+            // 1. Update card subtitles / release details elegantly
+            const dateLabel = cardWrap.querySelector('.card-release-date');
+            if (dateLabel && live.releaseDate) {
+                dateLabel.innerText = live.releaseDate;
+            }
+
+            // 2. Render Banner hierarchies
+            const bannerContainer = cardWrap.querySelector('.banner-container');
+            if (!bannerContainer) return;
+            
+            let topBannerHtml = '';
+            
+            // Check Premiere Date Priority
+            if (live.futurePremiereString) {
+                topBannerHtml = `<div class="upcoming-banner text-[6.5px] leading-tight">${live.futurePremiereString}</div>`;
+            } 
+            // Next Episode Date
+            else if (live.nextEpDate) {
+                topBannerHtml = `<div class="airdate-banner">Next: ${live.nextEpDate}</div>`;
+            } 
+            // Upcoming movies/releases
+            else if (live.isUpcoming && live.releaseDate) {
+                const [y, m, d] = live.releaseDate.split('-');
+                topBannerHtml = `<div class="upcoming-banner">Upcoming: ${m}/${d}/${y}</div>`;
+            }
+
+            bannerContainer.innerHTML = topBannerHtml;
         }
 
         function toggleSummary(id, event) {
@@ -642,28 +823,21 @@
 
         function renderGallery() {
             const grid = document.getElementById('galleryGrid');
-            const now = new Date();
             grid.innerHTML = galleryData.map(item => {
                 const relDateStr = item.release_date || item.first_air_date || '';
-                const relDate = relDateStr ? new Date(relDateStr) : null;
-                const isNew = relDate && (now - relDate) / (1000 * 60 * 60 * 24) <= 10;
                 
+                // Pull from permanent watched structures (which bypasses recent deletions)
                 const watchData = state.permanentWatched[item.id.toString()];
-                const airDate = state.airDates[item.id];
                 
-                let bannerHtml = watchData ? `<div class="watched-banner">${watchData.type === 'tv' ? `S${watchData.season} E${watchData.episode}` : 'Movie'}</div>` : '';
-                
-                let topBannerHtml = '';
-                if (airDate) {
-                    topBannerHtml = `<div class="airdate-banner">Next: ${airDate}</div>`;
-                } else if (isNew) {
-                    topBannerHtml = `<div class="new-release-banner">New Release</div>`;
+                let watchedBannerHtml = '';
+                if (watchData) {
+                    watchedBannerHtml = `<div class="watched-banner">${watchData.type === 'tv' ? `S${watchData.season} E${watchData.episode}` : 'Movie'}</div>`;
                 }
 
                 return `
-                <div tabindex="0" class="group cursor-pointer gallery-card-wrapper" onclick="loadContent(${item.id}, '${state.type}', ${watchData?.season || 1}, ${watchData?.episode || 1})">
+                <div id="card-wrap-${item.id}" tabindex="0" class="group cursor-pointer gallery-card-wrapper" onclick="loadContent(${item.id}, '${state.type}', ${watchData?.season || 1}, ${watchData?.episode || 1})">
                     <div class="premium-card gallery-poster-container rounded-xl overflow-hidden mb-2 relative">
-                        <img src="https://image.tmdb.org/t/p/w400${item.poster_path}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        <img src="https://image.tmdb.org/t/p/w400${item.poster_path}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://placehold.co/400x600/121212/ffffff?text=Poster+Unavailable'">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                         <div id="summary-${item.id}" class="summary-overlay" onclick="event.stopPropagation()">
                             <h5 class="text-sm font-black text-white mb-2">${item.title || item.name}</h5>
@@ -673,23 +847,36 @@
                         <div onclick="toggleSummary(${item.id}, event)" class="info-icon-btn">
                              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         </div>
-                        ${topBannerHtml}
-                        ${bannerHtml}
+                        
+                        <!-- Top Banner Placement (Updates asynchronously with precise real-time information) -->
+                        <div class="banner-container"></div>
+                        
+                        <!-- Watched Banner (Remains permanent across sessions) -->
+                        ${watchedBannerHtml}
                     </div>
                     <h4 class="text-[10px] font-bold truncate px-1 text-white group-hover:text-purple-400 transition-colors">${item.title || item.name}</h4>
-                    <p class="text-[8px] text-gray-500 font-black px-1 mt-0.5 uppercase tracking-widest">${relDateStr || 'N/A'}</p>
+                    <p class="card-release-date text-[8px] text-gray-500 font-black px-1 mt-0.5 uppercase tracking-widest">${relDateStr || 'Release: N/A'}</p>
                 </div>
                 `;
             }).join('');
+
+            // Fire refresh triggers to render metadata layouts immediately
+            galleryData.forEach(item => updateCardVisuals(item.id));
         }
 
         async function loadContent(id, type, s = 1, e = 1) {
             state.type = type; 
             const res = await fetch(`https://api.themoviedb.org/3/${type}/${id}?api_key=${CONFIG.TMDB_KEY}`);
             state.current = await res.json();
+            
+            currentTvDetails.id = id;
+            currentTvDetails.season = s;
+            currentTvDetails.episode = e;
+
             document.getElementById('playerSection').classList.remove('hidden');
             document.getElementById('playerTitle').innerText = state.current.title || state.current.name;
             window.scrollTo({ top: 0, behavior: 'smooth' });
+            
             if (type === 'tv') {
                 document.getElementById('tvSelectors').classList.remove('hidden');
                 document.getElementById('episodeInfo').classList.remove('hidden');
@@ -698,14 +885,16 @@
                 const seasons = state.current.seasons.filter(x => x.season_number > 0);
                 const sSelect = document.getElementById('seasonSelect');
                 sSelect.innerHTML = seasons.map(x => `<option value="${x.season_number}">Season ${x.season_number}</option>`).join('');
-                sSelect.value = s; await updateEpisodes(s, e);
+                sSelect.value = s; 
+                await updateEpisodes(s, e);
             } else {
                 document.getElementById('tvSelectors').classList.add('hidden');
                 document.getElementById('episodeInfo').classList.add('hidden');
                 document.getElementById('prevEpBtn').classList.add('hidden');
                 document.getElementById('nextEpBtn').classList.add('hidden');
                 document.getElementById('playerSub').innerText = "Movie Stream";
-                updatePlayer(); triggerSaveBuffer(state.current);
+                loadServerIframe("movie", id); 
+                triggerSaveBuffer(state.current);
             }
         }
 
@@ -713,9 +902,15 @@
             const res = await fetch(`https://api.themoviedb.org/3/tv/${state.current.id}/season/${sNum}?api_key=${CONFIG.TMDB_KEY}`);
             const data = await res.json();
             state.currentEpisodes = data.episodes;
+            cachedSeasonEpisodes = data.episodes;
+            currentTvDetails.totalEpisodes = data.episodes.length;
+            
+            currentTvDetails.season = sNum;
+            currentTvDetails.episode = eNum;
+
             updateEpisodeDropdown(sNum, eNum);
             updateEpisodeDetails(eNum);
-            updatePlayer(); 
+            loadServerIframe("tv", state.current.id, sNum, eNum); 
             triggerSaveBuffer(state.current, sNum, eNum);
         }
 
@@ -745,25 +940,119 @@
             document.getElementById('nextEpBtn').disabled = (eNum >= maxEpisodes && sNum >= maxSeasons);
         }
 
-        function updatePlayer() {
-            const srcId = document.getElementById('srcSelect').value;
-            const src = availableSources.find(x => x.id === srcId) || availableSources[0];
-            const player = document.getElementById('mainPlayer');
-            const s = document.getElementById('seasonSelect').value || 1; 
-            const e = document.getElementById('episodeSelect').value || 1;
-            
-            if (noSandboxSources.includes(src.id)) { 
-                player.removeAttribute('sandbox'); 
-            } else { 
-                player.setAttribute('sandbox', 'allow-forms allow-pointer-lock allow-same-origin allow-scripts allow-top-navigation'); 
+        function populateSourcesDropdown() {
+            const menu = document.getElementById("sources-menu-options");
+            if (!menu) return;
+            menu.innerHTML = "";
+            serversList.forEach(server => {
+                const btn = document.createElement("button");
+                btn.type = "button";
+                btn.setAttribute("draggable", "false");
+                
+                const isActive = server.id === activeServer;
+                btn.className = `p-2.5 rounded-lg text-[10px] font-bold transition-all duration-200 flex flex-col items-center justify-center text-center gap-1 border border-white/5 cursor-pointer outline-none ${
+                    isActive 
+                    ? 'bg-purple-600/30 border-purple-500 text-white shadow-lg shadow-purple-500/10' 
+                    : 'bg-white/5 text-slate-300 hover:border-purple-500/50 hover:bg-white/10 hover:text-white'
+                }`;
+
+                btn.onclick = () => {
+                    selectServer(server.id);
+                    menu.classList.add("hidden");
+                };
+
+                const nameParts = server.name.split(': ');
+                const label = nameParts[0] || 'Server';
+                const source = nameParts[1] || server.id;
+
+                btn.innerHTML = `
+                    <span class="text-[8px] uppercase tracking-wider text-purple-400 font-extrabold">${label}</span>
+                    <span class="text-white truncate max-w-full font-bold">${source}</span>
+                `;
+                menu.appendChild(btn);
+            });
+            updateSelectedSourceText();
+        }
+
+        function updateSelectedSourceText() {
+            const active = serversList.find(s => s.id === activeServer);
+            const sourceTextEl = document.getElementById("selected-source-text");
+            if (sourceTextEl) {
+                sourceTextEl.textContent = active ? active.name : "Select Server";
+            }
+        }
+
+        function selectServer(serverName) {
+            activeServer = serverName;
+            updateSelectedSourceText();
+            populateSourcesDropdown(); 
+
+            if (state.current) {
+                if (state.type === "tv") {
+                    const s = document.getElementById('seasonSelect').value || 1;
+                    const e = document.getElementById('episodeSelect').value || 1;
+                    loadServerIframe("tv", state.current.id, s, e);
+                } else {
+                    loadServerIframe("movie", state.current.id);
+                }
+            }
+        }
+
+        function loadServerIframe(type, id, season = 1, episode = 1) {
+            const playerContainer = document.getElementById("player-wrapper");
+            if (!playerContainer) return;
+            let streamUrl = "";
+
+            if (type === "movie") {
+                switch (activeServer) {
+                    case "vixsrc": streamUrl = `https://vixsrc.to/movie/${id}`; break;
+                    case "vault": streamUrl = `https://streamvaultsrc.click/embed/movie/${id}`; break;
+                    case "xpass": streamUrl = `https://play.xpass.top/e/movie/${id}`; break;
+                    case "vaplayer": streamUrl = `https://vaplayer.ru/embed/movie/${id}`; break;
+                    case "filmu": streamUrl = `https://embed.filmu.in/movie/${id}`; break;
+                    case "videasy": streamUrl = `https://player.videasy.net/movie/${id}?color=8834ec`; break;
+                    case "vidfast": streamUrl = `https://www.vidfast.net/movie/${id}`; break;
+                    case "cinemaos": streamUrl = `https://cinemaos.tech/player/${id}`; break;
+                    case "spencerdevs": streamUrl = `https://spencerdevs.xyz/movie/${id}`; break;
+                    case "vyla": streamUrl = `https://vyla.pages.dev/movie/${id}`; break;
+                    case "cinezo": streamUrl = `https://api.cinezo.net/movie/${id}`; break;
+                    case "oneembed": streamUrl = `https://1embed.cc/embed/movie/${id}`; break;
+                    default: streamUrl = `https://vixsrc.to/movie/${id}`;
+                }
+            } else {
+                switch (activeServer) {
+                    case "vixsrc": streamUrl = `https://vixsrc.to/tv/${id}/${season}/${episode}`; break;
+                    case "vault": streamUrl = `https://streamvaultsrc.click/embed/tv/${id}/${season}/${episode}`; break;
+                    case "xpass": streamUrl = `https://play.xpass.top/e/tv/${id}/${season}/${episode}`; break;
+                    case "vaplayer": streamUrl = `https://vaplayer.ru/embed/tv/${id}/${season}/${episode}`; break;
+                    case "filmu": streamUrl = `https://embed.filmu.in/tv/${id}/${season}/${episode}`; break;
+                    case "videasy": streamUrl = `https://player.videasy.net/tv/${id}/${season}/${episode}?autoplayNextEpisode=true&autoPlay=true&nextEpisode=true&color=8834ec`; break;
+                    case "vidfast": streamUrl = `https://www.vidfast.net/tv/${id}/${season}/${episode}?autoPlay=true`; break;
+                    case "cinemaos": streamUrl = `https://cinemaos.live/tv/watch/${id}&${season}&${episode}`; break;
+                    case "spencerdevs": streamUrl = `https://spencerdevs.xyz/tv/${id}/${season}/${episode}`; break;
+                    case "vyla": streamUrl = `https://vyla.pages.dev/tv/${id}/${season}/${episode}`; break;
+                    case "cinezo": streamUrl = `https://api.cinezo.net/tv/${id}/${season}/${episode}?autoplayNext=true?startAt=630`; break;
+                    case "oneembed": streamUrl = `https://1embed.cc/embed/tv/${id}/${season}/${episode}`; break;
+                    default: streamUrl = `https://vixsrc.to/tv/${id}/${season}/${episode}`;
+                }
             }
 
-            let url = state.type === 'movie' 
-                ? src.urls.movie.replace('{id}', state.current.id) 
-                : src.urls.tv.replace('{id}', state.current.id).replace('{season}', s).replace('{episode}', e);
-            
-            url = url.replace('{s}', s).replace('{e}', e).replace('[tmdbId]', state.current.id).replace('[seasonId]', s).replace('[episodeId]', e);
-            player.src = url;
+            const frameElement = document.createElement('iframe');
+            frameElement.src = streamUrl;
+            frameElement.className = "w-full h-full border-0 shadow-2xl bg-black rounded-lg";
+            frameElement.allowFullscreen = true;
+            frameElement.setAttribute("scrolling", "no");
+            frameElement.setAttribute("referrerpolicy", "origin");
+            frameElement.setAttribute("allow", "autoplay; encrypted-media; picture-in-picture");
+
+            if (noSandboxSources.includes(activeServer)) {
+                frameElement.removeAttribute('sandbox');
+            } else {
+                frameElement.setAttribute('sandbox', 'allow-forms allow-pointer-lock allow-same-origin allow-scripts allow-top-navigation');
+            }
+
+            playerContainer.innerHTML = "";
+            playerContainer.appendChild(frameElement);
         }
 
         async function navigateEpisode(dir) {
@@ -782,10 +1071,13 @@
                 }
             }
             document.getElementById('episodeSelect').value = e;
-            updateEpisodeDetails(e); updateEpisodeDropdown(s, e); updatePlayer(); triggerSaveBuffer(state.current, s, e);
+            currentTvDetails.season = s;
+            currentTvDetails.episode = e;
+            updateEpisodeDetails(e); 
+            updateEpisodeDropdown(s, e); 
+            loadServerIframe("tv", state.current.id, s, e); 
+            triggerSaveBuffer(state.current, s, e);
         }
-
-        function renderSources() { document.getElementById('srcSelect').innerHTML = availableSources.map(x => `<option value="${x.id}">${x.name}</option>`).join(''); }
 
         function scrollToGallery() {
             const el = document.getElementById('gallerySection');
@@ -794,6 +1086,16 @@
 
         function setupEvents() {
             document.getElementById('autoscrollBtn').onclick = toggleAutoscroll;
+
+            const srvBtn = document.getElementById('serverSelectorBtn');
+            const srvMenu = document.getElementById('sources-menu-options');
+            srvBtn.onclick = (e) => {
+                e.stopPropagation();
+                srvMenu.classList.toggle('hidden');
+            };
+            document.addEventListener('click', () => {
+                srvMenu.classList.add('hidden');
+            });
 
             document.getElementById('showMoviesBtn').onclick = () => { 
                 state.type = 'movie'; state.page = 1; 
@@ -837,17 +1139,21 @@
             };
             document.getElementById('prevBtn').onclick = () => { if (state.page > 1) { state.page--; fetchGallery(); scrollToGallery(); } };
             document.getElementById('nextBtn').onclick = () => { state.page++; fetchGallery(); scrollToGallery(); };
-            document.getElementById('srcSelect').onchange = updatePlayer;
+            
             document.getElementById('seasonSelect').onchange = (e) => updateEpisodes(e.target.value);
             document.getElementById('episodeSelect').onchange = (e) => {
                 const s = document.getElementById('seasonSelect').value;
                 const eVal = e.target.value;
-                updateEpisodeDetails(eVal); updateEpisodeDropdown(s, eVal); updatePlayer(); triggerSaveBuffer(state.current, s, eVal);
+                updateEpisodeDetails(eVal); 
+                updateEpisodeDropdown(s, eVal); 
+                loadServerIframe("tv", state.current.id, s, eVal); 
+                triggerSaveBuffer(state.current, s, eVal);
             };
             document.getElementById('prevEpBtn').onclick = () => navigateEpisode('prev');
             document.getElementById('nextEpBtn').onclick = () => navigateEpisode('next');
             document.getElementById('fullscreenBtn').onclick = () => {
-                const iframe = document.getElementById('mainPlayer');
+                const iframe = document.querySelector('#player-wrapper iframe');
+                if (!iframe) return;
                 if (iframe.requestFullscreen) iframe.requestFullscreen();
                 else if (iframe.webkitRequestFullscreen) iframe.webkitRequestFullscreen();
             };
@@ -858,13 +1164,9 @@
                 }
             });
 
-            // Unified postMessage listener handling logging and automated navigation triggers securely
             window.addEventListener('message', (event) => {
                 if (event.origin !== 'https://streamvaultsrc.click') return;
-                
                 const { type, data } = event.data;
-                console.log(type, data);
-
                 if (type === 'PLAYER_EVENT') {
                     const { player_status, player_info } = data;
                     if (player_status === 'completed' && player_info && player_info.mediaType === 'tv') {
