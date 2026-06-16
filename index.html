@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,7 +9,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
         
         :root {
             --accent: #a855f7;
@@ -169,27 +170,13 @@
         ::-webkit-scrollbar-track { background: var(--bg-dark); }
         ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
 
-        .marquee-container {
-            overflow: hidden;
-            white-space: nowrap;
-            display: flex;
-            align-items: center;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
-            padding: 4px 12px;
-            height: 32px;
+        .calendar-badge {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(147, 51, 234, 0.25) 100%);
+            border: 1px solid rgba(168, 85, 247, 0.3);
         }
-        .marquee-content {
-            display: inline-block;
-            animation: marquee 95s linear infinite;
-        }
-        .marquee-content:hover {
-            animation-play-state: paused;
-        }
-        @keyframes marquee {
-            0% { transform: translate3d(0, 0, 0); }
-            100% { transform: translate3d(-50%, 0, 0); }
+        .calendar-badge-today {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(21, 128, 61, 0.3) 100%);
+            border: 1px solid rgba(34, 197, 94, 0.5);
         }
     </style>
 </head>
@@ -205,16 +192,53 @@
                 <h1 class="text-lg font-black tracking-tighter text-white">aintThat<span class="text-purple-500">BETTER</span></h1>
             </div>
 
-            <div class="w-full md:max-w-md flex flex-col gap-1">
-                <div class="text-[9px] font-bold text-purple-400 tracking-wider uppercase px-1">Upcoming Weekly Dating Shows</div>
-                <div class="marquee-container text-xs text-gray-300">
-                    <div id="scheduleMarquee" class="marquee-content flex items-center gap-8">
-                        <span>Loading weekly dating show schedule...</span>
+            <!-- Enhanced Centered & Opaque Release Calendar -->
+            <div class="relative w-full md:w-auto" id="calendarDropdownWrapper">
+                <button id="calendarToggleBtn" class="w-full md:w-auto flex items-center justify-between md:justify-start gap-2.5 px-4 py-2.5 rounded-xl bg-purple-600/10 border border-purple-500/20 hover:border-purple-500/50 hover:bg-purple-600/20 text-white font-bold text-xs uppercase tracking-wider transition-all duration-200">
+                    <span class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                        <span>Release Calendar</span>
+                    </span>
+                    <svg id="calendarArrow" class="w-3.5 h-3.5 text-purple-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+
+                <!-- Dropdown panel: Centered, solid background (completely opaque), with Heroicon Scroll Navigation -->
+                <div id="calendarPanel" class="hidden absolute left-1/2 -translate-x-1/2 mt-3 w-[calc(100vw-2rem)] sm:w-[600px] md:w-[680px] bg-[#0a0a0c] border border-white/10 rounded-2xl shadow-2xl z-50 p-4 animate-in fade-in slide-in-from-top-2 duration-200 flex flex-col">
+                    <div class="flex items-center justify-between border-b border-white/10 pb-3 mb-4">
+                        <div class="flex flex-col">
+                            <span class="text-[11px] font-black uppercase tracking-widest text-purple-400">Weekly Release Grid</span>
+                            <span class="text-[9px] font-semibold text-gray-500">Reality & dating shows airing this week</span>
+                        </div>
+                        
+                        <div class="flex items-center gap-2">
+                            <!-- Heroicon Up and Down Navigation Arrow Controls -->
+                            <div class="flex items-center gap-1.5 bg-white/5 border border-white/10 p-1 rounded-lg">
+                                <button id="calScrollUp" class="p-1 rounded-md text-gray-400 hover:text-white hover:bg-white/5 transition-colors" title="Scroll Up">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
+                                    </svg>
+                                </button>
+                                <button id="calScrollDown" class="p-1 rounded-md text-gray-400 hover:text-white hover:bg-white/5 transition-colors" title="Scroll Down">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <span class="text-[9px] font-bold text-purple-500 bg-purple-500/10 border border-purple-500/20 rounded-full px-2 py-0.5 uppercase tracking-wider">US/UK/CA/AU/NZ/ZA</span>
+                        </div>
+                    </div>
+                    
+                    <div id="calendarScrollContainer" class="max-h-[380px] overflow-y-auto scroll-smooth pr-1">
+                        <div id="calendarGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                            <div class="text-xs text-gray-400 col-span-full py-6 text-center font-medium">Loading weekly dating show releases...</div>
+                        </div>
                     </div>
                 </div>
             </div>
-
-
             
             <div class="flex items-center gap-6">
                 <div id="clock" class="text-base font-black text-white tracking-widest min-w-[95px] text-right bg-white/5 px-3 py-1.5 rounded-lg border border-white/10">00:00 AM</div>
@@ -274,7 +298,7 @@
             </div>
         </section>
 
-        <!-- History/Recent Section -->
+        <!-- Recent/History Section -->
         <section id="historySection" class="hidden mb-12">
             <div class="flex items-center gap-2 mb-4">
                 <div class="w-1 h-4 bg-purple-500 rounded-full"></div>
@@ -356,8 +380,6 @@
         ];
 
         const noSandboxSources = ['vixsrc', 'xpass', 'videasy', 'vidfast'];
-        
-        // Define targeted country list (ISO codes)
         const allowedCountries = ['US', 'GB', 'AU', 'NZ', 'ZA', 'CA'];
 
         let state = { 
@@ -365,9 +387,9 @@
             type: 'movie', 
             page: 1, 
             query: '', 
-            history: {}, // Loaded from Parse. Excludes hidden items.
-            permanentWatched: {}, // Retains all watched details, even if hidden from Recent list
-            liveDetails: {}, // Live details from TMDB (status, next episode, upcoming seasons, etc)
+            history: {}, 
+            permanentWatched: {}, 
+            liveDetails: {}, 
             genre: '', 
             year: '' 
         };
@@ -418,13 +440,14 @@
         }
 
         async function fetchUpcomingDatingShows() {
-            const marquee = document.getElementById('scheduleMarquee');
+            const grid = document.getElementById('calendarGrid');
             try {
                 const response = await fetch('https://api.tvmaze.com/schedule/full');
                 if (!response.ok) throw new Error();
                 const fullSchedule = await response.json();
                 
                 const now = new Date();
+                now.setHours(0,0,0,0);
                 const oneWeekLater = new Date();
                 oneWeekLater.setDate(now.getDate() + 7);
                 
@@ -432,7 +455,6 @@
                     if (!item._embedded || !item._embedded.show) return false;
                     const show = item._embedded.show;
                     
-                    // Filter schedule strictly by requested target countries as well
                     const countryCode = show.network?.country?.code || show.webChannel?.country?.code || '';
                     if (countryCode && !allowedCountries.includes(countryCode)) return false;
 
@@ -453,30 +475,72 @@
                 filtered.sort((a, b) => new Date(a.airstamp) - new Date(b.airstamp));
 
                 if (filtered.length === 0) {
-                    marquee.innerHTML = `<span class="text-gray-400 text-[10px] tracking-wide font-medium">No new dating show episodes listed for this week</span>`;
+                    grid.innerHTML = `<div class="text-xs text-gray-500 col-span-full py-8 text-center font-medium">No dating show releases listed for this week.</div>`;
                     return;
                 }
 
-                const itemsHtml = filtered.map(item => {
-                    const showName = item._embedded.show.name;
+                grid.innerHTML = filtered.map(item => {
+                    const show = item._embedded.show;
+                    const showName = show.name;
                     const epSeason = item.season;
                     const epNumber = item.number;
                     const airTime12 = formatTimeTo12Hour(item.airtime);
-                    const [y, m, d] = item.airdate.split('-');
+                    const airDate = new Date(item.airdate + 'T00:00:00');
+                    const country = show.network?.country?.code || show.webChannel?.country?.code || 'INT';
                     
+                    const diffTime = airDate.getTime() - now.getTime();
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    
+                    let relativeDay = '';
+                    let relativeBadgeClass = 'calendar-badge';
+                    
+                    if (diffDays === 0) {
+                        relativeDay = 'Today';
+                        relativeBadgeClass = 'calendar-badge-today';
+                    } else if (diffDays === 1) {
+                        relativeDay = 'Tomorrow';
+                    } else {
+                        relativeDay = airDate.toLocaleDateString('en-US', { weekday: 'long' });
+                    }
+
+                    const networkName = show.network?.name || show.webChannel?.name || 'Streaming';
+
                     return `
-                        <span class="inline-flex items-center gap-1.5 font-medium tracking-tight">
-                            <span class="text-purple-400 font-bold">${showName}</span> 
-                            <span class="text-gray-400 text-[10px]">(S${epSeason}E${epNumber})</span> 
-                            <span class="text-gray-500 font-bold text-[10px]">${m}/${d} at ${airTime12}</span>
-                        </span>
+                        <div class="p-3 bg-white/[0.03] border border-white/5 rounded-xl flex flex-col justify-between hover:border-purple-500/40 hover:bg-white/[0.05] transition-all cursor-pointer group"
+                             onclick="searchDatingShow('${showName.replace(/'/g, "\\'")}')">
+                            <div>
+                                <div class="flex items-center justify-between gap-1.5 mb-1.5">
+                                    <span class="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded ${relativeBadgeClass} text-white">${relativeDay}</span>
+                                    <span class="text-[8px] font-extrabold text-gray-400 bg-white/5 px-1.5 py-0.5 rounded uppercase tracking-wide">${country}</span>
+                                </div>
+                                <h4 class="text-xs font-bold text-white group-hover:text-purple-400 transition-colors line-clamp-1 mb-0.5">${showName}</h4>
+                                <p class="text-[10px] font-semibold text-purple-400">Season ${epSeason} • Episode ${epNumber}</p>
+                            </div>
+                            <div class="mt-3 pt-2 border-t border-white/5 flex items-center justify-between text-[9px] text-gray-500 font-bold uppercase tracking-wider">
+                                <span>${networkName}</span>
+                                <span class="text-gray-400">${airTime12 || 'TBA'}</span>
+                            </div>
+                        </div>
                     `;
                 }).join('');
-
-                marquee.innerHTML = itemsHtml + ' <span class="text-purple-800 text-lg mx-2">•</span> ' + itemsHtml;
             } catch (error) {
-                marquee.innerHTML = `<span class="text-gray-500 text-[10px]">Unable to load schedule feed</span>`;
+                grid.innerHTML = `<div class="text-xs text-red-400 col-span-full py-8 text-center font-semibold">Unable to load weekly release schedules.</div>`;
             }
+        }
+
+        function searchDatingShow(title) {
+            document.getElementById('calendarPanel').classList.add('hidden');
+            document.getElementById('calendarArrow').classList.remove('rotate-180');
+            
+            state.type = 'tv';
+            document.getElementById('showTvBtn').click();
+            
+            const searchInput = document.getElementById('searchInput');
+            searchInput.value = title;
+            state.query = title;
+            state.page = 1;
+            fetchGallery();
+            scrollToGallery();
         }
 
         async function init() {
@@ -544,12 +608,10 @@
                         hidden: isHidden
                     };
 
-                    // Only place in active history display list if NOT hidden by the user
                     if (!isHidden) {
                         state.history[tmdbId][`${s}-${e}`] = data;
                     }
                     
-                    // KEEP permanently on state.permanentWatched so the card banner is preserved forever
                     if (!state.permanentWatched[tmdbId] || new Date(data.watchedDate) > new Date(state.permanentWatched[tmdbId].watchedDate)) {
                         state.permanentWatched[tmdbId] = data;
                     }
@@ -571,7 +633,6 @@
             const tmdbId = item.id.toString();
             const key = `${s}-${e}`;
             
-            // Check if record exists
             let record;
             if (state.history[tmdbId] && state.history[tmdbId][key]) {
                 record = state.history[tmdbId][key].obj;
@@ -587,7 +648,7 @@
             record.set("title", item.title || item.name); 
             record.set("posterPath", item.poster_path); 
             record.set("watchedDate", new Date());
-            record.set("hiddenFromHistory", false); // Default visible in recent flow
+            record.set("hiddenFromHistory", false);
 
             try {
                 const saved = await record.save();
@@ -612,7 +673,6 @@
             } catch (err) { console.error(err); }
         }
 
-        // Remapping dynamic deletion to hide item from recent, but maintain watch state permanently on cards
         async function deleteHistoryItem(tmdbId, event) {
             event.stopPropagation();
             try {
@@ -621,13 +681,11 @@
                 query.equalTo("tmdbId", tmdbId);
                 const results = await query.find();
                 
-                // Flag hidden so it vanishes from recent, but persists in DB for Permanent Watched states
                 for (let doc of results) {
                     doc.set("hiddenFromHistory", true);
                 }
                 await Parse.Object.saveAll(results);
                 
-                // Clear state cache for the recent flow
                 delete state.history[tmdbId];
                 
                 renderHistory(); 
@@ -690,7 +748,6 @@
                 url = `https://api.themoviedb.org/3/search/${state.type}?api_key=${CONFIG.TMDB_KEY}&query=${encodeURIComponent(state.query)}&page=${state.page}`;
             } else {
                 const yearParam = state.type === 'movie' ? 'primary_release_year' : 'first_air_date_year';
-                // Enforce origin country query params at core discovery layer for accuracy
                 url = `https://api.themoviedb.org/3/discover/${state.type}?api_key=${CONFIG.TMDB_KEY}&page=${state.page}&sort_by=popularity.desc&with_genres=${state.genre}&${yearParam}=${state.year}&with_origin_country=${regionJoin}`;
             }
             
@@ -699,19 +756,15 @@
             
             let filteredResults = data.results || [];
 
-            // Perform robust client-side validation on Search responses to keep filtering clean
             if (state.query) {
-                // Fetch basic production info or use origin_country attributes
                 filteredResults = filteredResults.filter(item => {
                     const countries = item.origin_country || [];
-                    if (countries.length === 0) return true; // Keep if unspecified to avoid over-filtering search
+                    if (countries.length === 0) return true; 
                     return countries.some(c => allowedCountries.includes(c));
                 });
             }
 
             galleryData = filteredResults; 
-            
-            // Instantly resolve details (live air dates & premiere states) for the cards in parallel
             galleryData.forEach(item => fetchLiveDetails(item.id, state.type));
             
             renderGallery();
@@ -719,7 +772,6 @@
             document.getElementById('prevBtn').disabled = data.page <= 1;
         }
 
-        // Deep TMDB Fetching of schedules, returning show flags and premiere countdowns
         async function fetchLiveDetails(tmdbId, mediaType) {
             if (state.liveDetails[tmdbId]) return;
             try {
@@ -734,12 +786,10 @@
                 today.setHours(0,0,0,0);
 
                 if (mediaType === 'tv') {
-                    // Check TMDB's native next episode metadata
                     if (details.next_episode_to_air) {
                         const airDate = new Date(details.next_episode_to_air.air_date);
                         nextEpDate = `${airDate.getMonth() + 1}/${airDate.getDate()}/${airDate.getFullYear()}`;
                         
-                        // Detect upcoming new season premiere
                         if (details.next_episode_to_air.episode_number === 1) {
                             const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
                             const suffix = (airDate.getDate() == 1 || airDate.getDate() == 21 || airDate.getDate() == 31) ? "st" : (airDate.getDate() == 2 || airDate.getDate() == 22) ? "nd" : (airDate.getDate() == 3 || airDate.getDate() == 23) ? "rd" : "th";
@@ -747,7 +797,6 @@
                             futurePremiereString = `Season ${details.next_episode_to_air.season_number} premiere: ${formattedPremiereDate}`;
                         }
                     } else if (details.status === "Returning Series" && details.seasons) {
-                        // Scan for scheduled future seasons
                         const futureSeason = details.seasons.find(s => s.air_date && new Date(s.air_date) > today);
                         if (futureSeason) {
                             const airDate = new Date(futureSeason.air_date);
@@ -774,7 +823,6 @@
                     releaseDate: details.release_date || details.first_air_date || ''
                 };
                 
-                // Trigger localized UI refresh for this card to prevent global re-render flashes
                 updateCardVisuals(tmdbId);
             } catch (err) { console.error(err); }
         }
@@ -786,27 +834,22 @@
             const live = state.liveDetails[tmdbId];
             if (!live) return;
 
-            // 1. Update card subtitles / release details elegantly
             const dateLabel = cardWrap.querySelector('.card-release-date');
             if (dateLabel && live.releaseDate) {
                 dateLabel.innerText = live.releaseDate;
             }
 
-            // 2. Render Banner hierarchies
             const bannerContainer = cardWrap.querySelector('.banner-container');
             if (!bannerContainer) return;
             
             let topBannerHtml = '';
             
-            // Check Premiere Date Priority
             if (live.futurePremiereString) {
                 topBannerHtml = `<div class="upcoming-banner text-[6.5px] leading-tight">${live.futurePremiereString}</div>`;
             } 
-            // Next Episode Date
             else if (live.nextEpDate) {
                 topBannerHtml = `<div class="airdate-banner">Next: ${live.nextEpDate}</div>`;
             } 
-            // Upcoming movies/releases
             else if (live.isUpcoming && live.releaseDate) {
                 const [y, m, d] = live.releaseDate.split('-');
                 topBannerHtml = `<div class="upcoming-banner">Upcoming: ${m}/${d}/${y}</div>`;
@@ -825,8 +868,6 @@
             const grid = document.getElementById('galleryGrid');
             grid.innerHTML = galleryData.map(item => {
                 const relDateStr = item.release_date || item.first_air_date || '';
-                
-                // Pull from permanent watched structures (which bypasses recent deletions)
                 const watchData = state.permanentWatched[item.id.toString()];
                 
                 let watchedBannerHtml = '';
@@ -847,11 +888,7 @@
                         <div onclick="toggleSummary(${item.id}, event)" class="info-icon-btn">
                              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         </div>
-                        
-                        <!-- Top Banner Placement (Updates asynchronously with precise real-time information) -->
                         <div class="banner-container"></div>
-                        
-                        <!-- Watched Banner (Remains permanent across sessions) -->
                         ${watchedBannerHtml}
                     </div>
                     <h4 class="text-[10px] font-bold truncate px-1 text-white group-hover:text-purple-400 transition-colors">${item.title || item.name}</h4>
@@ -860,7 +897,6 @@
                 `;
             }).join('');
 
-            // Fire refresh triggers to render metadata layouts immediately
             galleryData.forEach(item => updateCardVisuals(item.id));
         }
 
@@ -1087,14 +1123,45 @@
         function setupEvents() {
             document.getElementById('autoscrollBtn').onclick = toggleAutoscroll;
 
+            // Calendar Dropdown Toggle Event
+            const calBtn = document.getElementById('calendarToggleBtn');
+            const calPanel = document.getElementById('calendarPanel');
+            const calArrow = document.getElementById('calendarArrow');
+            const calScrollContainer = document.getElementById('calendarScrollContainer');
+
+            calBtn.onclick = (e) => {
+                e.stopPropagation();
+                calPanel.classList.toggle('hidden');
+                calArrow.classList.toggle('rotate-180');
+            };
+
+            // Up and Down Navigation Arrow click event listeners (scrolling container smoothly)
+            document.getElementById('calScrollUp').onclick = (e) => {
+                e.stopPropagation();
+                calScrollContainer.scrollBy({ top: -140, behavior: 'smooth' });
+            };
+
+            document.getElementById('calScrollDown').onclick = (e) => {
+                e.stopPropagation();
+                calScrollContainer.scrollBy({ top: 140, behavior: 'smooth' });
+            };
+
             const srvBtn = document.getElementById('serverSelectorBtn');
             const srvMenu = document.getElementById('sources-menu-options');
             srvBtn.onclick = (e) => {
                 e.stopPropagation();
                 srvMenu.classList.toggle('hidden');
             };
-            document.addEventListener('click', () => {
-                srvMenu.classList.add('hidden');
+
+            // Global click window cleanup
+            document.addEventListener('click', (e) => {
+                if (!calPanel.contains(e.target) && e.target !== calBtn) {
+                    calPanel.classList.add('hidden');
+                    calArrow.classList.remove('rotate-180');
+                }
+                if (!srvMenu.contains(e.target) && e.target !== srvBtn) {
+                    srvMenu.classList.add('hidden');
+                }
             });
 
             document.getElementById('showMoviesBtn').onclick = () => { 
@@ -1179,3 +1246,5 @@
     </script>
 </body>
 </html>
+
+```
