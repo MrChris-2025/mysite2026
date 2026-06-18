@@ -78,6 +78,15 @@
             background: rgba(30, 20, 52, 0.9);
             box-shadow: 0 0 30px rgba(136, 52, 236, 0.45);
         }
+
+        /* Touch drag scrolling helper */
+        .drag-scrollable {
+            cursor: grab;
+            scrollbar-width: thin;
+        }
+        .drag-scrollable:active {
+            cursor: grabbing;
+        }
     </style>
 </head>
 <body class="tv-viewport flex flex-col p-6 font-sans">
@@ -124,8 +133,7 @@
                 
                 <div class="col-span-8 flex flex-col justify-between">
                     <div id="player-wrapper" class="relative w-full aspect-video rounded-xl overflow-hidden bg-black shadow-inner">
-                        <!-- Stream iframe injected directly here -->
-                    </div>
+                        </div>
 
                     <div class="flex items-center justify-between mt-3">
                         <div class="flex items-center gap-2">
@@ -134,15 +142,13 @@
                                 Fullscreen
                             </button>
 
-                            <!-- Sources Dropdown -->
                             <div class="relative">
                                 <button id="sources-dropdown-btn" onclick="toggleSourcesDropdown()" class="px-4 py-2 bg-brand-sidebar hover:bg-brand-cardHover border border-white/5 rounded-lg text-xs font-extrabold flex items-center gap-2 text-purple-400 transition-all">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
                                     <span id="selected-source-text">Select Server</span>
                                 </button>
                                 <div id="sources-menu-options" class="hidden absolute bottom-full mb-2 left-0 w-80 max-h-64 overflow-y-auto bg-brand-sidebar border border-brand/20 rounded-xl p-2.5 grid grid-cols-2 gap-1.5 shadow-2xl z-50">
-                                    <!-- Populated dynamically -->
-                                </div>
+                                    </div>
                             </div>
                         </div>
                         
@@ -230,7 +236,7 @@
                     </div>
                 </div>
 
-                <div id="verticalCarousel" class="grid grid-cols-2 gap-4 flex-grow overflow-y-auto pr-1">
+                <div id="verticalCarousel" class="grid grid-cols-2 gap-4 flex-grow overflow-y-auto pr-1 drag-scrollable">
                     <div class="col-span-full flex flex-col items-center justify-center py-24 text-slate-400">
                         <div class="w-10 h-10 border-4 border-brand border-t-transparent rounded-full animate-spin"></div>
                     </div>
@@ -248,7 +254,7 @@
                     </button>
                 </div>
 
-                <div id="continueWatchingContainer" class="flex flex-col gap-3 flex-grow overflow-y-auto pr-1">
+                <div id="continueWatchingContainer" class="flex flex-col gap-3 flex-grow overflow-y-auto pr-1 drag-scrollable">
                     <p class="text-xs text-slate-500 italic py-6 text-center">No history logged.</p>
                 </div>
             </aside>
@@ -327,6 +333,8 @@
             populateSourcesDropdown();
             loadGalleryData(true);
             renderContinueWatching();
+            setupTouchDragScroll(document.getElementById('verticalCarousel'));
+            setupTouchDragScroll(document.getElementById('continueWatchingContainer'));
 
             // Handle outside drop-down clicks
             document.addEventListener('click', (e) => {
@@ -337,6 +345,61 @@
                 }
             });
         });
+
+        // Setup unified desktop mouse drag and mobile touch scrolling logic
+        function setupTouchDragScroll(element) {
+            if (!element) return;
+
+            let isDown = false;
+            let startY;
+            let scrollTop;
+            let totalMoved = 0;
+
+            // Catch and suppress link/card clicks if a drag took place
+            element.addEventListener('click', (e) => {
+                if (totalMoved > 8) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            }, true);
+
+            const startAction = (yPosition) => {
+                isDown = true;
+                totalMoved = 0;
+                startY = yPosition - element.offsetTop;
+                scrollTop = element.scrollTop;
+            };
+
+            const moveAction = (yPosition) => {
+                if (!isDown) return;
+                const y = yPosition - element.offsetTop;
+                const walk = (y - startY) * 1.5; // Scroll speed multiplier
+                totalMoved += Math.abs(walk);
+                element.scrollTop = scrollTop - walk;
+            };
+
+            const stopAction = () => {
+                isDown = false;
+            };
+
+            // Mouse Events
+            element.addEventListener('mousedown', (e) => startAction(e.pageY));
+            element.addEventListener('mouseleave', stopAction);
+            element.addEventListener('mouseup', stopAction);
+            element.addEventListener('mousemove', (e) => {
+                if (!isDown) return;
+                e.preventDefault();
+                moveAction(e.pageY);
+            });
+
+            // Touch Events
+            element.addEventListener('touchstart', (e) => startAction(e.touches[0].pageY), { passive: true });
+            element.addEventListener('touchend', stopAction, { passive: true });
+            element.addEventListener('touchmove', (e) => {
+                if (!isDown) return;
+                moveAction(e.touches[0].pageY);
+            }, { passive: true });
+        }
 
         function initializeClock() {
             function updateClock() {
@@ -606,10 +669,11 @@
 
                 const cardHtml = `
                     <div onclick="selectMediaItem(${item.id}, '${currentContentType}', '${title.replace(/'/g, "\\'")}')" 
-                        class="tv-focusable cursor-pointer glass-card rounded-2xl overflow-hidden flex flex-col justify-between">
+                        class="tv-focusable cursor-pointer glass-card rounded-2xl overflow-hidden flex flex-col justify-between"
+                        draggable="false">
                         
-                        <div class="relative aspect-video w-full overflow-hidden bg-black">
-                            <img src="${backdrop}" alt="${title}" class="w-full h-full object-cover" loading="lazy">
+                        <div class="relative aspect-video w-full overflow-hidden bg-black pointer-events-none">
+                            <img src="${backdrop}" alt="${title}" class="w-full h-full object-cover" loading="lazy" draggable="false">
                             <div class="absolute inset-0 bg-gradient-to-t from-brand-card via-transparent to-transparent"></div>
                             
                             <span class="absolute bottom-2.5 left-2.5 bg-black/70 text-[10px] text-slate-300 font-bold px-2 py-0.5 rounded">
@@ -617,7 +681,7 @@
                             </span>
                         </div>
 
-                        <div class="p-4 flex-grow flex flex-col justify-between gap-1">
+                        <div class="p-4 flex-grow flex flex-col justify-between gap-1 pointer-events-none">
                             <div>
                                 <h3 class="text-sm font-black text-slate-100 line-clamp-1 tracking-tight" title="${title}">${title}</h3>
                                 <p class="text-[11px] text-slate-400 line-clamp-2 leading-relaxed font-medium mt-1">${summary}</p>
@@ -886,7 +950,7 @@
 
             if (history.length === 0) {
                 container.innerHTML = `
-                    <p class="text-xs text-slate-500 italic py-12 text-center">Your recently watched shows and movies will automatically display here.</p>
+                    <p class="text-xs text-slate-500 italic py-12 text-center select-none pointer-events-none">Your recently watched shows and movies will automatically display here.</p>
                 `;
                 return;
             }
@@ -895,9 +959,10 @@
                 const label = item.type === 'tv' ? `S${item.season} • Ep ${item.episode}` : 'Movie';
                 return `
                     <div onclick="selectMediaItem(${item.id}, '${item.type}', '${item.title.replace(/'/g, "\\'")}', ${item.season || 1}, ${item.episode || 1})" 
-                        class="tv-focusable cursor-pointer flex items-center justify-between p-3 bg-black/40 hover:bg-brand-sidebar rounded-2xl shadow-glow-sm">
+                        class="tv-focusable cursor-pointer flex items-center justify-between p-3 bg-black/40 hover:bg-brand-sidebar rounded-2xl shadow-glow-sm"
+                        draggable="false">
                         
-                        <div class="flex items-center gap-3 overflow-hidden">
+                        <div class="flex items-center gap-3 overflow-hidden pointer-events-none">
                             <div class="p-2.5 bg-brand/20 text-brand rounded-xl">
                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                             </div>
@@ -908,10 +973,10 @@
                         </div>
 
                         <div class="flex items-center gap-2">
-                            <span class="text-[9px] font-black text-white bg-brand shadow-glow px-2.5 py-1 rounded-md tracking-wider uppercase">
+                            <span class="text-[9px] font-black text-white bg-brand shadow-glow px-2.5 py-1 rounded-md tracking-wider uppercase pointer-events-none">
                                 Resume
                             </span>
-                            <button onclick="event.stopPropagation(); removeHistoryItem(${item.id}, '${item.type}')" class="text-slate-500 hover:text-red-400 p-1 transition-colors">
+                            <button onclick="event.stopPropagation(); removeHistoryItem(${item.id}, '${item.type}')" class="text-slate-500 hover:text-red-400 p-1 transition-colors relative z-30">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                             </button>
                         </div>
