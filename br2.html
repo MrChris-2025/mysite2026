@@ -79,13 +79,12 @@
             box-shadow: 0 0 30px rgba(136, 52, 236, 0.45);
         }
 
-        /* Touch drag scrolling helper */
-        .drag-scrollable {
-            cursor: grab;
-            scrollbar-width: thin;
+        /* Carousel specific adjustments */
+        #carouselTrack {
+            transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
         }
-        .drag-scrollable:active {
-            cursor: grabbing;
+        #continueWatchingTrack {
+            transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
         }
     </style>
 </head>
@@ -217,7 +216,6 @@
                                     0 items
                                 </span>
                             </h2>
-
                         </div>
                     </div>
                     
@@ -236,10 +234,9 @@
                     </div>
                 </div>
 
-                <div id="verticalCarousel" class="grid grid-cols-2 gap-4 flex-grow overflow-y-auto pr-1 drag-scrollable">
-                    <div class="col-span-full flex flex-col items-center justify-center py-24 text-slate-400">
-                        <div class="w-10 h-10 border-4 border-brand border-t-transparent rounded-full animate-spin"></div>
-                    </div>
+                <div id="verticalCarouselFrame" class="relative flex-grow overflow-hidden rounded-2xl select-none touch-pan-x">
+                    <div id="carouselTrack" class="absolute inset-0 flex flex-col h-full w-full">
+                        </div>
                 </div>
             </section>
 
@@ -254,8 +251,9 @@
                     </button>
                 </div>
 
-                <div id="continueWatchingContainer" class="flex flex-col gap-3 flex-grow overflow-y-auto pr-1 drag-scrollable">
-                    <p class="text-xs text-slate-500 italic py-6 text-center">No history logged.</p>
+                <div id="continueWatchingWindow" class="relative flex-grow overflow-hidden touch-pan-y">
+                    <div id="continueWatchingTrack" class="absolute inset-0 flex flex-col gap-3 w-full">
+                        </div>
                 </div>
             </aside>
 
@@ -328,13 +326,19 @@
 
         let cachedSeasonEpisodes = [];
 
+        // Swipe Gestures Tracking Configurations
+        let galleryTouchStartY = 0;
+        let galleryTouchEndY = 0;
+        let continueTouchStartX = 0;
+        let continueTouchEndX = 0;
+        let currentContinuePage = 0; 
+
         window.addEventListener('DOMContentLoaded', () => {
             initializeClock();
             populateSourcesDropdown();
             loadGalleryData(true);
             renderContinueWatching();
-            setupTouchDragScroll(document.getElementById('verticalCarousel'));
-            setupTouchDragScroll(document.getElementById('continueWatchingContainer'));
+            setupTouchGestures();
 
             // Handle outside drop-down clicks
             document.addEventListener('click', (e) => {
@@ -345,61 +349,6 @@
                 }
             });
         });
-
-        // Setup unified desktop mouse drag and mobile touch scrolling logic
-        function setupTouchDragScroll(element) {
-            if (!element) return;
-
-            let isDown = false;
-            let startY;
-            let scrollTop;
-            let totalMoved = 0;
-
-            // Catch and suppress link/card clicks if a drag took place
-            element.addEventListener('click', (e) => {
-                if (totalMoved > 8) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                }
-            }, true);
-
-            const startAction = (yPosition) => {
-                isDown = true;
-                totalMoved = 0;
-                startY = yPosition - element.offsetTop;
-                scrollTop = element.scrollTop;
-            };
-
-            const moveAction = (yPosition) => {
-                if (!isDown) return;
-                const y = yPosition - element.offsetTop;
-                const walk = (y - startY) * 1.5; // Scroll speed multiplier
-                totalMoved += Math.abs(walk);
-                element.scrollTop = scrollTop - walk;
-            };
-
-            const stopAction = () => {
-                isDown = false;
-            };
-
-            // Mouse Events
-            element.addEventListener('mousedown', (e) => startAction(e.pageY));
-            element.addEventListener('mouseleave', stopAction);
-            element.addEventListener('mouseup', stopAction);
-            element.addEventListener('mousemove', (e) => {
-                if (!isDown) return;
-                e.preventDefault();
-                moveAction(e.pageY);
-            });
-
-            // Touch Events
-            element.addEventListener('touchstart', (e) => startAction(e.touches[0].pageY), { passive: true });
-            element.addEventListener('touchend', stopAction, { passive: true });
-            element.addEventListener('touchmove', (e) => {
-                if (!isDown) return;
-                moveAction(e.touches[0].pageY);
-            }, { passive: true });
-        }
 
         function initializeClock() {
             function updateClock() {
@@ -567,10 +516,11 @@
         }
 
         async function loadGalleryData(reset = true) {
-            const container = document.getElementById('verticalCarousel');
+            const track = document.getElementById('carouselTrack');
             if (reset) {
-                container.innerHTML = `
-                    <div class="col-span-full flex flex-col items-center justify-center py-24 text-slate-400">
+                track.style.transform = `translateY(0%)`;
+                track.innerHTML = `
+                    <div class="w-full h-full flex flex-col items-center justify-center py-24 text-slate-400">
                         <div class="w-10 h-10 border-4 border-brand border-t-transparent rounded-full animate-spin"></div>
                     </div>
                 `;
@@ -638,21 +588,16 @@
         }
 
         function renderGalleryGrid() {
-            const container = document.getElementById('verticalCarousel');
-            container.innerHTML = '';
-
-            const startIndex = (localCurrentPage - 1) * ITEMS_PER_PAGE;
-            const endIndex = startIndex + ITEMS_PER_PAGE;
-            const pageLimitItems = localFilteredItems.slice(startIndex, endIndex);
+            const track = document.getElementById('carouselTrack');
+            track.innerHTML = '';
 
             const localTotalPages = Math.max(1, Math.ceil(localFilteredItems.length / ITEMS_PER_PAGE));
-            
             document.getElementById('galleryCount').textContent = `${localFilteredItems.length} items`;
             document.getElementById('pageIndicator').textContent = `Page ${localCurrentPage} of ${localTotalPages}`;
 
-            if (pageLimitItems.length === 0) {
-                container.innerHTML = `
-                    <div class="col-span-full flex flex-col items-center justify-center py-16 text-slate-500">
+            if (localFilteredItems.length === 0) {
+                track.innerHTML = `
+                    <div class="w-full h-full flex flex-col items-center justify-center py-16 text-slate-500">
                         <svg class="w-12 h-12 mb-2 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         <p class="text-sm font-bold">No results found</p>
                         <p class="text-xs">Try refining your search query</p>
@@ -661,42 +606,60 @@
                 return;
             }
 
-            pageLimitItems.forEach(item => {
-                const title = item.title || item.name || 'Untitled';
-                const backdrop = item.backdrop_path ? `${IMAGE_BASE_URL}${item.backdrop_path}` : 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=600&auto=format&fit=crop';
-                const year = (item.release_date || item.first_air_date || '').substring(0, 4) || '2026';
-                const summary = item.overview ? (item.overview.length > 95 ? item.overview.slice(0, 95) + '...' : item.overview) : 'No plot description available.';
+            // Create discrete slide layout wrapper sections for structured manual sliding pages
+            for (let p = 0; p < localTotalPages; p++) {
+                const pageNode = document.createElement('div');
+                pageNode.className = "w-full h-full min-h-full max-h-full grid grid-cols-2 gap-4 flex-shrink-0 pb-1";
+                
+                const startIndex = p * ITEMS_PER_PAGE;
+                const pageLimitItems = localFilteredItems.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
-                const cardHtml = `
-                    <div onclick="selectMediaItem(${item.id}, '${currentContentType}', '${title.replace(/'/g, "\\'")}')" 
-                        class="tv-focusable cursor-pointer glass-card rounded-2xl overflow-hidden flex flex-col justify-between"
-                        draggable="false">
-                        
-                        <div class="relative aspect-video w-full overflow-hidden bg-black pointer-events-none">
-                            <img src="${backdrop}" alt="${title}" class="w-full h-full object-cover" loading="lazy" draggable="false">
-                            <div class="absolute inset-0 bg-gradient-to-t from-brand-card via-transparent to-transparent"></div>
+                pageLimitItems.forEach(item => {
+                    const title = item.title || item.name || 'Untitled';
+                    const backdrop = item.backdrop_path ? `${IMAGE_BASE_URL}${item.backdrop_path}` : 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=600&auto=format&fit=crop';
+                    const year = (item.release_date || item.first_air_date || '').substring(0, 4) || '2026';
+                    const summary = item.overview ? (item.overview.length > 95 ? item.overview.slice(0, 95) + '...' : item.overview) : 'No plot description available.';
+
+                    pageNode.innerHTML += `
+                        <div onclick="selectMediaItem(${item.id}, '${currentContentType}', '${title.replace(/'/g, "\\'")}')" 
+                            class="tv-focusable cursor-pointer glass-card rounded-2xl overflow-hidden flex flex-col justify-between h-full">
                             
-                            <span class="absolute bottom-2.5 left-2.5 bg-black/70 text-[10px] text-slate-300 font-bold px-2 py-0.5 rounded">
-                                ${year}
-                            </span>
-                        </div>
+                            <div class="relative aspect-video w-full overflow-hidden bg-black shrink-0">
+                                <img src="${backdrop}" alt="${title}" class="w-full h-full object-cover" loading="lazy">
+                                <div class="absolute inset-0 bg-gradient-to-t from-brand-card via-transparent to-transparent"></div>
+                                
+                                <span class="absolute bottom-2.5 left-2.5 bg-black/70 text-[10px] text-slate-300 font-bold px-2 py-0.5 rounded">
+                                    ${year}
+                                </span>
+                            </div>
 
-                        <div class="p-4 flex-grow flex flex-col justify-between gap-1 pointer-events-none">
-                            <div>
-                                <h3 class="text-sm font-black text-slate-100 line-clamp-1 tracking-tight" title="${title}">${title}</h3>
-                                <p class="text-[11px] text-slate-400 line-clamp-2 leading-relaxed font-medium mt-1">${summary}</p>
+                            <div class="p-4 flex-grow flex flex-col justify-between gap-1">
+                                <div>
+                                    <h3 class="text-sm font-black text-slate-100 line-clamp-1 tracking-tight" title="${title}">${title}</h3>
+                                    <p class="text-[11px] text-slate-400 line-clamp-2 leading-relaxed font-medium mt-1">${summary}</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                `;
-                container.innerHTML += cardHtml;
-            });
+                    `;
+                });
+                track.appendChild(pageNode);
+            }
+            updateCarouselPosition();
+        }
+
+        function updateCarouselPosition() {
+            const track = document.getElementById('carouselTrack');
+            const offset = (localCurrentPage - 1) * 100;
+            track.style.transform = `translateY(-${offset}%)`;
+            
+            const localTotalPages = Math.max(1, Math.ceil(localFilteredItems.length / ITEMS_PER_PAGE));
+            document.getElementById('pageIndicator').textContent = `Page ${localCurrentPage} of ${localTotalPages}`;
         }
 
         async function carouselPrevPage() {
             if (localCurrentPage > 1) {
                 localCurrentPage--;
-                renderGalleryGrid();
+                updateCarouselPosition();
             }
         }
 
@@ -704,7 +667,7 @@
             const nextStartIndex = localCurrentPage * ITEMS_PER_PAGE;
             if (nextStartIndex < localFilteredItems.length) {
                 localCurrentPage++;
-                renderGalleryGrid();
+                updateCarouselPosition();
             } else if (tmdbCurrentPage <= tmdbTotalPages) {
                 localCurrentPage++;
                 await loadGalleryData(false);
@@ -941,26 +904,27 @@
             if (history.length > 5) history.pop();
 
             localStorage.setItem('tv_stream_history', JSON.stringify(history));
+            currentContinuePage = 0; 
             renderContinueWatching();
         }
 
         function renderContinueWatching() {
-            const container = document.getElementById('continueWatchingContainer');
+            const track = document.getElementById('continueWatchingTrack');
             const history = JSON.parse(localStorage.getItem('tv_stream_history') || '[]');
 
             if (history.length === 0) {
-                container.innerHTML = `
-                    <p class="text-xs text-slate-500 italic py-12 text-center select-none pointer-events-none">Your recently watched shows and movies will automatically display here.</p>
+                track.style.transform = "translateX(0px)";
+                track.innerHTML = `
+                    <p class="text-xs text-slate-500 italic py-12 text-center w-full">Your recently watched shows will display here.</p>
                 `;
                 return;
             }
 
-            container.innerHTML = history.map(item => {
+            track.innerHTML = history.map(item => {
                 const label = item.type === 'tv' ? `S${item.season} • Ep ${item.episode}` : 'Movie';
                 return `
                     <div onclick="selectMediaItem(${item.id}, '${item.type}', '${item.title.replace(/'/g, "\\'")}', ${item.season || 1}, ${item.episode || 1})" 
-                        class="tv-focusable cursor-pointer flex items-center justify-between p-3 bg-black/40 hover:bg-brand-sidebar rounded-2xl shadow-glow-sm"
-                        draggable="false">
+                        class="tv-focusable cursor-pointer flex items-center justify-between p-3 bg-black/40 hover:bg-brand-sidebar rounded-2xl shadow-glow-sm w-full shrink-0 select-none">
                         
                         <div class="flex items-center gap-3 overflow-hidden pointer-events-none">
                             <div class="p-2.5 bg-brand/20 text-brand rounded-xl">
@@ -983,20 +947,94 @@
                     </div>
                 `;
             }).join('');
+            
+            updateContinueWatchingPosition();
+        }
+
+        function updateContinueWatchingPosition() {
+            const track = document.getElementById('continueWatchingTrack');
+            const win = document.getElementById('continueWatchingWindow');
+            if(!track || !win) return;
+            const step = win.clientHeight; 
+            track.style.transform = `translateY(-${currentContinuePage * step}px)`;
         }
 
         function removeHistoryItem(id, type) {
             let history = JSON.parse(localStorage.getItem('tv_stream_history') || '[]');
             history = history.filter(item => !(item.id === id && item.type === type));
             localStorage.setItem('tv_stream_history', JSON.stringify(history));
+            currentContinuePage = 0;
             renderContinueWatching();
             showToast("Item removed.");
         }
 
         function clearContinueWatching() {
             localStorage.removeItem('tv_stream_history');
+            currentContinuePage = 0;
             renderContinueWatching();
             showToast("History cleared.");
+        }
+
+        function setupTouchGestures() {
+            const galleryFrame = document.getElementById('verticalCarouselFrame');
+            
+            // Vertical Swipe for Gallery Pages
+            galleryFrame.addEventListener('touchstart', (e) => {
+                galleryTouchStartY = e.touches[0].clientY;
+            }, { passive: true });
+
+            galleryFrame.addEventListener('touchend', (e) => {
+                galleryTouchEndY = e.changedTouches[0].clientY;
+                handleGallerySwipe();
+            }, { passive: true });
+
+            // Horizontal Swipe for Continue Watching (Slides list up and down within bounds)
+            const continueWindow = document.getElementById('continueWatchingWindow');
+            
+            continueWindow.addEventListener('touchstart', (e) => {
+                continueTouchStartX = e.touches[0].clientY;
+            }, { passive: true });
+
+            continueWindow.addEventListener('touchend', (e) => {
+                continueTouchEndX = e.changedTouches[0].clientY;
+                handleContinueSwipe();
+            }, { passive: true });
+        }
+
+        function handleGallerySwipe() {
+            const threshold = 50; 
+            const diff = galleryTouchStartY - galleryTouchEndY;
+            
+            if (diff > threshold) {
+                // Swiped up -> Next page
+                carouselNextPage();
+            } else if (diff < -threshold) {
+                // Swiped down -> Previous page
+                carouselPrevPage();
+            }
+        }
+
+        function handleContinueSwipe() {
+            const threshold = 40;
+            const diff = continueTouchStartX - continueTouchEndX;
+            const history = JSON.parse(localStorage.getItem('tv_stream_history') || '[]');
+            
+            // Max layout items dynamic bounds check
+            const maxPages = Math.ceil(history.length / 4); 
+
+            if (diff > threshold) {
+                // Swiped up -> Scroll view forward
+                if (currentContinuePage < maxPages - 1) {
+                    currentContinuePage++;
+                    updateContinueWatchingPosition();
+                }
+            } else if (diff < -threshold) {
+                // Swiped down -> Scroll view back
+                if (currentContinuePage > 0) {
+                    currentContinuePage--;
+                    updateContinueWatchingPosition();
+                }
+            }
         }
 
         function showToast(message) {
