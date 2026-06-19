@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>aintThatBETTER - TV Hub</title>
+    <title>aintThatBETTER</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,700;1,300;1,700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -33,13 +36,18 @@
     </script>
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 300;
             background-color: #06040a;
             background-image: radial-gradient(circle at 50% -20%, #1a0836 0%, #06040a 60%);
             color: #e2e8f0;
             user-select: none;
         }
         
+        .font-bold, h1, h2, h3, h4, button, select, label {
+            font-weight: 700 !important;
+        }
+
         .tv-viewport {
             height: 100vh;
             max-height: 100vh;
@@ -79,7 +87,6 @@
             box-shadow: 0 0 30px rgba(136, 52, 236, 0.45);
         }
 
-        /* Carousel specific adjustments */
         #carouselTrack {
             transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
         }
@@ -92,8 +99,8 @@
 
     <header class="flex items-center justify-between gap-6 mb-5 shrink-0 z-10">
         <div class="flex flex-col">
-            <h1 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-200 to-brand tracking-tight drop-shadow-[0_2px_10px_rgba(136,52,236,0.3)]">
-                aintThat<span class="text-brand font-black">BETTER</span>
+            <h1 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-200 to-brand tracking-tight drop-shadow-[0_2px_10px_rgba(136,52,236,0.3)]">
+                aintThat<span class="text-brand">BETTER</span>
             </h1>
         </div>
 
@@ -109,19 +116,19 @@
             
             <div class="flex bg-brand-card rounded-xl p-1 shrink-0">
                 <button id="toggleTV" onclick="setContentType('tv')" 
-                    class="px-5 py-2 rounded-lg text-xs font-black transition-all bg-brand text-white shadow-glow">
+                    class="px-5 py-2 rounded-lg text-xs transition-all bg-brand text-white shadow-glow">
                     TV Shows
                 </button>
                 <button id="toggleMovie" onclick="setContentType('movie')" 
-                    class="px-5 py-2 rounded-lg text-xs font-black transition-all text-slate-400 hover:text-white">
+                    class="px-5 py-2 rounded-lg text-xs transition-all text-slate-400 hover:text-white">
                     Movies
                 </button>
             </div>
         </div>
 
         <div class="bg-brand-card rounded-2xl px-6 py-2.5 flex flex-col items-end text-right min-w-[160px] shrink-0">
-            <span id="liveTime" class="text-lg font-black text-brand tracking-wider drop-shadow-[0_0_8px_rgba(136,52,236,0.5)]">12:00 PM</span>
-            <span id="liveDate" class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Loading...</span>
+            <span id="liveTime" class="text-lg text-brand tracking-wider drop-shadow-[0_0_8px_rgba(136,52,236,0.5)]">12:00 PM</span>
+            <span id="liveDate" class="text-[10px] text-slate-400 uppercase tracking-widest">Loading...</span>
         </div>
     </header>
 
@@ -131,31 +138,29 @@
             <div class="grid grid-cols-12 gap-6 items-stretch">
                 
                 <div class="col-span-8 flex flex-col justify-between">
-                    <div id="player-wrapper" class="relative w-full aspect-video rounded-xl overflow-hidden bg-black shadow-inner">
-                        </div>
+                    <div id="player-wrapper" class="relative w-full aspect-video rounded-xl overflow-hidden bg-black shadow-inner"></div>
 
                     <div class="flex items-center justify-between mt-3">
                         <div class="flex items-center gap-2">
-                            <button onclick="toggleFullscreen()" class="px-4 py-2 bg-brand-sidebar hover:bg-brand-cardHover rounded-lg text-xs font-bold flex items-center gap-1.5 text-slate-200 transition-all">
+                            <button onclick="toggleFullscreen()" class="px-4 py-2 bg-brand-sidebar hover:bg-brand-cardHover rounded-lg text-xs flex items-center gap-1.5 text-slate-200 transition-all">
                                 <svg class="w-4 h-4 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4h4m12 4V4h-4M4 16v4h4m12-4v4h-4"/></svg>
                                 Fullscreen
                             </button>
 
                             <div class="relative">
-                                <button id="sources-dropdown-btn" onclick="toggleSourcesDropdown()" class="px-4 py-2 bg-brand-sidebar hover:bg-brand-cardHover border border-white/5 rounded-lg text-xs font-extrabold flex items-center gap-2 text-purple-400 transition-all">
+                                <button id="sources-dropdown-btn" onclick="toggleSourcesDropdown()" class="px-4 py-2 bg-brand-sidebar hover:bg-brand-cardHover border border-white/5 rounded-lg text-xs flex items-center gap-2 text-purple-400 transition-all">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
                                     <span id="selected-source-text">Select Server</span>
                                 </button>
-                                <div id="sources-menu-options" class="hidden absolute bottom-full mb-2 left-0 w-80 max-h-64 overflow-y-auto bg-brand-sidebar border border-brand/20 rounded-xl p-2.5 grid grid-cols-2 gap-1.5 shadow-2xl z-50">
-                                    </div>
+                                <div id="sources-menu-options" class="hidden absolute bottom-full mb-2 left-0 w-80 max-h-64 overflow-y-auto bg-brand-sidebar border border-brand/20 rounded-xl p-2.5 grid grid-cols-2 gap-1.5 shadow-2xl z-50"></div>
                             </div>
                         </div>
                         
                         <div class="flex gap-2">
-                            <button id="playerPrevBtn" onclick="navigateEpisode(-1)" class="px-4 py-2 bg-brand-sidebar hover:bg-brand-cardHover rounded-lg text-xs font-bold text-slate-300 disabled:opacity-50 transition-all">
+                            <button id="playerPrevBtn" onclick="navigateEpisode(-1)" class="px-4 py-2 bg-brand-sidebar hover:bg-brand-cardHover rounded-lg text-xs text-slate-300 disabled:opacity-50 transition-all">
                                 Previous
                             </button>
-                            <button id="playerNextBtn" onclick="navigateEpisode(1)" class="px-4 py-2 bg-brand hover:bg-brand-hover rounded-lg text-xs font-bold text-white disabled:opacity-50 transition-all">
+                            <button id="playerNextBtn" onclick="navigateEpisode(1)" class="px-4 py-2 bg-brand hover:bg-brand-hover rounded-lg text-xs text-white disabled:opacity-50 transition-all">
                                 Next
                             </button>
                         </div>
@@ -166,8 +171,8 @@
                     <div class="flex flex-col gap-4">
                         <div class="flex justify-between items-start">
                             <div>
-                                <p id="playerSubtitle" class="text-[10px] font-black text-brand uppercase tracking-wider">Season 1 • Episode 1</p>
-                                <h3 id="episodeTitleHeader" class="text-base font-black text-white mt-1">Episode Overview</h3>
+                                <p id="playerSubtitle" class="text-[10px] text-brand uppercase tracking-wider">Season 1 • Episode 1</p>
+                                <h3 id="episodeTitleHeader" class="text-base text-white mt-1">Episode Overview</h3>
                             </div>
                             <button onclick="closePlayer()" class="text-slate-400 hover:text-white p-1">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -177,23 +182,23 @@
                         <div class="flex flex-col gap-3 bg-black/40 p-3 rounded-xl">
                             <div class="grid grid-cols-2 gap-2">
                                 <div id="seasonSelectorWrapper" class="flex flex-col gap-1">
-                                    <label class="text-[9px] uppercase font-bold text-slate-400 tracking-wider">Season</label>
+                                    <label class="text-[9px] uppercase text-slate-400 tracking-wider">Season</label>
                                     <select id="seasonSelector" onchange="handleSeasonChange()" 
-                                        class="w-full bg-brand-sidebar rounded-lg p-2 text-xs text-slate-200 font-bold focus:outline-none focus:ring-1 focus:ring-brand">
+                                        class="w-full bg-brand-sidebar rounded-lg p-2 text-xs text-slate-200 focus:outline-none focus:ring-1 focus:ring-brand">
                                     </select>
                                 </div>
 
                                 <div id="episodeSelectorWrapper" class="flex flex-col gap-1">
-                                    <label class="text-[9px] uppercase font-bold text-slate-400 tracking-wider">Episode</label>
+                                    <label class="text-[9px] uppercase text-slate-400 tracking-wider">Episode</label>
                                     <select id="episodeSelector" onchange="handleEpisodeChange()" 
-                                        class="w-full bg-brand-sidebar rounded-lg p-2 text-xs text-slate-200 font-bold focus:outline-none focus:ring-1 focus:ring-brand">
+                                        class="w-full bg-brand-sidebar rounded-lg p-2 text-xs text-slate-200 focus:outline-none focus:ring-1 focus:ring-brand">
                                     </select>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="text-xs text-slate-400 leading-relaxed">
-                            <label class="text-[9px] uppercase font-bold text-slate-500 tracking-wider block mb-1">Description</label>
+                        <div class="text-xs text-slate-400 leading-relaxed font-light">
+                            <label class="text-[9px] uppercase text-slate-500 tracking-wider block mb-1">Description</label>
                             <p id="episodeOverviewText" class="max-h-24 overflow-y-auto pr-2">
                                 Select a title to begin playback.
                             </p>
@@ -210,9 +215,9 @@
                     <div class="flex items-center gap-3">
                         <div class="w-2 h-6 bg-brand rounded-full shadow-glow"></div>
                         <div>
-                            <h2 class="text-xl font-extrabold text-white tracking-tight flex items-center gap-2">
+                            <h2 class="text-xl text-white tracking-tight flex items-center gap-2">
                                 Gallery
-                                <span id="galleryCount" class="text-xs text-slate-300 font-bold bg-brand-card px-3 py-1 rounded-full ml-1">
+                                <span id="galleryCount" class="text-xs text-slate-300 bg-brand-card px-3 py-1 rounded-full ml-1">
                                     0 items
                                 </span>
                             </h2>
@@ -224,7 +229,7 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg>
                         </button>
                         
-                        <span id="pageIndicator" class="text-xs font-black bg-brand-card text-slate-300 px-4 py-2 rounded-lg">
+                        <span id="pageIndicator" class="text-xs bg-brand-card text-slate-300 px-4 py-2 rounded-lg">
                             Page 1
                         </span>
 
@@ -235,8 +240,7 @@
                 </div>
 
                 <div id="verticalCarouselFrame" class="relative flex-grow overflow-hidden rounded-2xl select-none touch-pan-x">
-                    <div id="carouselTrack" class="absolute inset-0 flex flex-col h-full w-full">
-                        </div>
+                    <div id="carouselTrack" class="absolute inset-0 flex flex-col h-full w-full"></div>
                 </div>
             </section>
 
@@ -244,16 +248,15 @@
                 <div class="flex items-center justify-between mb-4 pb-3 border-b border-brand/10 shrink-0">
                     <div class="flex items-center gap-2.5">
                         <svg class="w-5 h-5 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        <h3 class="font-black text-slate-200 tracking-wider text-xs uppercase">Continue Watching</h3>
+                        <h3 class="text-slate-200 tracking-wider text-xs uppercase">Continue Watching</h3>
                     </div>
-                    <button onclick="clearContinueWatching()" class="text-xs text-brand hover:text-purple-300 hover:underline font-bold transition-all">
+                    <button onclick="clearContinueWatching()" class="text-xs text-brand hover:text-purple-300 hover:underline transition-all">
                         Clear History
                     </button>
                 </div>
 
                 <div id="continueWatchingWindow" class="relative flex-grow overflow-hidden touch-pan-y">
-                    <div id="continueWatchingTrack" class="absolute inset-0 flex flex-col gap-3 w-full">
-                        </div>
+                    <div id="continueWatchingTrack" class="absolute inset-0 flex flex-col gap-3 w-full"></div>
                 </div>
             </aside>
 
@@ -261,7 +264,7 @@
     </div>
 
     <div id="appToast" class="fixed bottom-6 right-6 glass-panel p-4 rounded-2xl shadow-glow translate-y-20 opacity-0 transition-all duration-300 max-w-sm z-50">
-        <p id="appToastText" class="text-xs text-slate-200 font-bold"></p>
+        <p id="appToastText" class="text-xs text-slate-200"></p>
     </div>
 
     <script>
@@ -301,7 +304,6 @@
         const noSandboxSources = ['vixsrc', 'xpass', 'videasy', 'vidfast'];
         let activeServer = "videasy"; 
 
-        // Live Application State
         let currentContentType = 'tv';
         let searchQuery = '';
         let localFilteredItems = []; 
@@ -313,7 +315,7 @@
         const ALLOWED_COUNTRIES = ['US', 'GB', 'CA', 'AU', 'NZ', 'ZA', 'UK'];
 
         let state = {
-            current: null, // Holds active selection item metadata ({ id, title })
+            current: null,
             type: 'tv'
         };
 
@@ -326,7 +328,6 @@
 
         let cachedSeasonEpisodes = [];
 
-        // Swipe Gestures Tracking Configurations
         let galleryTouchStartY = 0;
         let galleryTouchEndY = 0;
         let continueTouchStartX = 0;
@@ -340,7 +341,6 @@
             renderContinueWatching();
             setupTouchGestures();
 
-            // Handle outside drop-down clicks
             document.addEventListener('click', (e) => {
                 const menu = document.getElementById("sources-menu-options");
                 const btn = document.getElementById("sources-dropdown-btn");
@@ -385,7 +385,7 @@
                 
                 const isActive = server.id === activeServer;
                 
-                btn.className = `p-2.5 rounded-lg text-[10px] font-bold transition-all duration-200 flex flex-col items-center justify-center text-center gap-1 border border-white/5 cursor-pointer outline-none ${
+                btn.className = `p-2.5 rounded-lg text-[10px] transition-all duration-200 flex flex-col items-center justify-center text-center gap-1 border border-white/5 cursor-pointer outline-none ${
                     isActive 
                     ? 'bg-purple-600/30 border-purple-500 text-white shadow-lg shadow-purple-500/10' 
                     : 'bg-white/5 text-slate-300 hover:border-purple-500/50 hover:bg-white/10 hover:text-white'
@@ -401,8 +401,8 @@
                 const source = nameParts[1] || server.id;
 
                 btn.innerHTML = `
-                    <span class="text-[8px] uppercase tracking-wider text-purple-400 font-extrabold">${label}</span>
-                    <span class="text-white truncate max-w-full font-bold">${source}</span>
+                    <span class="text-[8px] uppercase tracking-wider text-purple-400">${label}</span>
+                    <span class="text-white truncate max-w-full">${source}</span>
                 `;
                 menu.appendChild(btn);
             });
@@ -499,11 +499,11 @@
             const btnMovie = document.getElementById('toggleMovie');
 
             if (type === 'tv') {
-                btnTV.className = "px-5 py-2 rounded-lg text-xs font-black transition-all bg-brand text-white shadow-glow";
-                btnMovie.className = "px-5 py-2 rounded-lg text-xs font-black transition-all text-slate-400 hover:text-white";
+                btnTV.className = "px-5 py-2 rounded-lg text-xs transition-all bg-brand text-white shadow-glow";
+                btnMovie.className = "px-5 py-2 rounded-lg text-xs transition-all text-slate-400 hover:text-white";
             } else {
-                btnMovie.className = "px-5 py-2 rounded-lg text-xs font-black transition-all bg-brand text-white shadow-glow";
-                btnTV.className = "px-5 py-2 rounded-lg text-xs font-black transition-all text-slate-400 hover:text-white";
+                btnMovie.className = "px-5 py-2 rounded-lg text-xs transition-all bg-brand text-white shadow-glow";
+                btnTV.className = "px-5 py-2 rounded-lg text-xs transition-all text-slate-400 hover:text-white";
             }
 
             loadGalleryData(true);
@@ -519,11 +519,7 @@
             const track = document.getElementById('carouselTrack');
             if (reset) {
                 track.style.transform = `translateY(0%)`;
-                track.innerHTML = `
-                    <div class="w-full h-full flex flex-col items-center justify-center py-24 text-slate-400">
-                        <div class="w-10 h-10 border-4 border-brand border-t-transparent rounded-full animate-spin"></div>
-                    </div>
-                `;
+                track.innerHTML = "";
                 localFilteredItems = [];
                 localCurrentPage = 1;
                 tmdbCurrentPage = 1;
@@ -566,7 +562,6 @@
                         break;
                     }
                 } catch (err) {
-                    console.warn("Retrying database query", err);
                     break;
                 }
             }
@@ -599,14 +594,13 @@
                 track.innerHTML = `
                     <div class="w-full h-full flex flex-col items-center justify-center py-16 text-slate-500">
                         <svg class="w-12 h-12 mb-2 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        <p class="text-sm font-bold">No results found</p>
-                        <p class="text-xs">Try refining your search query</p>
+                        <p class="text-sm">No results found</p>
+                        <p class="text-xs font-light">Try refining your search query</p>
                     </div>
                 `;
                 return;
             }
 
-            // Create discrete slide layout wrapper sections for structured manual sliding pages
             for (let p = 0; p < localTotalPages; p++) {
                 const pageNode = document.createElement('div');
                 pageNode.className = "w-full h-full min-h-full max-h-full grid grid-cols-2 gap-4 flex-shrink-0 pb-1";
@@ -628,15 +622,15 @@
                                 <img src="${backdrop}" alt="${title}" class="w-full h-full object-cover" loading="lazy">
                                 <div class="absolute inset-0 bg-gradient-to-t from-brand-card via-transparent to-transparent"></div>
                                 
-                                <span class="absolute bottom-2.5 left-2.5 bg-black/70 text-[10px] text-slate-300 font-bold px-2 py-0.5 rounded">
+                                <span class="absolute bottom-2.5 left-2.5 bg-black/70 text-[10px] text-slate-300 px-2 py-0.5 rounded">
                                     ${year}
                                 </span>
                             </div>
 
                             <div class="p-4 flex-grow flex flex-col justify-between gap-1">
                                 <div>
-                                    <h3 class="text-sm font-black text-slate-100 line-clamp-1 tracking-tight" title="${title}">${title}</h3>
-                                    <p class="text-[11px] text-slate-400 line-clamp-2 leading-relaxed font-medium mt-1">${summary}</p>
+                                    <h3 class="text-sm text-slate-100 line-clamp-1 tracking-tight" title="${title}">${title}</h3>
+                                    <p class="text-[11px] text-slate-400 line-clamp-2 leading-relaxed font-light mt-1">${summary}</p>
                                 </div>
                             </div>
                         </div>
@@ -735,9 +729,7 @@
                     const data = await response.json();
                     document.getElementById('episodeOverviewText').textContent = data.overview || 'No description available.';
                 }
-            } catch (err) {
-                console.warn("Could not load details from TMDB online backend.", err);
-            }
+            } catch (err) {}
         }
 
         async function fetchRealTvDetails(id, startSeason, startEpisode) {
@@ -750,7 +742,6 @@
                 buildSeasonsDropdown(seasonsCount);
                 await fetchEpisodesList();
             } catch (err) {
-                console.warn("Details API query failure, reverting to standard load parameters", err);
                 loadServerIframe("tv", currentTvDetails.id, currentTvDetails.season, currentTvDetails.episode);
             }
         }
@@ -915,7 +906,7 @@
             if (history.length === 0) {
                 track.style.transform = "translateX(0px)";
                 track.innerHTML = `
-                    <p class="text-xs text-slate-500 italic py-12 text-center w-full">Your recently watched shows will display here.</p>
+                    <p class="text-xs text-slate-500 italic py-12 text-center w-full font-light">Your recently watched shows will display here.</p>
                 `;
                 return;
             }
@@ -931,13 +922,13 @@
                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                             </div>
                             <div class="overflow-hidden">
-                                <h4 class="text-xs font-black text-slate-200 line-clamp-1">${item.title}</h4>
-                                <p class="text-[10px] font-bold text-slate-400 mt-0.5">${label}</p>
+                                <h4 class="text-xs text-slate-200 line-clamp-1">${item.title}</h4>
+                                <p class="text-[10px] text-slate-400 mt-0.5 font-light">${label}</p>
                             </div>
                         </div>
 
                         <div class="flex items-center gap-2">
-                            <span class="text-[9px] font-black text-white bg-brand shadow-glow px-2.5 py-1 rounded-md tracking-wider uppercase pointer-events-none">
+                            <span class="text-[9px] text-white bg-brand shadow-glow px-2.5 py-1 rounded-md tracking-wider uppercase pointer-events-none">
                                 Resume
                             </span>
                             <button onclick="event.stopPropagation(); removeHistoryItem(${item.id}, '${item.type}')" class="text-slate-500 hover:text-red-400 p-1 transition-colors relative z-30">
@@ -978,7 +969,6 @@
         function setupTouchGestures() {
             const galleryFrame = document.getElementById('verticalCarouselFrame');
             
-            // Vertical Swipe for Gallery Pages
             galleryFrame.addEventListener('touchstart', (e) => {
                 galleryTouchStartY = e.touches[0].clientY;
             }, { passive: true });
@@ -988,7 +978,6 @@
                 handleGallerySwipe();
             }, { passive: true });
 
-            // Horizontal Swipe for Continue Watching (Slides list up and down within bounds)
             const continueWindow = document.getElementById('continueWatchingWindow');
             
             continueWindow.addEventListener('touchstart', (e) => {
@@ -1006,10 +995,8 @@
             const diff = galleryTouchStartY - galleryTouchEndY;
             
             if (diff > threshold) {
-                // Swiped up -> Next page
                 carouselNextPage();
             } else if (diff < -threshold) {
-                // Swiped down -> Previous page
                 carouselPrevPage();
             }
         }
@@ -1018,18 +1005,14 @@
             const threshold = 40;
             const diff = continueTouchStartX - continueTouchEndX;
             const history = JSON.parse(localStorage.getItem('tv_stream_history') || '[]');
-            
-            // Max layout items dynamic bounds check
             const maxPages = Math.ceil(history.length / 4); 
 
             if (diff > threshold) {
-                // Swiped up -> Scroll view forward
                 if (currentContinuePage < maxPages - 1) {
                     currentContinuePage++;
                     updateContinueWatchingPosition();
                 }
             } else if (diff < -threshold) {
-                // Swiped down -> Scroll view back
                 if (currentContinuePage > 0) {
                     currentContinuePage--;
                     updateContinueWatchingPosition();
