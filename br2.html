@@ -272,23 +272,9 @@
         const TMDB_BASE_URL = "https://api.themoviedb.org/3";
         const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
 
-        const OFFLINE_BACKUP_TV = [
-            { id: 119051, name: "Wednesday", first_air_date: "2022", overview: "Wednesday Addams' misadventures as a student at Nevermore Academy, a unique boarding school." },
-            { id: 121043, name: "From", first_air_date: "2022", overview: "Unravel the mystery of a nightmarish town in middle America that traps all those who enter." },
-            { id: 100088, name: "The Last of Us", first_air_date: "2023", overview: "Twenty years after modern civilization has been destroyed, Joel is hired to smuggle Ellie out." },
-            { id: 1396, name: "Breaking Bad", first_air_date: "2008", overview: "A high school chemistry teacher diagnosed with inoperable lung cancer turns to manufacturing meth." }
-        ];
-
-        const OFFLINE_BACKUP_MOVIES = [
-            { id: 1111873, title: "Oppenheimer", release_date: "2023", overview: "The story of J. Robert Oppenheimer's role in the development of the atomic bomb." },
-            { id: 414906, title: "The Batman", release_date: "2022", overview: "In his second year of fighting crime, Batman uncovers corruption in Gotham City." },
-            { id: 671, title: "Harry Potter and the Sorcerer's Stone", release_date: "2001", overview: "An orphaned boy enrolls in a school of wizardry, where he learns the truth about himself." },
-            { id: 19995, title: "Avatar", release_date: "2009", overview: "A paraplegic Marine dispatched to the moon Pandora on a unique mission becomes torn between directions." }
-        ];
-
         const serversList = [
             { id: 'vixsrc', name: 'Server 1: Vixsrc' },
-            { id: 'vault', name: 'Server 2: Vault' },
+            { id: 'vidrock', name: 'Server 2: VidRock' },
             { id: 'xpass', name: 'Server 3: XPass' },
             { id: 'vaplayer', name: 'Server 4: VAPlayer' },
             { id: 'filmu', name: 'Server 5: Filmu' },
@@ -441,7 +427,7 @@
             if (type === "movie") {
                 switch (activeServer) {
                     case "vixsrc": streamUrl = `https://vixsrc.to/movie/${id}`; break;
-                    case "vault": streamUrl = `https://streamvaultsrc.click/embed/movie/${id}`; break;
+                    case "vidrock": streamUrl = `https://vidrock.ru/movie/${tmdb_id}`; break; 
                     case "xpass": streamUrl = `https://play.xpass.top/e/movie/${id}`; break;
                     case "vaplayer": streamUrl = `https://vaplayer.ru/embed/movie/${id}`; break;
                     case "filmu": streamUrl = `https://embed.filmu.in/movie/${id}`; break;
@@ -457,7 +443,7 @@
             } else {
                 switch (activeServer) {
                     case "vixsrc": streamUrl = `https://vixsrc.to/tv/${id}/${season}/${episode}`; break;
-                    case "vault": streamUrl = `https://streamvaultsrc.click/embed/tv/${id}/${season}/${episode}`; break;
+                    case "vidrock": streamUrl = `https://vidrock.ru/tv/${tmdb_id}/${season}/${episode}`; break;
                     case "xpass": streamUrl = `https://play.xpass.top/e/tv/${id}/${season}/${episode}`; break;
                     case "vaplayer": streamUrl = `https://vaplayer.ru/embed/tv/${id}/${season}/${episode}`; break;
                     case "filmu": streamUrl = `https://embed.filmu.in/tv/${id}/${season}/${episode}`; break;
