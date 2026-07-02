@@ -284,7 +284,9 @@
             { id: 'spencerdevs', name: 'Server 9: SpencerDevs' },
             { id: 'vyla', name: 'Server 10: Vyla' },
             { id: 'cinezo', name: 'Server 11: Cinezo' },
-            { id: 'oneembed', name: 'Server 12: 1Embed' }
+            { id: 'oneembed', name: 'Server 12: 1Embed' },
+            { id: 'cinemabz', name: 'Server 13: Cinema.bz' },
+            { id: 'nextbox', name: 'Server 14: NextBox' }
         ];
 
         const noSandboxSources = ['vixsrc', 'xpass', 'videasy', 'vidrock', 'vidfast'];
@@ -438,6 +440,8 @@
                     case "vyla": streamUrl = `https://vyla.pages.dev/movie/${id}`; break;
                     case "cinezo": streamUrl = `https://api.cinezo.net/movie/${id}`; break;
                     case "oneembed": streamUrl = `https://1embed.cc/embed/movie/${id}`; break;
+                    case "cinemabz": streamUrl = `https://cinema.bz/watch?id=${id}&type=movie`; break;
+                    case "nextbox": streamUrl = `https://nextbox.uno/player/movie/${id}`; break;
                     default: streamUrl = `https://vixsrc.to/movie/${id}`;
                 }
             } else {
@@ -454,6 +458,8 @@
                     case "vyla": streamUrl = `https://vyla.pages.dev/tv/${id}/${season}/${episode}`; break;
                     case "cinezo": streamUrl = `https://api.cinezo.net/tv/${id}/${season}/${episode}?autoplayNext=true?startAt=630`; break;
                     case "oneembed": streamUrl = `https://1embed.cc/embed/tv/${id}/${season}/${episode}`; break;
+                    case "cinemabz": streamUrl = `https://cinema.bz/watch?id=${id}&type=tv&season=${season}&episode=${episode}`; break;
+                    case "nextbox": streamUrl = `https://nextbox.uno/player/tv/${id}/${season}/${episode}`; break;
                     default: streamUrl = `https://vixsrc.to/tv/${id}/${season}/${episode}`;
                 }
             }
