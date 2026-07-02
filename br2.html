@@ -427,7 +427,7 @@
             if (type === "movie") {
                 switch (activeServer) {
                     case "vixsrc": streamUrl = `https://vixsrc.to/movie/${id}`; break;
-                    case "vidrock": streamUrl = `https://vidrock.ru/movie/${tmdb_id}`; break; 
+                    case "vidrock": streamUrl = `https://vidrock.ru/movie/${id}`; break; 
                     case "xpass": streamUrl = `https://play.xpass.top/e/movie/${id}`; break;
                     case "vaplayer": streamUrl = `https://vaplayer.ru/embed/movie/${id}`; break;
                     case "filmu": streamUrl = `https://embed.filmu.in/movie/${id}`; break;
@@ -443,7 +443,7 @@
             } else {
                 switch (activeServer) {
                     case "vixsrc": streamUrl = `https://vixsrc.to/tv/${id}/${season}/${episode}`; break;
-                    case "vidrock": streamUrl = `https://vidrock.ru/tv/${tmdb_id}/${season}/${episode}`; break;
+                    case "vidrock": streamUrl = `https://vidrock.ru/tv/${id}/${season}/${episode}`; break;
                     case "xpass": streamUrl = `https://play.xpass.top/e/tv/${id}/${season}/${episode}`; break;
                     case "vaplayer": streamUrl = `https://vaplayer.ru/embed/tv/${id}/${season}/${episode}`; break;
                     case "filmu": streamUrl = `https://embed.filmu.in/tv/${id}/${season}/${episode}`; break;
