@@ -80,7 +80,7 @@
             border-radius: 3px;
         }
 
-        /* Fix the slight drag and blur by updating transition styles & using transform3d */
+        /* Hardware acceleration layers to resolve rendering jitters */
         .tv-focusable {
             transition: transform 0.15s ease-out, background-color 0.15s ease-out, box-shadow 0.15s ease-out;
             transform: translate3d(0, 0, 0);
@@ -277,7 +277,6 @@
     </div>
 
     <script>
-        // Back4app Configuration Initialization
         Parse.initialize("alKzjiTiF9VGpNRdwXM9vEH03pbTZKmiKEslxufD", "Q8M8LoqVzfz5fXijwcHVDysJlynhMlzb3yf7hvKB");
         Parse.serverURL = 'https://parseapi.back4app.com/';
 
@@ -334,8 +333,6 @@
         let continueTouchStartX = 0;
         let continueTouchEndX = 0;
         let currentContinuePage = 0; 
-        
-        // 30 Second tracking handle
         let watchTimer = null;
 
         window.addEventListener('DOMContentLoaded', async () => {
@@ -343,8 +340,6 @@
             populateSourcesDropdown();
             loadGalleryData(true);
             setupTouchGestures();
-            
-            // Sync history once from remote back4app instance on startup
             await fetchHistoryFromBack4app();
 
             document.addEventListener('click', (e) => {
@@ -499,7 +494,6 @@
             playerContainer.innerHTML = "";
             playerContainer.appendChild(frameElement);
 
-            // Clear previous watchdog countdowns and start a fresh 30s confirmation window
             if(watchTimer) clearTimeout(watchTimer);
             watchTimer = setTimeout(() => {
                 saveToContinueWatching(id, type, state.current.title, season, episode);
@@ -606,7 +600,6 @@
 
             for (let p = 0; p < localTotalPages; p++) {
                 const pageNode = document.createElement('div');
-                // Removed flex h-full / overflow downfalls to properly display TV show descriptions and card info fields safely.
                 pageNode.className = "w-full h-full min-h-full max-h-full grid grid-cols-2 gap-4 flex-shrink-0 pb-1";
                 
                 const startIndex = p * ITEMS_PER_PAGE;
@@ -618,22 +611,21 @@
                     const year = (item.release_date || item.first_air_date || '').substring(0, 4) || '2026';
                     const summary = item.overview ? (item.overview.length > 95 ? item.overview.slice(0, 95) + '...' : item.overview) : 'No plot description available.';
 
+                    // Layout Fix: Use card overlay absolute anchoring to keep titles permanently locked into frame on Android TV devices
                     pageNode.innerHTML += `
                         <div onclick="selectMediaItem(${item.id}, '${currentContentType}', '${title.replace(/'/g, "\\'")}')" 
-                            class="tv-focusable cursor-pointer bg-brand-card/90 rounded-2xl overflow-hidden flex flex-col justify-between h-full border border-white/5 shadow-lg">
+                            class="tv-focusable cursor-pointer relative rounded-2xl overflow-hidden h-full bg-brand-card border border-white/5 shadow-lg">
                             
-                            <div class="relative aspect-video w-full overflow-hidden bg-black shrink-0">
-                                <img src="${backdrop}" alt="${title}" class="w-full h-full object-cover" loading="lazy">
-                                <div class="absolute inset-0 bg-gradient-to-t from-brand-card via-transparent to-transparent"></div>
-                                
-                                <span class="absolute bottom-2.5 left-2.5 bg-black/70 text-[10px] text-slate-300 px-2 py-0.5 rounded">
-                                    ${year}
-                                </span>
-                            </div>
+                            <img src="${backdrop}" alt="${title}" class="w-full h-full object-cover absolute inset-0" loading="lazy">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/45 to-transparent"></div>
+                            
+                            <span class="absolute top-2.5 left-2.5 bg-black/70 text-[10px] text-slate-300 px-2 py-0.5 rounded">
+                                ${year}
+                            </span>
 
-                            <div class="p-3.5 flex-grow flex flex-col justify-start gap-1 bg-brand-card">
-                                <h3 class="text-sm font-bold text-white tracking-wide block truncate w-full" style="display: block !important;">${title}</h3>
-                                <p class="text-[11px] text-slate-400 line-clamp-2 leading-relaxed font-light mt-0.5">${summary}</p>
+                            <div class="absolute bottom-0 left-0 right-0 p-3.5 flex flex-col gap-0.5 z-10">
+                                <h3 class="text-sm font-bold text-white tracking-wide truncate w-full m-0" style="display: block !important;">${title}</h3>
+                                <p class="text-[10px] text-slate-300 line-clamp-1 font-light opacity-90 m-0">${summary}</p>
                             </div>
                         </div>
                     `;
@@ -879,7 +871,6 @@
             }
         }
 
-        // Minimal local history loader synced via Back4app instances
         async function fetchHistoryFromBack4app() {
             try {
                 const HistoryClass = Parse.Object.extend("History");
@@ -904,7 +895,6 @@
             }
         }
 
-        // Saves item after 30 second streaming limit is achieved
         async function saveToContinueWatching(id, type, title, season = 1, episode = 1) {
             let history = JSON.parse(localStorage.getItem('tv_stream_history') || '[]');
             
@@ -917,7 +907,6 @@
                 timestamp: Date.now()
             };
 
-            // Remove existing duplicates locally
             history = history.filter(item => !(item.id === entry.id && item.type === entry.type));
             history.unshift(entry);
             if (history.length > 5) history.pop();
@@ -925,11 +914,9 @@
             
             renderContinueWatching();
 
-            // Minimalist communication to Back4App to handle free account constraints
             try {
                 const HistoryClass = Parse.Object.extend("History");
                 
-                // Clear duplicates on server first before adding entry
                 const duplicateQuery = new Parse.Query(HistoryClass);
                 duplicateQuery.equalTo("mediaId", id);
                 duplicateQuery.equalTo("type", type);
@@ -938,7 +925,6 @@
                     await Parse.Object.destroyAll(duplicates);
                 }
 
-                // Push clean unique object 
                 const historyObj = new HistoryClass();
                 historyObj.set("mediaId", id);
                 historyObj.set("type", type);
@@ -947,9 +933,7 @@
                 historyObj.set("episode", episode);
                 historyObj.set("timestamp", entry.timestamp);
                 await historyObj.save();
-            } catch (err) {
-                // Fails silently if requests hit free tier throttling limits
-            }
+            } catch (err) {}
         }
 
         function renderContinueWatching() {
@@ -1003,7 +987,6 @@
             track.style.transform = `translateY(-${currentContinuePage * step}px)`;
         }
 
-        // Completely removes entry from UI, local storage, and Back4App database classes
         async function removeHistoryItem(id, type) {
             let history = JSON.parse(localStorage.getItem('tv_stream_history') || '[]');
             history = history.filter(item => !(item.id === id && item.type === type));
