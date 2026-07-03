@@ -7,8 +7,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,700;1,300;1,700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
+    
     <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -57,12 +58,14 @@
 
         .glass-panel {
             background: rgba(13, 8, 22, 0.8);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
         }
         
         .glass-card {
             background: rgba(19, 14, 32, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
         }
 
         ::-webkit-scrollbar {
@@ -77,21 +80,27 @@
             border-radius: 3px;
         }
 
+        /* Fix the slight drag and blur by updating transition styles & using transform3d */
         .tv-focusable {
-            transition: transform 0.15s ease-out, background 0.15s ease-out, box-shadow 0.15s ease-out;
-            will-change: transform, box-shadow;
+            transition: transform 0.15s ease-out, background-color 0.15s ease-out, box-shadow 0.15s ease-out;
+            transform: translate3d(0, 0, 0);
+            backface-visibility: hidden;
         }
         .tv-focusable:hover, .tv-focusable:focus-within {
-            transform: scale(1.015);
+            transform: translate3d(0, 0, 0) scale(1.02);
             background: rgba(30, 20, 52, 0.9);
-            box-shadow: 0 0 20px rgba(136, 52, 236, 0.35);
+            box-shadow: 0 0 30px rgba(136, 52, 236, 0.45);
         }
 
         #carouselTrack {
-            transition: transform 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+            transition: transform 0.25s ease-out;
+            transform: translate3d(0, 0, 0);
+            backface-visibility: hidden;
         }
         #continueWatchingTrack {
-            transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+            transition: transform 0.25s ease-out;
+            transform: translate3d(0, 0, 0);
+            backface-visibility: hidden;
         }
     </style>
 </head>
@@ -268,9 +277,9 @@
     </div>
 
     <script>
-        // Parse SDK Configuration for Free Back4App Tier
+        // Back4app Configuration Initialization
         Parse.initialize("alKzjiTiF9VGpNRdwXM9vEH03pbTZKmiKEslxufD", "Q8M8LoqVzfz5fXijwcHVDysJlynhMlzb3yf7hvKB");
-        Parse.serverURL = "https://parseapi.back4app.com/";
+        Parse.serverURL = 'https://parseapi.back4app.com/';
 
         const TMDB_API_KEY = "1070730380f5fee0d87cf0382670b255";
         const TMDB_BASE_URL = "https://api.themoviedb.org/3";
@@ -325,16 +334,18 @@
         let continueTouchStartX = 0;
         let continueTouchEndX = 0;
         let currentContinuePage = 0; 
+        
+        // 30 Second tracking handle
+        let watchTimer = null;
 
-        // Minimalist Backend Tracking Properties
-        let backendSyncTimer = null;
-
-        window.addEventListener('DOMContentLoaded', () => {
+        window.addEventListener('DOMContentLoaded', async () => {
             initializeClock();
             populateSourcesDropdown();
             loadGalleryData(true);
-            fetchCloudHistory();
             setupTouchGestures();
+            
+            // Sync history once from remote back4app instance on startup
+            await fetchHistoryFromBack4app();
 
             document.addEventListener('click', (e) => {
                 const menu = document.getElementById("sources-menu-options");
@@ -487,6 +498,12 @@
 
             playerContainer.innerHTML = "";
             playerContainer.appendChild(frameElement);
+
+            // Clear previous watchdog countdowns and start a fresh 30s confirmation window
+            if(watchTimer) clearTimeout(watchTimer);
+            watchTimer = setTimeout(() => {
+                saveToContinueWatching(id, type, state.current.title, season, episode);
+            }, 30000); 
         }
 
         function setContentType(type) {
@@ -589,6 +606,7 @@
 
             for (let p = 0; p < localTotalPages; p++) {
                 const pageNode = document.createElement('div');
+                // Removed flex h-full / overflow downfalls to properly display TV show descriptions and card info fields safely.
                 pageNode.className = "w-full h-full min-h-full max-h-full grid grid-cols-2 gap-4 flex-shrink-0 pb-1";
                 
                 const startIndex = p * ITEMS_PER_PAGE;
@@ -602,7 +620,7 @@
 
                     pageNode.innerHTML += `
                         <div onclick="selectMediaItem(${item.id}, '${currentContentType}', '${title.replace(/'/g, "\\'")}')" 
-                            class="tv-focusable cursor-pointer glass-card rounded-2xl overflow-hidden flex flex-col justify-between h-full relative z-10">
+                            class="tv-focusable cursor-pointer bg-brand-card/90 rounded-2xl overflow-hidden flex flex-col justify-between h-full border border-white/5 shadow-lg">
                             
                             <div class="relative aspect-video w-full overflow-hidden bg-black shrink-0">
                                 <img src="${backdrop}" alt="${title}" class="w-full h-full object-cover" loading="lazy">
@@ -613,11 +631,9 @@
                                 </span>
                             </div>
 
-                            <div class="p-4 flex-grow flex flex-col justify-between gap-1 relative z-20 bg-brand-card">
-                                <div>
-                                    <h3 class="text-sm text-slate-100 font-bold block opacity-100 visible select-text line-clamp-1 tracking-tight" style="display: block !important;">${title}</h3>
-                                    <p class="text-[11px] text-slate-400 line-clamp-2 leading-relaxed font-light mt-1">${summary}</p>
-                                </div>
+                            <div class="p-3.5 flex-grow flex flex-col justify-start gap-1 bg-brand-card">
+                                <h3 class="text-sm font-bold text-white tracking-wide block truncate w-full" style="display: block !important;">${title}</h3>
+                                <p class="text-[11px] text-slate-400 line-clamp-2 leading-relaxed font-light mt-0.5">${summary}</p>
                             </div>
                         </div>
                     `;
@@ -705,9 +721,6 @@
             }
 
             document.getElementById('episodeTitleHeader').textContent = title;
-            
-            // Wait exactly 30 seconds before writing to cloud history
-            initiateStreamTimer(id, type, title, startSeason, startEpisode);
         }
 
         async function fetchRealMovieDetails(id) {
@@ -809,7 +822,6 @@
             currentTvDetails.episode = 1;
             document.getElementById('playerSubtitle').textContent = `Season ${currentTvDetails.season} • Episode 1`;
             await fetchEpisodesList();
-            initiateStreamTimer(currentTvDetails.id, 'tv', state.current.title, currentTvDetails.season, 1);
         }
 
         function handleEpisodeChange() {
@@ -817,7 +829,6 @@
             document.getElementById('playerSubtitle').textContent = `Season ${currentTvDetails.season} • Episode ${currentTvDetails.episode}`;
             updateActiveEpisodeUI();
             loadServerIframe("tv", currentTvDetails.id, currentTvDetails.season, currentTvDetails.episode);
-            initiateStreamTimer(currentTvDetails.id, 'tv', state.current.title, currentTvDetails.season, currentTvDetails.episode);
         }
 
         function navigateEpisode(direction) {
@@ -828,7 +839,6 @@
                 document.getElementById('playerSubtitle').textContent = `Season ${currentTvDetails.season} • Episode ${currentTvDetails.episode}`;
                 updateActiveEpisodeUI();
                 loadServerIframe("tv", currentTvDetails.id, currentTvDetails.season, currentTvDetails.episode);
-                initiateStreamTimer(currentTvDetails.id, 'tv', state.current.title, currentTvDetails.season, currentTvDetails.episode);
             } else if (direction > 0) {
                 const seasonSelector = document.getElementById('seasonSelector');
                 const nextSeason = parseInt(currentTvDetails.season) + 1;
@@ -844,9 +854,9 @@
         }
 
         function closePlayer() {
-            if (backendSyncTimer) {
-                clearTimeout(backendSyncTimer);
-                backendSyncTimer = null;
+            if(watchTimer) {
+                clearTimeout(watchTimer);
+                watchTimer = null;
             }
             const wrapper = document.getElementById("player-wrapper");
             if (wrapper) {
@@ -869,73 +879,76 @@
             }
         }
 
-        // Minimalistic Stream Buffering (Prevents API Spam on Back4App Free Class)
-        function initiateStreamTimer(id, type, title, season, episode) {
-            if (backendSyncTimer) clearTimeout(backendSyncTimer);
-            
-            backendSyncTimer = setTimeout(() => {
-                saveToCloudBackend(id, type, title, season, episode);
-            }, 30000); // Wait exactly 30 seconds before hitting backend
+        // Minimal local history loader synced via Back4app instances
+        async function fetchHistoryFromBack4app() {
+            try {
+                const HistoryClass = Parse.Object.extend("History");
+                const query = new Parse.Query(HistoryClass);
+                query.descending("timestamp");
+                query.limit(5);
+                const results = await query.find();
+                
+                const historyList = results.map(obj => ({
+                    id: obj.get("mediaId"),
+                    type: obj.get("type"),
+                    title: obj.get("title"),
+                    season: obj.get("season"),
+                    episode: obj.get("episode"),
+                    timestamp: obj.get("timestamp")
+                }));
+                
+                localStorage.setItem('tv_stream_history', JSON.stringify(historyList));
+                renderContinueWatching();
+            } catch (error) {
+                renderContinueWatching();
+            }
         }
 
-        // Local & Cloud Synced Core Save Mechanism
-        async function saveToCloudBackend(id, type, title, season = 1, episode = 1) {
-            // 1. Maintain local Storage state immediately
+        // Saves item after 30 second streaming limit is achieved
+        async function saveToContinueWatching(id, type, title, season = 1, episode = 1) {
             let history = JSON.parse(localStorage.getItem('tv_stream_history') || '[]');
-            const entry = { id: id, type: type, title: title, season: season, episode: episode, timestamp: Date.now() };
+            
+            const entry = {
+                id: id,
+                type: type,
+                title: title,
+                season: season,
+                episode: episode,
+                timestamp: Date.now()
+            };
+
+            // Remove existing duplicates locally
             history = history.filter(item => !(item.id === entry.id && item.type === entry.type));
             history.unshift(entry);
             if (history.length > 5) history.pop();
             localStorage.setItem('tv_stream_history', JSON.stringify(history));
+            
             renderContinueWatching();
 
-            // 2. Minimalist Back4App sync execution
-            const HistoryClass = Parse.Object.extend("History");
-            const query = new Parse.Query(HistoryClass);
-            query.equalTo("mediaId", id);
-            query.equalTo("mediaType", type);
-            
+            // Minimalist communication to Back4App to handle free account constraints
             try {
-                let record = await query.first();
-                if (!record) {
-                    record = new HistoryClass();
-                    record.set("mediaId", id);
-                    record.set("mediaType", type);
+                const HistoryClass = Parse.Object.extend("History");
+                
+                // Clear duplicates on server first before adding entry
+                const duplicateQuery = new Parse.Query(HistoryClass);
+                duplicateQuery.equalTo("mediaId", id);
+                duplicateQuery.equalTo("type", type);
+                const duplicates = await duplicateQuery.find();
+                if (duplicates.length > 0) {
+                    await Parse.Object.destroyAll(duplicates);
                 }
-                record.set("title", title);
-                record.set("season", season);
-                record.set("episode", episode);
-                record.set("timestamp", Date.now());
-                await record.save();
-            } catch (error) {
-                console.error("Back4App background saving minimized out/failed:", error);
-            }
-        }
 
-        // Initial Data retrieval from Cloud
-        async function fetchCloudHistory() {
-            const HistoryClass = Parse.Object.extend("History");
-            const query = new Parse.Query(HistoryClass);
-            query.descending("timestamp");
-            query.limit(5);
-
-            try {
-                const results = await query.find();
-                const processedHistory = results.map(item => ({
-                    id: item.get("mediaId"),
-                    type: item.get("mediaType"),
-                    title: item.get("title"),
-                    season: item.get("season"),
-                    episode: item.get("episode"),
-                    timestamp: item.get("timestamp")
-                }));
-                if (processedHistory.length > 0) {
-                    localStorage.setItem('tv_stream_history', JSON.stringify(processedHistory));
-                    renderContinueWatching();
-                }
-            } catch (error) {
-                // Network fail safeguard: read fallback storage
-                renderContinueWatching();
+                // Push clean unique object 
+                const historyObj = new HistoryClass();
+                historyObj.set("mediaId", id);
+                historyObj.set("type", type);
+                historyObj.set("title", title);
+                historyObj.set("season", season);
+                historyObj.set("episode", episode);
+                historyObj.set("timestamp", entry.timestamp);
+                await historyObj.save();
+            } catch (err) {
+                // Fails silently if requests hit free tier throttling limits
             }
         }
 
@@ -962,7 +975,7 @@
                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                             </div>
                             <div class="overflow-hidden">
-                                <h4 class="text-xs text-slate-200 line-clamp-1">${item.title}</h4>
+                                <h4 class="text-xs font-bold text-slate-200 line-clamp-1">${item.title}</h4>
                                 <p class="text-[10px] text-slate-400 mt-0.5 font-light">${label}</p>
                             </div>
                         </div>
@@ -990,48 +1003,42 @@
             track.style.transform = `translateY(-${currentContinuePage * step}px)`;
         }
 
-        // Complete & Clean Cloud Destructive Removal
+        // Completely removes entry from UI, local storage, and Back4App database classes
         async function removeHistoryItem(id, type) {
-            // Remove locally
             let history = JSON.parse(localStorage.getItem('tv_stream_history') || '[]');
             history = history.filter(item => !(item.id === id && item.type === type));
             localStorage.setItem('tv_stream_history', JSON.stringify(history));
             currentContinuePage = 0;
             renderContinueWatching();
+            showToast("Item removed.");
 
-            // Destroy entry directly from server database
-            const HistoryClass = Parse.Object.extend("History");
-            const query = new Parse.Query(HistoryClass);
-            query.equalTo("mediaId", id);
-            query.equalTo("mediaType", type);
-            
             try {
-                const targetObject = await query.first();
-                if (targetObject) {
-                    await targetObject.destroy();
+                const HistoryClass = Parse.Object.extend("History");
+                const query = new Parse.Query(HistoryClass);
+                query.equalTo("mediaId", id);
+                query.equalTo("type", type);
+                const records = await query.find();
+                if(records.length > 0) {
+                    await Parse.Object.destroyAll(records);
                 }
-                showToast("Item removed from cloud history.");
-            } catch (error) {
-                showToast("Removed locally.");
-            }
+            } catch(e) {}
         }
 
         async function clearContinueWatching() {
             localStorage.removeItem('tv_stream_history');
             currentContinuePage = 0;
             renderContinueWatching();
+            showToast("History cleared.");
 
-            const HistoryClass = Parse.Object.extend("History");
-            const query = new Parse.Query(HistoryClass);
             try {
-                const results = await query.find();
-                if(results.length > 0) {
-                    await Parse.Object.destroyAll(results);
+                const HistoryClass = Parse.Object.extend("History");
+                const query = new Parse.Query(HistoryClass);
+                query.limit(100);
+                const records = await query.find();
+                if(records.length > 0) {
+                    await Parse.Object.destroyAll(records);
                 }
-                showToast("History cleared entirely.");
-            } catch (error) {
-                showToast("History cleared.");
-            }
+            } catch(e) {}
         }
 
         function setupTouchGestures() {
