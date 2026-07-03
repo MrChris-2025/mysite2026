@@ -272,6 +272,16 @@
         const TMDB_BASE_URL = "https://api.themoviedb.org/3";
         const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
 
+        // Back4app REST API Configuration (Minimalistic SDK replacement)
+        const PARSE_APP_ID = "alKzjiTiF9VGpNRdwXM9vEH03pbTZKmiKEslxufD";
+        const PARSE_JS_KEY = "Q8M8LoqVzfz5fXijwcHVDysJlynhMlzb3yf7hvKB";
+        const PARSE_HEADERS = {
+            "X-Parse-Application-Id": PARSE_APP_ID,
+            "X-Parse-JavaScript-Key": PARSE_JS_KEY,
+            "Content-Type": "application/json"
+        };
+        const PARSE_CLASS_URL = "https://parseapi.back4app.com/classes/ContinueWatching";
+
         const serversList = [
             { id: 'vixsrc', name: 'Server 1: Vixsrc' },
             { id: 'vidrock', name: 'Server 2: VidRock' },
@@ -321,12 +331,15 @@
         let continueTouchStartX = 0;
         let continueTouchEndX = 0;
         let currentContinuePage = 0; 
+        
+        // 30 Seconds Tracker Handle
+        let saveWatchHistoryTimeout = null;
 
         window.addEventListener('DOMContentLoaded', () => {
             initializeClock();
             populateSourcesDropdown();
             loadGalleryData(true);
-            renderContinueWatching();
+            fetchContinueWatching(); // Pull from remote back4app database on boot
             setupTouchGestures();
 
             document.addEventListener('click', (e) => {
@@ -558,19 +571,6 @@
                 }
             }
 
-            if (!loadSuccess || localFilteredItems.length === 0) {
-                const backup = (currentContentType === 'tv') ? OFFLINE_BACKUP_TV : OFFLINE_BACKUP_MOVIES;
-                if (searchQuery) {
-                    const decoded = decodeURIComponent(searchQuery).toLowerCase();
-                    localFilteredItems = backup.filter(item => {
-                        const title = (item.title || item.name || '').toLowerCase();
-                        return title.includes(decoded);
-                    });
-                } else {
-                    localFilteredItems = backup;
-                }
-            }
-
             renderGalleryGrid();
         }
 
@@ -711,7 +711,9 @@
             }
 
             document.getElementById('episodeTitleHeader').textContent = title;
-            saveToContinueWatching(id, type, title, startSeason, startEpisode);
+            
+            // Trigger Back4app Save sequence guarded by a 30 seconds wait threshold
+            queueHistorySave(id, type, title, startSeason, startEpisode);
         }
 
         async function fetchRealMovieDetails(id) {
@@ -813,7 +815,7 @@
             currentTvDetails.episode = 1;
             document.getElementById('playerSubtitle').textContent = `Season ${currentTvDetails.season} • Episode 1`;
             await fetchEpisodesList();
-            saveToContinueWatching(currentTvDetails.id, 'tv', state.current.title, currentTvDetails.season, 1);
+            queueHistorySave(currentTvDetails.id, 'tv', state.current.title, currentTvDetails.season, 1);
         }
 
         function handleEpisodeChange() {
@@ -821,7 +823,7 @@
             document.getElementById('playerSubtitle').textContent = `Season ${currentTvDetails.season} • Episode ${currentTvDetails.episode}`;
             updateActiveEpisodeUI();
             loadServerIframe("tv", currentTvDetails.id, currentTvDetails.season, currentTvDetails.episode);
-            saveToContinueWatching(currentTvDetails.id, 'tv', state.current.title, currentTvDetails.season, currentTvDetails.episode);
+            queueHistorySave(currentTvDetails.id, 'tv', state.current.title, currentTvDetails.season, currentTvDetails.episode);
         }
 
         function navigateEpisode(direction) {
@@ -832,7 +834,7 @@
                 document.getElementById('playerSubtitle').textContent = `Season ${currentTvDetails.season} • Episode ${currentTvDetails.episode}`;
                 updateActiveEpisodeUI();
                 loadServerIframe("tv", currentTvDetails.id, currentTvDetails.season, currentTvDetails.episode);
-                saveToContinueWatching(currentTvDetails.id, 'tv', state.current.title, currentTvDetails.season, currentTvDetails.episode);
+                queueHistorySave(currentTvDetails.id, 'tv', state.current.title, currentTvDetails.season, currentTvDetails.episode);
             } else if (direction > 0) {
                 const seasonSelector = document.getElementById('seasonSelector');
                 const nextSeason = parseInt(currentTvDetails.season) + 1;
@@ -848,6 +850,10 @@
         }
 
         function closePlayer() {
+            if (saveWatchHistoryTimeout) {
+                clearTimeout(saveWatchHistoryTimeout);
+                saveWatchHistoryTimeout = null;
+            }
             const wrapper = document.getElementById("player-wrapper");
             if (wrapper) {
                 wrapper.innerHTML = "";
@@ -869,44 +875,118 @@
             }
         }
 
-        function saveToContinueWatching(id, type, title, season = 1, episode = 1) {
-            let history = JSON.parse(localStorage.getItem('tv_stream_history') || '[]');
-            
-            const entry = {
-                id: id,
-                type: type,
-                title: title,
-                season: season,
-                episode: episode,
-                timestamp: Date.now()
-            };
+        // --- Back4app Integration Logic ---
 
-            history = history.filter(item => !(item.id === entry.id && item.type === entry.type));
-            history.unshift(entry);
-            
-            if (history.length > 5) history.pop();
+        // Local global state array mapping remote items
+        let globalHistoryList = [];
 
-            localStorage.setItem('tv_stream_history', JSON.stringify(history));
-            currentContinuePage = 0; 
-            renderContinueWatching();
+        function queueHistorySave(id, type, title, season = 1, episode = 1) {
+            if (saveWatchHistoryTimeout) clearTimeout(saveWatchHistoryTimeout);
+            
+            // Wait precisely 30 seconds of persistent stream action before adding/updating database
+            saveWatchHistoryTimeout = setTimeout(() => {
+                saveToBack4app(id, type, title, season, episode);
+            }, 30000);
         }
 
-        function renderContinueWatching() {
-            const track = document.getElementById('continueWatchingTrack');
-            const history = JSON.parse(localStorage.getItem('tv_stream_history') || '[]');
+        async function fetchContinueWatching() {
+            try {
+                // Request sorted via latest updated record timestamp
+                const url = `${PARSE_CLASS_URL}?order=-updatedAt&limit=10`;
+                const res = await fetch(url, { method: "GET", headers: PARSE_HEADERS });
+                if (!res.ok) throw new Error();
+                const data = await res.json();
+                
+                globalHistoryList = data.results || [];
+                renderHistoryUI();
+            } catch (err) {
+                console.error("Back4app failed retrieving entries.");
+            }
+        }
 
-            if (history.length === 0) {
-                track.style.transform = "translateX(0px)";
+        async function saveToBack4app(mediaId, type, title, season, episode) {
+            try {
+                // Single lightweight match query to find duplicate
+                const queryFilter = encodeURIComponent(JSON.stringify({ mediaId: Number(mediaId), type: type }));
+                const lookupRes = await fetch(`${PARSE_CLASS_URL}?where=${queryFilter}`, { method: "GET", headers: PARSE_HEADERS });
+                const lookupData = await lookupRes.json();
+                
+                const payload = {
+                    mediaId: Number(mediaId),
+                    type: type,
+                    title: title,
+                    season: Number(season),
+                    episode: Number(episode)
+                };
+
+                if (lookupData.results && lookupData.results.length > 0) {
+                    // Entry exists: Minimalistic Update PUT call targeting objectId
+                    const existingObjId = lookupData.results[0].objectId;
+                    await fetch(`${PARSE_CLASS_URL}/${existingObjId}`, {
+                        method: "PUT",
+                        headers: PARSE_HEADERS,
+                        body: JSON.stringify(payload)
+                    });
+                } else {
+                    // Entry is unique: POST creation call
+                    await fetch(PARSE_CLASS_URL, {
+                        method: "POST",
+                        headers: PARSE_HEADERS,
+                        body: JSON.stringify(payload)
+                    });
+                }
+                // Refresh local timeline cleanly
+                fetchContinueWatching();
+            } catch (e) {
+                console.error("Error communicating save event to Back4app");
+            }
+        }
+
+        async function removeHistoryItem(objectId) {
+            try {
+                // Direct targeted DELETE operation eliminating row completely
+                const res = await fetch(`${PARSE_CLASS_URL}/${objectId}`, {
+                    method: "DELETE",
+                    headers: PARSE_HEADERS
+                });
+                if(res.ok) {
+                    showToast("Item removed.");
+                    fetchContinueWatching();
+                }
+            } catch (err) {
+                showToast("Failed to remove item.");
+            }
+        }
+
+        async function clearContinueWatching() {
+            if (globalHistoryList.length === 0) return;
+            showToast("Clearing full history...");
+            try {
+                // Loop delete requests dynamically to wipe database
+                for (let item of globalHistoryList) {
+                    await fetch(`${PARSE_CLASS_URL}/${item.objectId}`, { method: "DELETE", headers: PARSE_HEADERS });
+                }
+                showToast("History cleared.");
+                fetchContinueWatching();
+            } catch(e) {
+                fetchContinueWatching();
+            }
+        }
+
+        function renderHistoryUI() {
+            const track = document.getElementById('continueWatchingTrack');
+            if (globalHistoryList.length === 0) {
+                track.style.transform = "translateY(0px)";
                 track.innerHTML = `
                     <p class="text-xs text-slate-500 italic py-12 text-center w-full font-light">Your recently watched shows will display here.</p>
                 `;
                 return;
             }
 
-            track.innerHTML = history.map(item => {
+            track.innerHTML = globalHistoryList.map(item => {
                 const label = item.type === 'tv' ? `S${item.season} • Ep ${item.episode}` : 'Movie';
                 return `
-                    <div onclick="selectMediaItem(${item.id}, '${item.type}', '${item.title.replace(/'/g, "\\'")}', ${item.season || 1}, ${item.episode || 1})" 
+                    <div onclick="selectMediaItem(${item.mediaId}, '${item.type}', '${item.title.replace(/'/g, "\\'")}', ${item.season || 1}, ${item.episode || 1})" 
                         class="tv-focusable cursor-pointer flex items-center justify-between p-3 bg-black/40 hover:bg-brand-sidebar rounded-2xl shadow-glow-sm w-full shrink-0 select-none">
                         
                         <div class="flex items-center gap-3 overflow-hidden pointer-events-none">
@@ -923,7 +1003,7 @@
                             <span class="text-[9px] text-white bg-brand shadow-glow px-2.5 py-1 rounded-md tracking-wider uppercase pointer-events-none">
                                 Resume
                             </span>
-                            <button onclick="event.stopPropagation(); removeHistoryItem(${item.id}, '${item.type}')" class="text-slate-500 hover:text-red-400 p-1 transition-colors relative z-30">
+                            <button onclick="event.stopPropagation(); removeHistoryItem('${item.objectId}')" class="text-slate-500 hover:text-red-400 p-1 transition-colors relative z-30">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                             </button>
                         </div>
@@ -940,22 +1020,6 @@
             if(!track || !win) return;
             const step = win.clientHeight; 
             track.style.transform = `translateY(-${currentContinuePage * step}px)`;
-        }
-
-        function removeHistoryItem(id, type) {
-            let history = JSON.parse(localStorage.getItem('tv_stream_history') || '[]');
-            history = history.filter(item => !(item.id === id && item.type === type));
-            localStorage.setItem('tv_stream_history', JSON.stringify(history));
-            currentContinuePage = 0;
-            renderContinueWatching();
-            showToast("Item removed.");
-        }
-
-        function clearContinueWatching() {
-            localStorage.removeItem('tv_stream_history');
-            currentContinuePage = 0;
-            renderContinueWatching();
-            showToast("History cleared.");
         }
 
         function setupTouchGestures() {
@@ -996,8 +1060,7 @@
         function handleContinueSwipe() {
             const threshold = 40;
             const diff = continueTouchStartX - continueTouchEndX;
-            const history = JSON.parse(localStorage.getItem('tv_stream_history') || '[]');
-            const maxPages = Math.ceil(history.length / 4); 
+            const maxPages = Math.ceil(globalHistoryList.length / 4); 
 
             if (diff > threshold) {
                 if (currentContinuePage < maxPages - 1) {
