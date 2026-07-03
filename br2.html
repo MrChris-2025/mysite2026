@@ -8,16 +8,17 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,700;1,300;1,700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
                         brand: {
-                            DEFAULT: '#8834ec',
+                            DEFAULT: '#8834ec', // Purple accent
                             hover: '#7022d4',
-                            dark: '#06040a',
-                            card: '#130e20',
+                            dark: '#06040a',    // Ultra-dark background
+                            card: '#130e20',    // Slate violet-black card color
                             cardHover: '#1c1530',
                             sidebar: '#110a1c',
                             glass: 'rgba(19, 14, 32, 0.7)',
@@ -56,14 +57,12 @@
 
         .glass-panel {
             background: rgba(13, 8, 22, 0.8);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
         }
         
         .glass-card {
             background: rgba(19, 14, 32, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
         }
 
         ::-webkit-scrollbar {
@@ -79,17 +78,20 @@
         }
 
         .tv-focusable {
-            transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+            transition: transform 0.15s ease-out, background 0.15s ease-out, box-shadow 0.15s ease-out;
+            will-change: transform, box-shadow;
         }
         .tv-focusable:hover, .tv-focusable:focus-within {
-            transform: scale(1.02);
+            transform: scale(1.015);
             background: rgba(30, 20, 52, 0.9);
-            box-shadow: 0 0 30px rgba(136, 52, 236, 0.45);
+            box-shadow: 0 0 20px rgba(136, 52, 236, 0.35);
         }
 
-        #carouselTrack, #continueWatchingTrack {
-            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            will-change: transform;
+        #carouselTrack {
+            transition: transform 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        #continueWatchingTrack {
+            transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1);
         }
     </style>
 </head>
@@ -237,7 +239,7 @@
                     </div>
                 </div>
 
-                <div id="verticalCarouselFrame" class="relative flex-grow overflow-hidden rounded-2xl select-none">
+                <div id="verticalCarouselFrame" class="relative flex-grow overflow-hidden rounded-2xl select-none touch-pan-x">
                     <div id="carouselTrack" class="absolute inset-0 flex flex-col h-full w-full"></div>
                 </div>
             </section>
@@ -253,7 +255,7 @@
                     </button>
                 </div>
 
-                <div id="continueWatchingWindow" class="relative flex-grow overflow-hidden">
+                <div id="continueWatchingWindow" class="relative flex-grow overflow-hidden touch-pan-y">
                     <div id="continueWatchingTrack" class="absolute inset-0 flex flex-col gap-3 w-full"></div>
                 </div>
             </aside>
@@ -266,9 +268,9 @@
     </div>
 
     <script>
-        const PARSE_APP_ID = "alKzjiTiF9VGpNRdwXM9vEH03pbTZKmiKEslxufD";
-        const PARSE_JS_KEY = "Q8M8LoqVzfz5fXijwcHVDysJlynhMlzb3yf7hvKB";
-        const PARSE_REST_URL = "https://parseapi.back4app.com/classes/ContinueWatching";
+        // Parse SDK Configuration for Free Back4App Tier
+        Parse.initialize("alKzjiTiF9VGpNRdwXM9vEH03pbTZKmiKEslxufD", "Q8M8LoqVzfz5fXijwcHVDysJlynhMlzb3yf7hvKB");
+        Parse.serverURL = "https://parseapi.back4app.com/";
 
         const TMDB_API_KEY = "1070730380f5fee0d87cf0382670b255";
         const TMDB_BASE_URL = "https://api.themoviedb.org/3";
@@ -317,15 +319,22 @@
         };
 
         let cachedSeasonEpisodes = [];
+
+        let galleryTouchStartY = 0;
+        let galleryTouchEndY = 0;
+        let continueTouchStartX = 0;
+        let continueTouchEndX = 0;
         let currentContinuePage = 0; 
-        let playbackTimer = null;
-        let historyCachedData = [];
+
+        // Minimalist Backend Tracking Properties
+        let backendSyncTimer = null;
 
         window.addEventListener('DOMContentLoaded', () => {
             initializeClock();
             populateSourcesDropdown();
             loadGalleryData(true);
-            syncContinueWatching();
+            fetchCloudHistory();
+            setupTouchGestures();
 
             document.addEventListener('click', (e) => {
                 const menu = document.getElementById("sources-menu-options");
@@ -345,6 +354,7 @@
                 hours = hours % 12 || 12;
                 
                 document.getElementById('liveTime').textContent = `${hours}:${minutes} ${ampm}`;
+
                 const options = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
                 document.getElementById('liveDate').textContent = now.toLocaleDateString('en-US', options);
             }
@@ -354,7 +364,9 @@
 
         function toggleSourcesDropdown() {
             const menu = document.getElementById("sources-menu-options");
-            if (menu) menu.classList.toggle("hidden");
+            if (menu) {
+                menu.classList.toggle("hidden");
+            }
         }
 
         function populateSourcesDropdown() {
@@ -367,6 +379,7 @@
                 btn.setAttribute("draggable", "false");
                 
                 const isActive = server.id === activeServer;
+                
                 btn.className = `p-2.5 rounded-lg text-[10px] transition-all duration-200 flex flex-col items-center justify-center text-center gap-1 border border-white/5 cursor-pointer outline-none ${
                     isActive 
                     ? 'bg-purple-600/30 border-purple-500 text-white shadow-lg shadow-purple-500/10' 
@@ -532,6 +545,7 @@
                     
                     if (data.results && data.results.length > 0) {
                         tmdbTotalPages = data.total_pages;
+
                         const filtered = searchQuery ? data.results : data.results.filter(item => {
                             const originCountries = item.origin_country || [];
                             if (originCountries.length > 0) {
@@ -550,6 +564,7 @@
                     break;
                 }
             }
+
             renderGalleryGrid();
         }
 
@@ -566,6 +581,7 @@
                     <div class="w-full h-full flex flex-col items-center justify-center py-16 text-slate-500">
                         <svg class="w-12 h-12 mb-2 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         <p class="text-sm">No results found</p>
+                        <p class="text-xs font-light">Try refining your search query</p>
                     </div>
                 `;
                 return;
@@ -584,26 +600,27 @@
                     const year = (item.release_date || item.first_air_date || '').substring(0, 4) || '2026';
                     const summary = item.overview ? (item.overview.length > 95 ? item.overview.slice(0, 95) + '...' : item.overview) : 'No plot description available.';
 
-                    const card = document.createElement('div');
-                    card.className = "tv-focusable cursor-pointer glass-card rounded-2xl overflow-hidden flex flex-col justify-between h-full";
-                    card.onclick = () => selectMediaItem(item.id, currentContentType, title, 1, 1);
-                    
-                    card.innerHTML = `
-                        <div class="relative aspect-video w-full overflow-hidden bg-black shrink-0">
-                            <img src="${backdrop}" alt="${title}" class="w-full h-full object-cover" loading="lazy">
-                            <div class="absolute inset-0 bg-gradient-to-t from-brand-card via-transparent to-transparent"></div>
-                            <span class="absolute bottom-2.5 left-2.5 bg-black/70 text-[10px] text-slate-300 px-2 py-0.5 rounded">
-                                ${year}
-                            </span>
-                        </div>
-                        <div class="p-4 flex-grow flex flex-col justify-between gap-1">
-                            <div>
-                                <h3 class="text-sm font-bold text-slate-100 line-clamp-1 tracking-tight" title="${title}">${title}</h3>
-                                <p class="text-[11px] text-slate-400 line-clamp-2 leading-relaxed font-light mt-1">${summary}</p>
+                    pageNode.innerHTML += `
+                        <div onclick="selectMediaItem(${item.id}, '${currentContentType}', '${title.replace(/'/g, "\\'")}')" 
+                            class="tv-focusable cursor-pointer glass-card rounded-2xl overflow-hidden flex flex-col justify-between h-full relative z-10">
+                            
+                            <div class="relative aspect-video w-full overflow-hidden bg-black shrink-0">
+                                <img src="${backdrop}" alt="${title}" class="w-full h-full object-cover" loading="lazy">
+                                <div class="absolute inset-0 bg-gradient-to-t from-brand-card via-transparent to-transparent"></div>
+                                
+                                <span class="absolute bottom-2.5 left-2.5 bg-black/70 text-[10px] text-slate-300 px-2 py-0.5 rounded">
+                                    ${year}
+                                </span>
+                            </div>
+
+                            <div class="p-4 flex-grow flex flex-col justify-between gap-1 relative z-20 bg-brand-card">
+                                <div>
+                                    <h3 class="text-sm text-slate-100 font-bold block opacity-100 visible select-text line-clamp-1 tracking-tight" style="display: block !important;">${title}</h3>
+                                    <p class="text-[11px] text-slate-400 line-clamp-2 leading-relaxed font-light mt-1">${summary}</p>
+                                </div>
                             </div>
                         </div>
                     `;
-                    pageNode.appendChild(card);
                 });
                 track.appendChild(pageNode);
             }
@@ -619,7 +636,7 @@
             document.getElementById('pageIndicator').textContent = `Page ${localCurrentPage} of ${localTotalPages}`;
         }
 
-        function carouselPrevPage() {
+        async function carouselPrevPage() {
             if (localCurrentPage > 1) {
                 localCurrentPage--;
                 updateCarouselPosition();
@@ -639,6 +656,7 @@
 
         function prepopulateTvControls(startSeason = 1, startEpisode = 1) {
             buildSeasonsDropdown(10);
+            
             cachedSeasonEpisodes = Array.from({length: 24}, (_, i) => ({ 
                 episode_number: i+1, 
                 name: `Episode ${i+1}`,
@@ -654,8 +672,6 @@
         async function selectMediaItem(id, type, title, startSeason = 1, startEpisode = 1) {
             state.current = { id: id, title: title };
             state.type = type;
-
-            if (playbackTimer) clearTimeout(playbackTimer);
 
             const playerContainer = document.getElementById('playerContainer');
             playerContainer.classList.remove('hidden');
@@ -689,10 +705,9 @@
             }
 
             document.getElementById('episodeTitleHeader').textContent = title;
-
-            playbackTimer = setTimeout(() => {
-                saveToContinueWatching(id, type, title, parseInt(startSeason), parseInt(startEpisode));
-            }, 30000);
+            
+            // Wait exactly 30 seconds before writing to cloud history
+            initiateStreamTimer(id, type, title, startSeason, startEpisode);
         }
 
         async function fetchRealMovieDetails(id) {
@@ -794,11 +809,7 @@
             currentTvDetails.episode = 1;
             document.getElementById('playerSubtitle').textContent = `Season ${currentTvDetails.season} • Episode 1`;
             await fetchEpisodesList();
-            
-            if(playbackTimer) clearTimeout(playbackTimer);
-            playbackTimer = setTimeout(() => {
-                saveToContinueWatching(currentTvDetails.id, 'tv', state.current.title, currentTvDetails.season, 1);
-            }, 30000);
+            initiateStreamTimer(currentTvDetails.id, 'tv', state.current.title, currentTvDetails.season, 1);
         }
 
         function handleEpisodeChange() {
@@ -806,11 +817,7 @@
             document.getElementById('playerSubtitle').textContent = `Season ${currentTvDetails.season} • Episode ${currentTvDetails.episode}`;
             updateActiveEpisodeUI();
             loadServerIframe("tv", currentTvDetails.id, currentTvDetails.season, currentTvDetails.episode);
-            
-            if(playbackTimer) clearTimeout(playbackTimer);
-            playbackTimer = setTimeout(() => {
-                saveToContinueWatching(currentTvDetails.id, 'tv', state.current.title, currentTvDetails.season, currentTvDetails.episode);
-            }, 30000);
+            initiateStreamTimer(currentTvDetails.id, 'tv', state.current.title, currentTvDetails.season, currentTvDetails.episode);
         }
 
         function navigateEpisode(direction) {
@@ -821,11 +828,7 @@
                 document.getElementById('playerSubtitle').textContent = `Season ${currentTvDetails.season} • Episode ${currentTvDetails.episode}`;
                 updateActiveEpisodeUI();
                 loadServerIframe("tv", currentTvDetails.id, currentTvDetails.season, currentTvDetails.episode);
-                
-                if(playbackTimer) clearTimeout(playbackTimer);
-                playbackTimer = setTimeout(() => {
-                    saveToContinueWatching(currentTvDetails.id, 'tv', state.current.title, currentTvDetails.season, currentTvDetails.episode);
-                }, 30000);
+                initiateStreamTimer(currentTvDetails.id, 'tv', state.current.title, currentTvDetails.season, currentTvDetails.episode);
             } else if (direction > 0) {
                 const seasonSelector = document.getElementById('seasonSelector');
                 const nextSeason = parseInt(currentTvDetails.season) + 1;
@@ -841,9 +844,14 @@
         }
 
         function closePlayer() {
-            if (playbackTimer) clearTimeout(playbackTimer);
+            if (backendSyncTimer) {
+                clearTimeout(backendSyncTimer);
+                backendSyncTimer = null;
+            }
             const wrapper = document.getElementById("player-wrapper");
-            if (wrapper) wrapper.innerHTML = "";
+            if (wrapper) {
+                wrapper.innerHTML = "";
+            }
             state.current = null;
             document.getElementById('playerContainer').classList.add('hidden');
         }
@@ -851,105 +859,232 @@
         function toggleFullscreen() {
             const wrapper = document.getElementById("player-wrapper");
             if (!wrapper) return;
-            if (wrapper.requestFullscreen) wrapper.requestFullscreen();
-            else if (wrapper.webkitRequestFullscreen) wrapper.webkitRequestFullscreen();
-        }
-
-        async function makeParseRequest(method, url, data = null) {
-            const headers = {
-                "X-Parse-Application-Id": PARSE_APP_ID,
-                "X-Parse-JavaScript-Key": PARSE_JS_KEY,
-                "Content-Type": "application/json"
-            };
-            const config = { method, headers };
-            if (data) config.body = JSON.stringify(data);
-            try {
-                const res = await fetch(url, config);
-                return res.ok ? await res.json() : null;
-            } catch(e) {
-                return null;
-            }
-        }
-
-        async function syncContinueWatching() {
-            const data = await makeParseRequest("GET", `${PARSE_REST_URL}?order=-updatedAt&limit=15`);
-            if (data && data.results) {
-                historyCachedData = data.results;
-                renderContinueWatchingList(historyCachedData);
-            }
-        }
-
-        async function saveToContinueWatching(id, type, title, season = 1, episode = 1) {
-            const lookUp = await makeParseRequest("GET", `${PARSE_REST_URL}?where=${encodeURIComponent(JSON.stringify({mediaId: id, type: type}))}`);
             
-            const payload = {
-                mediaId: id,
-                type: type,
-                title: title,
-                season: parseInt(season),
-                episode: parseInt(episode)
-            };
-
-            if (lookUp && lookUp.results && lookUp.results.length > 0) {
-                const existingId = lookUp.results[0].objectId;
-                await makeParseRequest("PUT", `${PARSE_REST_URL}/${existingId}`, payload);
-            } else {
-                await makeParseRequest("POST", PARSE_REST_URL, payload);
+            if (wrapper.requestFullscreen) {
+                wrapper.requestFullscreen();
+            } else if (wrapper.webkitRequestFullscreen) {
+                wrapper.webkitRequestFullscreen();
+            } else if (wrapper.msRequestFullscreen) {
+                wrapper.msRequestFullscreen();
             }
-            syncContinueWatching();
         }
 
-        function renderContinueWatchingList(history) {
+        // Minimalistic Stream Buffering (Prevents API Spam on Back4App Free Class)
+        function initiateStreamTimer(id, type, title, season, episode) {
+            if (backendSyncTimer) clearTimeout(backendSyncTimer);
+            
+            backendSyncTimer = setTimeout(() => {
+                saveToCloudBackend(id, type, title, season, episode);
+            }, 30000); // Wait exactly 30 seconds before hitting backend
+        }
+
+        // Local & Cloud Synced Core Save Mechanism
+        async function saveToCloudBackend(id, type, title, season = 1, episode = 1) {
+            // 1. Maintain local Storage state immediately
+            let history = JSON.parse(localStorage.getItem('tv_stream_history') || '[]');
+            const entry = { id: id, type: type, title: title, season: season, episode: episode, timestamp: Date.now() };
+            history = history.filter(item => !(item.id === entry.id && item.type === entry.type));
+            history.unshift(entry);
+            if (history.length > 5) history.pop();
+            localStorage.setItem('tv_stream_history', JSON.stringify(history));
+            renderContinueWatching();
+
+            // 2. Minimalist Back4App sync execution
+            const HistoryClass = Parse.Object.extend("History");
+            const query = new Parse.Query(HistoryClass);
+            query.equalTo("mediaId", id);
+            query.equalTo("mediaType", type);
+            
+            try {
+                let record = await query.first();
+                if (!record) {
+                    record = new HistoryClass();
+                    record.set("mediaId", id);
+                    record.set("mediaType", type);
+                }
+                record.set("title", title);
+                record.set("season", season);
+                record.set("episode", episode);
+                record.set("timestamp", Date.now());
+                await record.save();
+            } catch (error) {
+                console.error("Back4App background saving minimized out/failed:", error);
+            }
+        }
+
+        // Initial Data retrieval from Cloud
+        async function fetchCloudHistory() {
+            const HistoryClass = Parse.Object.extend("History");
+            const query = new Parse.Query(HistoryClass);
+            query.descending("timestamp");
+            query.limit(5);
+
+            try {
+                const results = await query.find();
+                const processedHistory = results.map(item => ({
+                    id: item.get("mediaId"),
+                    type: item.get("mediaType"),
+                    title: item.get("title"),
+                    season: item.get("season"),
+                    episode: item.get("episode"),
+                    timestamp: item.get("timestamp")
+                }));
+                if (processedHistory.length > 0) {
+                    localStorage.setItem('tv_stream_history', JSON.stringify(processedHistory));
+                    renderContinueWatching();
+                }
+            } catch (error) {
+                // Network fail safeguard: read fallback storage
+                renderContinueWatching();
+            }
+        }
+
+        function renderContinueWatching() {
             const track = document.getElementById('continueWatchingTrack');
-            if (!history || history.length === 0) {
-                track.innerHTML = `<p class="text-xs text-slate-500 italic py-12 text-center w-full font-light">No entry available.</p>`;
+            const history = JSON.parse(localStorage.getItem('tv_stream_history') || '[]');
+
+            if (history.length === 0) {
+                track.style.transform = "translateX(0px)";
+                track.innerHTML = `
+                    <p class="text-xs text-slate-500 italic py-12 text-center w-full font-light">Your recently watched shows will display here.</p>
+                `;
                 return;
             }
 
             track.innerHTML = history.map(item => {
                 const label = item.type === 'tv' ? `S${item.season} • Ep ${item.episode}` : 'Movie';
                 return `
-                    <div onclick="selectMediaItem(${item.mediaId}, '${item.type}', '${item.title.replace(/'/g, "\\'")}', ${item.season || 1}, ${item.episode || 1})" 
-                        class="tv-focusable cursor-pointer flex items-center justify-between p-3 bg-black/40 hover:bg-brand-sidebar rounded-2xl shadow-glow-sm w-full shrink-0">
+                    <div onclick="selectMediaItem(${item.id}, '${item.type}', '${item.title.replace(/'/g, "\\'")}', ${item.season || 1}, ${item.episode || 1})" 
+                        class="tv-focusable cursor-pointer flex items-center justify-between p-3 bg-black/40 hover:bg-brand-sidebar rounded-2xl shadow-glow-sm w-full shrink-0 select-none">
+                        
                         <div class="flex items-center gap-3 overflow-hidden pointer-events-none">
                             <div class="p-2.5 bg-brand/20 text-brand rounded-xl">
                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                             </div>
                             <div class="overflow-hidden">
-                                <h4 class="text-xs font-bold text-slate-200 line-clamp-1">${item.title}</h4>
+                                <h4 class="text-xs text-slate-200 line-clamp-1">${item.title}</h4>
                                 <p class="text-[10px] text-slate-400 mt-0.5 font-light">${label}</p>
                             </div>
                         </div>
+
                         <div class="flex items-center gap-2">
                             <span class="text-[9px] text-white bg-brand shadow-glow px-2.5 py-1 rounded-md tracking-wider uppercase pointer-events-none">
                                 Resume
                             </span>
-                            <button onclick="event.stopPropagation(); removeHistoryItem('${item.objectId}')" class="text-slate-500 hover:text-red-400 p-1 transition-colors relative z-30">
+                            <button onclick="event.stopPropagation(); removeHistoryItem(${item.id}, '${item.type}')" class="text-slate-500 hover:text-red-400 p-1 transition-colors relative z-30">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                             </button>
                         </div>
                     </div>
                 `;
             }).join('');
+            
+            updateContinueWatchingPosition();
         }
 
-        async function removeHistoryItem(objectId) {
-            const success = await makeParseRequest("DELETE", `${PARSE_REST_URL}/${objectId}`);
-            if (success !== null) {
-                showToast("Item removed.");
-                syncContinueWatching();
+        function updateContinueWatchingPosition() {
+            const track = document.getElementById('continueWatchingTrack');
+            const win = document.getElementById('continueWatchingWindow');
+            if(!track || !win) return;
+            const step = win.clientHeight; 
+            track.style.transform = `translateY(-${currentContinuePage * step}px)`;
+        }
+
+        // Complete & Clean Cloud Destructive Removal
+        async function removeHistoryItem(id, type) {
+            // Remove locally
+            let history = JSON.parse(localStorage.getItem('tv_stream_history') || '[]');
+            history = history.filter(item => !(item.id === id && item.type === type));
+            localStorage.setItem('tv_stream_history', JSON.stringify(history));
+            currentContinuePage = 0;
+            renderContinueWatching();
+
+            // Destroy entry directly from server database
+            const HistoryClass = Parse.Object.extend("History");
+            const query = new Parse.Query(HistoryClass);
+            query.equalTo("mediaId", id);
+            query.equalTo("mediaType", type);
+            
+            try {
+                const targetObject = await query.first();
+                if (targetObject) {
+                    await targetObject.destroy();
+                }
+                showToast("Item removed from cloud history.");
+            } catch (error) {
+                showToast("Removed locally.");
             }
         }
 
         async function clearContinueWatching() {
-            showToast("Clearing process initializing...");
-            const data = await makeParseRequest("GET", `${PARSE_REST_URL}?limit=100`);
-            if (data && data.results) {
-                for (let item of data.results) {
-                    await makeParseRequest("DELETE", `${PARSE_REST_URL}/${item.objectId}`);
+            localStorage.removeItem('tv_stream_history');
+            currentContinuePage = 0;
+            renderContinueWatching();
+
+            const HistoryClass = Parse.Object.extend("History");
+            const query = new Parse.Query(HistoryClass);
+            try {
+                const results = await query.find();
+                if(results.length > 0) {
+                    await Parse.Object.destroyAll(results);
                 }
+                showToast("History cleared entirely.");
+            } catch (error) {
                 showToast("History cleared.");
-                syncContinueWatching();
+            }
+        }
+
+        function setupTouchGestures() {
+            const galleryFrame = document.getElementById('verticalCarouselFrame');
+            
+            galleryFrame.addEventListener('touchstart', (e) => {
+                galleryTouchStartY = e.touches[0].clientY;
+            }, { passive: true });
+
+            galleryFrame.addEventListener('touchend', (e) => {
+                galleryTouchEndY = e.changedTouches[0].clientY;
+                handleGallerySwipe();
+            }, { passive: true });
+
+            const continueWindow = document.getElementById('continueWatchingWindow');
+            
+            continueWindow.addEventListener('touchstart', (e) => {
+                continueTouchStartX = e.touches[0].clientY;
+            }, { passive: true });
+
+            continueWindow.addEventListener('touchend', (e) => {
+                continueTouchEndX = e.changedTouches[0].clientY;
+                handleContinueSwipe();
+            }, { passive: true });
+        }
+
+        function handleGallerySwipe() {
+            const threshold = 50; 
+            const diff = galleryTouchStartY - galleryTouchEndY;
+            
+            if (diff > threshold) {
+                carouselNextPage();
+            } else if (diff < -threshold) {
+                carouselPrevPage();
+            }
+        }
+
+        function handleContinueSwipe() {
+            const threshold = 40;
+            const diff = continueTouchStartX - continueTouchEndX;
+            const history = JSON.parse(localStorage.getItem('tv_stream_history') || '[]');
+            const maxPages = Math.ceil(history.length / 4); 
+
+            if (diff > threshold) {
+                if (currentContinuePage < maxPages - 1) {
+                    currentContinuePage++;
+                    updateContinueWatchingPosition();
+                }
+            } else if (diff < -threshold) {
+                if (currentContinuePage > 0) {
+                    currentContinuePage--;
+                    updateContinueWatchingPosition();
+                }
             }
         }
 
