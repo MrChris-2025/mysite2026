@@ -235,7 +235,7 @@
                     
                     <div class="flex items-center gap-2">
                         <button onclick="carouselPrevPage()" class="p-2 bg-brand-card hover:bg-brand rounded-lg text-slate-300 hover:text-white transition-all">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width.5="2.5" d="M5 15l7-7 7 7"/></svg>
                         </button>
                         
                         <span id="pageIndicator" class="text-xs bg-brand-card text-slate-300 px-4 py-2 rounded-lg">
@@ -243,7 +243,7 @@
                         </span>
 
                         <button onclick="carouselNextPage()" class="p-2 bg-brand-card hover:bg-brand rounded-lg text-slate-300 hover:text-white transition-all">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width.5="2.5" d="M19 9l-7 7-7-7"/></svg>
                         </button>
                     </div>
                 </div>
@@ -856,6 +856,9 @@
             }
             state.current = null;
             document.getElementById('playerContainer').classList.add('hidden');
+            
+            // Scroll safely to the absolute top of the page smoothly
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function toggleFullscreen() {
