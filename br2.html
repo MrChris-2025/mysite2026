@@ -301,7 +301,7 @@
             { id: 'nextbox', name: 'Server 14: NextBox' }
         ];
 
-        const noSandboxSources = ['', 'xpass', 'videasy', 'cinemaos’, ‘nhdapi', 'vidfast'];
+        const noSandboxSources = ['xpass', 'videasy', 'cinemaos’, ‘nhdapi', 'vidfast'];
         let activeServer = "videasy"; 
 
         let currentContentType = 'tv';
@@ -444,7 +444,6 @@
                     case "vixsrc": streamUrl = `https://cinesrc.st/embed/movie/${id}`; break;
                     case "vidrock": streamUrl = `https://vidrock.ru/movie/${id}`; break; 
                     case "xpass": streamUrl = `https://play.xpass.top/e/movie/${id}`; break;
-                    case "vaplayer": streamUrl = `https://vaplayer.ru/embed/movie/${id}`; break;
                     case "filmu": streamUrl = `https://embed.filmu.in/movie/${id}`; break;
                     case "videasy": streamUrl = `https://player.videasy.net/movie/${id}?color=8834ec`; break;
                     case "vidfast": streamUrl = `https://www.vidfast.net/movie/${id}`; break;
@@ -462,7 +461,6 @@
                     case "vixsrc": streamUrl = `https://cinesrc.st/embed/tv/${id}?s=${season}&e=${episode}`; break;
                     case "vidrock": streamUrl = `https://vidrock.ru/tv/${id}/${season}/${episode}`; break;
                     case "xpass": streamUrl = `https://play.xpass.top/e/tv/${id}/${season}/${episode}`; break;
-                    case "vaplayer": streamUrl = `https://vaplayer.ru/embed/tv/${id}/${season}/${episode}`; break;
                     case "filmu": streamUrl = `https://embed.filmu.in/tv/${id}/${season}/${episode}`; break;
                     case "videasy": streamUrl = `https://player.videasy.net/tv/${id}/${season}/${episode}?autoplayNextEpisode=true&autoPlay=true&nextEpisode=true&color=8834ec`; break;
                     case "vidfast": streamUrl = `https://www.vidfast.net/tv/${id}/${season}/${episode}?autoPlay=true`; break;
