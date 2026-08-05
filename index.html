@@ -382,7 +382,7 @@
             { id: 'cinemaos', name: 'Server 8: CinemaOS' },
             { id: 'nextbox', name: 'Server 9: NextBox' },
             { id: 'vyla', name: 'Server 10: Vyla' },
-            { id: 'cinezo', name: 'Server 11: Cinezo' },
+            { id: 'chill', name: 'Server 11: Chill Flix' },
             { id: 'oneembed', name: 'Server 12: 1Embed' }
         ];
 
@@ -1050,7 +1050,7 @@
                     case "cinemaos": streamUrl = `https://cinemaos.tech/player/${id}`; break;
                     case "nextbox": streamUrl = `https://nextbox.uno/player/movie/${id}`; break;
                     case "vyla": streamUrl = `https://vyla.cc/?type=movie&id={id}`; break;
-                    case "cinezo": streamUrl = `https://api.cinezo.net/movie/${id}`; break;
+                    case "chill": streamUrl = `https://www.chillflix.lol/embed/movie/${id}`; break;
                     case "oneembed": streamUrl = `https://1embed.cc/embed/movie/${id}`; break;
                     default: streamUrl = `https://vixsrc.to/movie/${id}`;
                 }
@@ -1066,7 +1066,7 @@
                     case "cinemaos": streamUrl = `https://cinemaos.live/tv/watch/${id}&${season}&${episode}`; break;
                     case "nextbox": streamUrl = `https://nextbox.uno/player/tv/${id}/${season}/${episode}`; break;
                     case "vyla": streamUrl = `https://vyla.pages.dev/tv/${id}/${season}/${episode}`; break;
-                    case "cinezo": streamUrl = `https://api.cinezo.net/tv/${id}/${season}/${episode}?autoplayNext=true?startAt=630`; break;
+                    case "chill": streamUrl = `https://www.chillflix.lol/embed/tv/${id}/${season}/${episode}?autoplayNext=true?startAt=630`; break;
                     case "oneembed": streamUrl = `https://1embed.cc/embed/tv/${id}/${season}/${episode}`; break;
                     default: streamUrl = `https://vixsrc.to/tv/${id}/${season}/${episode}`;
                 }
