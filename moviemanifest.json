@@ -1,6 +1,6 @@
 {
-  "name": "MLB Stats Dashboard",
-  "short_name": "MLB Stats",
+  "name": "Aint That Better",
+  "short_name": "ATB",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#f4f6f8",
