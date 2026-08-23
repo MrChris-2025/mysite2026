@@ -378,7 +378,7 @@
         let cachedSeasonEpisodes = [];
 
         const serversList = [
-            { id: 'goated', name: 'Server 1: Novera' },
+            { id: 'novera', name: 'Server 1: Novera' },
             { id: 'vault', name: 'Server 2: Vault' },
             { id: 'xpass', name: 'Server 3: XPass' },
             { id: 'nxsha', name: 'Server 4: Nxsha' },
@@ -1046,7 +1046,7 @@
 
             if (type === "movie") {
                 switch (activeServer) {
-                    case "goated": streamUrl = `https://goated.cx/watch/movie/${id}`; break;
+                    case "novera": streamUrl = `https://novera.tv/watch/movie/${id}`; break;
                     case "vault": streamUrl = `https://streamvaultsrc.click/embed/movie/${id}`; break;
                     case "xpass": streamUrl = `https://play.xpass.top/e/movie/${id}`; break;
                     case "nxsha": streamUrl = `https://web.nxsha.app/embed/movie/${id}`; break;
@@ -1061,7 +1061,7 @@
                 }
             } else {
                 switch (activeServer) {
-                    case "goated": streamUrl = `https://novera.tv/watch/tv/${id}?s=${season}&e=${episode}`; break;
+                    case "novera": streamUrl = `https://novera.tv/watch/tv/${id}?s=${season}&e=${episode}`; break;
                     case "vault": streamUrl = `https://streamvaultsrc.click/embed/tv/${id}/${season}/${episode}`; break;
                     case "xpass": streamUrl = `https://play.xpass.top/e/tv/${id}/${season}/${episode}`; break;
                     case "nxsha": streamUrl = `https://web.nxsha.app/embed/tv/${id}/${season}/${episode}`; break;
