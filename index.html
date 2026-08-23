@@ -378,17 +378,17 @@
         let cachedSeasonEpisodes = [];
 
         const serversList = [
-            { id: 'vixsrc', name: 'Server 1: Vixsrc' },
+            { id: 'goated ', name: 'Server 1: Goated' },
             { id: 'vault', name: 'Server 2: Vault' },
             { id: 'xpass', name: 'Server 3: XPass' },
-            { id: 'vaplayer', name: 'Server 4: VAPlayer' },
-            { id: 'filmu', name: 'Server 5: Filmu' },
+            { id: 'nxsha', name: 'Server 4: Nxsha' },
+            { id: 'shuttle', name: 'Server 5: ShuttleTV' },
             { id: 'videasy', name: 'Server 6: Videasy' },
             { id: 'vidfast', name: 'Server 7: VidFast' },
             { id: 'cinemaos', name: 'Server 8: CinemaOS' },
             { id: 'nextbox', name: 'Server 9: NextBox' },
             { id: 'vyla', name: 'Server 10: Vyla' },
-            { id: 'chill', name: 'Server 11: Chill Flix' },
+            { id: 'gaia', name: 'Server 11: Gaia' },
             { id: 'oneembed', name: 'Server 12: 1Embed' }
         ];
 
@@ -1046,33 +1046,33 @@
 
             if (type === "movie") {
                 switch (activeServer) {
-                    case "vixsrc": streamUrl = `https://goated.cx/watch/movie/${id}`; break;
+                    case "goatee": streamUrl = `https://goated.cx/watch/movie/${id}`; break;
                     case "vault": streamUrl = `https://streamvaultsrc.click/embed/movie/${id}`; break;
                     case "xpass": streamUrl = `https://play.xpass.top/e/movie/${id}`; break;
-                    case "vaplayer": streamUrl = `https://web.nxsha.app/embed/movie/${id}`; break;
-                    case "filmu": streamUrl = `https://shuttletv.su/watch/${id}`; break;
+                    case "nxsha": streamUrl = `https://web.nxsha.app/embed/movie/${id}`; break;
+                    case "shuttle": streamUrl = `https://shuttletv.su/watch/${id}`; break;
                     case "videasy": streamUrl = `https://player.videasy.net/movie/${id}?color=8834ec`; break;
                     case "vidfast": streamUrl = `https://www.vidfast.net/movie/${id}`; break;
                     case "cinemaos": streamUrl = `https://cinemaos.tech/player/${id}`; break;
                     case "nextbox": streamUrl = `https://nextbox.uno/player/movie/${id}`; break;
                     case "vyla": streamUrl = `https://player.vyla.cc/?id={id}`; break;
-                    case "chill": streamUrl = `https://gaiaflix.live/watch/${movieId}?type=movie`; break;
+                    case "gaia": streamUrl = `https://gaiaflix.live/watch/${movieId}?type=movie`; break;
                     case "oneembed": streamUrl = `https://1embed.cc/embed/movie/${id}`; break;
                     default: streamUrl = `https://vixsrc.to/movie/${id}`;
                 }
             } else {
                 switch (activeServer) {
-                    case "vixsrc": streamUrl = `https://goated.cx/watch/tv/${id}?s=${season}&e=${episode}`; break;
+                    case "goated": streamUrl = `https://goated.cx/watch/tv/${id}?s=${season}&e=${episode}`; break;
                     case "vault": streamUrl = `https://streamvaultsrc.click/embed/tv/${id}/${season}/${episode}`; break;
                     case "xpass": streamUrl = `https://play.xpass.top/e/tv/${id}/${season}/${episode}`; break;
-                    case "vaplayer": streamUrl = `https://web.nxsha.app/embed/tv/${id}/${season}/${episode}`; break;
-                    case "filmu": streamUrl = `https://shuttletv.su/watch/${id}/${season}/${episode}`; break;
+                    case "nxsha": streamUrl = `https://web.nxsha.app/embed/tv/${id}/${season}/${episode}`; break;
+                    case "shuttle": streamUrl = `https://shuttletv.su/watch/${id}/${season}/${episode}`; break;
                     case "videasy": streamUrl = `https://player.videasy.net/tv/${id}/${season}/${episode}?autoplayNextEpisode=true&autoPlay=true&nextEpisode=true&color=8834ec`; break;
                     case "vidfast": streamUrl = `https://www.vidfast.net/tv/${id}/${season}/${episode}?autoPlay=true`; break;
                     case "cinemaos": streamUrl = `https://cinemaos.live/tv/watch/${id}&${season}&${episode}`; break;
                     case "nextbox": streamUrl = `https://nextbox.uno/player/tv/${id}/${season}/${episode}`; break;
                     case "vyla": streamUrl = `https://player.vyla.cc/?id={id}&${season}&${episode}`; break;
-                    case "chill": streamUrl = `https://gaiaflix.live/watch/${id}?type=tv&s=${season}&e=${episode}`; break;
+                    case "gaia": streamUrl = `https://gaiaflix.live/watch/${id}?type=tv&s=${season}&e=${episode}`; break;
                     case "oneembed": streamUrl = `https://1embed.cc/embed/tv/${id}/${season}/${episode}`; break;
                     default: streamUrl = `https://vixsrc.to/tv/${id}/${season}/${episode}`;
                 }
