@@ -1058,7 +1058,6 @@
                     case "vyla": streamUrl = `https://player.vyla.cc/?id={id}`; break;
                     case "gaia": streamUrl = `https://gaiaflix.live/watch/${movieId}?type=movie`; break;
                     case "oneembed": streamUrl = `https://1embed.cc/embed/movie/${id}`; break;
-                    default: streamUrl = `https://vixsrc.to/movie/${id}`;
                 }
             } else {
                 switch (activeServer) {
@@ -1074,7 +1073,6 @@
                     case "vyla": streamUrl = `https://player.vyla.cc/?id={id}&${season}&${episode}`; break;
                     case "gaia": streamUrl = `https://gaiaflix.live/watch/${id}?type=tv&s=${season}&e=${episode}`; break;
                     case "oneembed": streamUrl = `https://1embed.cc/embed/tv/${id}/${season}/${episode}`; break;
-                    default: streamUrl = `https://vixsrc.to/tv/${id}/${season}/${episode}`;
                 }
             }
 
