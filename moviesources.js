@@ -38,7 +38,7 @@ function getStreamUrl(server, type, id, season = 1, episode = 1) {
             case "nextbox": return `https://nextbox.uno/player/movie/${id}`;
             case "peestream": return `https://peestream.in/embed/?type=movie&tmdbId=${id}`;
             case "gaia": return `https://gaiaflix.live/watch/${id}?type=movie`;
-            case "flixeo": return `https://flixeo.tv/watch/movie/{id}`
+            case "flixeo": return `https://flixeo.tv/watch/movie/${id}`
             case "oneembed": return `https://1embed.cc/embed/movie/${id}`;
             default: return `https://player.videasy.net/movie/${id}?color=8834ec`;
         }
@@ -55,7 +55,7 @@ function getStreamUrl(server, type, id, season = 1, episode = 1) {
             case "nextbox": return `https://nextbox.uno/player/tv/${id}/${season}/${episode}`;
             case "peestream": return `https://peestream.in/embed/?type=show&tmdbId=${id}&season=${season}&episode=${episode}`;
             case "gaia": return `https://gaiaflix.live/watch/${id}?type=tv&s=${season}&e=${episode}`;
-            case "flixeo": return `https://flixeo.tv/watch/tv/{id}/season/episode`; 
+            case "flixeo": return `https://flixeo.tv/watch/tv/${id}/${season}/${episode}`; 
             case "oneembed": return `https://1embed.cc/embed/tv/${id}/${season}/${episode}`;
             default: return `https://player.videasy.net/tv/${id}/${season}/${episode}?autoplayNextEpisode=true&autoPlay=true&nextEpisode=true&color=8834ec`;
         }
