@@ -19,7 +19,7 @@ const serversList = [
 ];
 
 const noSandboxSources = ['vault', 'xpass', 'videasy', 'oneembed', 'vidfast'];
-let activeServer = "videasy";
+let activeServer = "vidcore";
 
 /**
  * Generates stream URL for the specified server and content parameters.
@@ -40,7 +40,7 @@ function getStreamUrl(server, type, id, season = 1, episode = 1) {
             case "gaia": return `https://gaiaflix.live/watch/${id}?type=movie`;
             case "flixer": return `https://flixer.gd/watch/movie/${id}`
             case "oneembed": return `https://1embed.cc/embed/movie/${id}`;
-            default: return `https://player.videasy.net/movie/${id}?color=8834ec`;
+            default: return `https://vidcore.org/embed/movie/${id}`;
         }
     } else {
         switch (server) {
@@ -49,7 +49,7 @@ function getStreamUrl(server, type, id, season = 1, episode = 1) {
             case "xpass": return `https://play.xpass.top/e/tv/${id}/${season}/${episode}`;
             case "nxsha": return `https://web.nxsha.app/embed/tv/${id}/${season}/${episode}`;
             case "shuttle": return `https://shuttletv.su/watch/${id}?s={season}$&e={episode}`;
-            case "vidcore": return `https://vidcore.org/embed/tv/${id}/${season}/${episode}?autoplayNextEpisode=true&autoPlay=true&nextEpisode=true&color=8834ec`;
+            case "vidcore": return `https://vidcore.org/embed/tv/${id}/${season}/${episode}`;
             case "vidfast": return `https://vidfast.vc/tv/${id}/${season}/${episode}?autoPlay=true`;
             case "fmov": return `https://fmov.my/embed/tv/${id}/${season}/${episode}`;
             case "nextbox": return `https://nextbox.uno/player/tv/${id}/${season}/${episode}`;
@@ -57,7 +57,7 @@ function getStreamUrl(server, type, id, season = 1, episode = 1) {
             case "gaia": return `https://gaiaflix.live/watch/${id}?type=tv&s=${season}&e=${episode}`;
             case "flixer": return `https://flixer.gd/watch/tv/${id}/${season}/${episode}`; 
             case "oneembed": return `https://1embed.cc/embed/tv/${id}/${season}/${episode}`;
-            default: return `https://player.videasy.net/tv/${id}/${season}/${episode}?autoplayNextEpisode=true&autoPlay=true&nextEpisode=true&color=8834ec`;
+            default: return `https://vidcore.org/embed/tv/${id}/${season}/${episode}`;
         }
     }
 }
