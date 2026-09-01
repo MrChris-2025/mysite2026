@@ -41,6 +41,7 @@ function getStreamUrl(server, type, id, season = 1, episode = 1) {
             case "gaia": return `https://gaiaflix.live/watch/${id}?type=movie`;
             case "flixer": return `https://flixer.gd/watch/movie/${id}`
             case "oneembed": return `https://1embed.cc/embed/movie/${id}`;
+                case "xully": return `https://xullys.xyz/watch/${id}`;
             default: return `https://vidcore.org/embed/movie/${id}`;
         }
     } else {
