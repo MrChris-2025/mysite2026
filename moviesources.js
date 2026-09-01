@@ -18,7 +18,7 @@ const serversList = [
     { id: 'oneembed', name: 'Server 13: 1Embed' }
 ];
 
-const noSandboxSources = ['vault', 'xpass', 'videasy', 'oneembed', 'vidfast'];
+const noSandboxSources = ['vault', 'xpass', 'vidcore', 'oneembed', 'vidfast'];
 let activeServer = "vidcore";
 
 /**
