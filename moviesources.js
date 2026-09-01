@@ -34,7 +34,7 @@ function getStreamUrl(server, type, id, season = 1, episode = 1) {
             case "shuttle": return `https://shuttletv.su/watch/${id}`;
             case "videasy": return `https://player.videasy.net/movie/${id}?color=8834ec`;
             case "vidfast": return `https://vidfast.vc/movie/${id}`;
-            case "cinemaos": return `https://cinemaos.tech/player/${id}`;
+            case "cinemaos": return `https://player.moonflix.website/movie/:${tmdbId}`;
             case "nextbox": return `https://nextbox.uno/player/movie/${id}`;
             case "peestream": return `https://peestream.in/embed/?type=movie&tmdbId=${id}`;
             case "gaia": return `https://gaiaflix.live/watch/${id}?type=movie`;
