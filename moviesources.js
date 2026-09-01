@@ -14,7 +14,7 @@ const serversList = [
     { id: 'nextbox', name: 'Server 9: NextBox' },
     { id: 'peestream', name: 'Server 10: PeeStream' },
     { id: 'gaia', name: 'Server 11: Gaia' },
-    { id: 'flystream', name: 'Server 12: flystream' },
+    { id: 'flickbuff', name: 'Server 12: flickbuff' },
     { id: 'oneembed', name: 'Server 13: 1Embed' }
 ];
 
@@ -38,7 +38,7 @@ function getStreamUrl(server, type, id, season = 1, episode = 1) {
             case "nextbox": return `https://nextbox.uno/player/movie/${id}`;
             case "peestream": return `https://peestream.in/embed/?type=movie&tmdbId=${id}`;
             case "gaia": return `https://gaiaflix.live/watch/${id}?type=movie`;
-            case "flyetream": return `https://flystream.net/movie/${id}`
+            case "flickbuff": return `https://flickbuff.cc/movie/detail/${id}`
             case "oneembed": return `https://1embed.cc/embed/movie/${id}`;
             default: return `https://player.videasy.net/movie/${id}?color=8834ec`;
         }
@@ -55,7 +55,7 @@ function getStreamUrl(server, type, id, season = 1, episode = 1) {
             case "nextbox": return `https://nextbox.uno/player/tv/${id}/${season}/${episode}`;
             case "peestream": return `https://peestream.in/embed/?type=show&tmdbId=${id}&season=${season}&episode=${episode}`;
             case "gaia": return `https://gaiaflix.live/watch/${id}?type=tv&s=${season}&e=${episode}`;
-            case "flystream": return `https://flystream.net/tv/${id}/${season}/${episode}`; 
+            case "flystream": return `https://flickbuff.cc/tv/detail/${id}/${season}/${episode}`; 
             case "oneembed": return `https://1embed.cc/embed/tv/${id}/${season}/${episode}`;
             default: return `https://player.videasy.net/tv/${id}/${season}/${episode}?autoplayNextEpisode=true&autoPlay=true&nextEpisode=true&color=8834ec`;
         }
