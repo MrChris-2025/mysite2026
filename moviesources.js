@@ -32,7 +32,7 @@ function getStreamUrl(server, type, id, season = 1, episode = 1) {
             case "xpass": return `https://play.xpass.top/e/movie/${id}`;
             case "nxsha": return `https://web.nxsha.app/embed/movie/${id}`;
             case "shuttle": return `https://shuttletv.su/watch/${id}`;
-            case "vidcore": return `https://vidcore.org/embed/movie/${id}`;
+            case "vidcore": return `https://vidcore.org/embed/movie/${id}?autoplay=true`;
             case "vidfast": return `https://vidfast.vc/movie/${id}`;
             case "fmov": return `https://fmov.my/embed/movie/${id}`;
             case "nextbox": return `https://nextbox.uno/player/movie/${id}`;
@@ -49,7 +49,7 @@ function getStreamUrl(server, type, id, season = 1, episode = 1) {
             case "xpass": return `https://play.xpass.top/e/tv/${id}/${season}/${episode}`;
             case "nxsha": return `https://web.nxsha.app/embed/tv/${id}/${season}/${episode}`;
             case "shuttle": return `https://shuttletv.su/watch/${id}?s={season}$&e={episode}`;
-            case "vidcore": return `https://vidcore.org/embed/tv/${id}/${season}/${episode}`;
+            case "vidcore": return `https://vidcore.org/embed/tv/${id}/${season}/${episode}?autoplay=true`;
             case "vidfast": return `https://vidfast.vc/tv/${id}/${season}/${episode}?autoPlay=true`;
             case "fmov": return `https://fmov.my/embed/tv/${id}/${season}/${episode}`;
             case "nextbox": return `https://nextbox.uno/player/tv/${id}/${season}/${episode}`;
