@@ -46,7 +46,7 @@ function getStreamUrl(server, type, id, season = 1, episode = 1) {
             case "vault": return `https://streamvaultsrc.click/embed/tv/${id}/${season}/${episode}`;
             case "xpass": return `https://play.xpass.top/e/tv/${id}/${season}/${episode}`;
             case "nxsha": return `https://web.nxsha.app/embed/tv/${id}/${season}/${episode}`;
-            case "shuttle": return `https://shuttletv.su/watch/${id}$?s={season}/$&e={episode}`;
+            case "shuttle": return `https://shuttletv.su/watch/${id}?s={season}$&e={episode}`;
             case "videasy": return `https://player.videasy.net/tv/${id}/${season}/${episode}?autoplayNextEpisode=true&autoPlay=true&nextEpisode=true&color=8834ec`;
             case "vidfast": return `https://www.vidfast.net/tv/${id}/${season}/${episode}?autoPlay=true`;
             case "cinemaos": return `https://cinemaos.live/tv/watch/${id}&${season}&${episode}`;
