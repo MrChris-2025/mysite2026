@@ -20,7 +20,7 @@ const serversList = [
 ];
 
 const noSandboxSources = ['vault', 'xpass', 'vid', 'oneembed', 'vidfast'];
-let activeServer = "vidcore";
+let activeServer = "xpass";
 
 // Parent Control State Tracking
 let isPlaying = true;
