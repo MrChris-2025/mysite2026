@@ -20,7 +20,7 @@ const serversList = [
 ];
 
 const noSandboxSources = ['vault', 'xpass', 'vid', 'oneembed', 'vidfast'];
-let activeServer = "xpass";
+let activeServer = "xpass"; // Default set to xpass so controls are ready
 
 // Parent Control State Tracking
 let isPlaying = true;
@@ -83,55 +83,76 @@ function sendPlayerAction(action, extra = {}) {
             targetOrigin
         );
     } catch (e) {
-        // Suppressed cross-origin/invalid URL logs
+        // Suppressed cross-origin logs
     }
 }
 
 /**
- * Creates or updates the Glassmorphism Parent Controls UI Bar.
+ * Renders the Glassmorphic Controls UI right below player container or iframe.
  */
 function renderParentControlsUI() {
     let container = document.getElementById("xpass-parent-controls");
-    const playerWrapper = document.getElementById("player-wrapper");
-
-    if (!playerWrapper) return;
-
+    
+    // If not XPass, hide controls
     if (activeServer !== "xpass") {
         if (container) container.style.display = "none";
         return;
     }
 
+    // Locate mounting parent node
+    const playerWrapper = document.getElementById("player-wrapper") || document.body;
+
     if (!container) {
         container = document.createElement("div");
         container.id = "xpass-parent-controls";
-        container.className = "mt-3 p-4 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 shadow-xl text-white transition-all duration-300 flex flex-col gap-3";
+        
+        // Inline fallback styling for Glassmorphism
+        container.style.cssText = `
+            margin-top: 12px;
+            padding: 16px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            font-family: system-ui, -apple-system, sans-serif;
+        `;
 
         container.innerHTML = `
-            <div class="flex items-center justify-between gap-4 flex-wrap">
-                <button id="togglePlay" class="px-4 py-2 bg-purple-600/80 hover:bg-purple-600 text-white rounded-lg font-bold text-xs transition">Pause</button>
+            <div class="flex items-center justify-between gap-4 flex-wrap" style="display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+                <button id="togglePlay" style="padding:8px 16px; background:rgba(147, 51, 234, 0.8); border:none; color:white; border-radius:8px; font-weight:bold; font-size:12px; cursor:pointer;">Pause</button>
                 
-                <div class="flex items-center gap-2 flex-1 min-w-[200px]">
-                    <span id="posLabel" class="text-xs font-mono">0</span>
-                    <input type="range" id="seekBar" min="0" max="100" value="0" class="w-full accent-purple-500 bg-white/20 rounded-lg h-1.5 cursor-pointer">
-                    <span id="durationLabel" class="text-xs font-mono">0</span>
+                <div style="display:flex; align-items:center; gap:8px; flex:1; min-width:200px;">
+                    <span id="posLabel" style="font-size:12px; font-family:monospace;">0</span>
+                    <input type="range" id="seekBar" min="0" max="100" value="0" style="width:100%; cursor:pointer; accent-color:#a855f7;">
+                    <span id="durationLabel" style="font-size:12px; font-family:monospace;">0</span>
                 </div>
 
-                <div class="flex items-center gap-2">
-                    <button id="toggleMute" class="px-3 py-2 bg-white/10 hover:bg-white/20 rounded-lg font-bold text-xs transition">Mute</button>
-                    <input type="range" id="volumeBar" min="0" max="100" value="100" class="w-20 accent-purple-500 bg-white/20 rounded-lg h-1.5 cursor-pointer">
-                    <span id="volumeLabel" class="text-xs font-mono w-6">100</span>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <button id="toggleMute" style="padding:8px 12px; background:rgba(255, 255, 255, 0.1); border:none; color:white; border-radius:8px; font-weight:bold; font-size:12px; cursor:pointer;">Mute</button>
+                    <input type="range" id="volumeBar" min="0" max="100" value="100" style="width:80px; cursor:pointer; accent-color:#a855f7;">
+                    <span id="volumeLabel" style="font-size:12px; font-family:monospace; width:24px;">100</span>
                 </div>
             </div>
 
-            <div class="flex items-center gap-2 border-t border-white/10 pt-2">
-                <input type="number" id="positionInput" placeholder="Sec" value="0" class="w-20 px-2 py-1 bg-black/40 border border-white/20 rounded text-xs text-white outline-none focus:border-purple-500">
-                <button id="playAt" class="px-3 py-1 bg-purple-600/50 hover:bg-purple-600 text-white rounded text-xs font-bold transition">Play at 0s</button>
+            <div style="display:flex; align-items:center; gap:8px; border-top:1px solid rgba(255,255,255,0.1); padding-top:8px;">
+                <input type="number" id="positionInput" placeholder="Sec" value="0" style="width:80px; padding:4px 8px; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.2); border-radius:4px; font-size:12px; color:white; outline:none;">
+                <button id="playAt" style="padding:6px 12px; background:rgba(147, 51, 234, 0.5); border:none; color:white; border-radius:6px; font-size:12px; font-weight:bold; cursor:pointer;">Play at 0s</button>
             </div>
         `;
 
-        playerWrapper.parentNode.insertBefore(container, playerWrapper.nextSibling);
+        if (playerWrapper.parentNode) {
+            playerWrapper.parentNode.insertBefore(container, playerWrapper.nextSibling);
+        } else {
+            playerWrapper.appendChild(container);
+        }
 
-        // Bind UI Elements & Event Listeners
+        // Event Binding
         const seekBar = container.querySelector("#seekBar");
         const positionInput = container.querySelector("#positionInput");
         const playAtBtn = container.querySelector("#playAt");
@@ -140,12 +161,9 @@ function renderParentControlsUI() {
         const volumeLabel = container.querySelector("#volumeLabel");
         const muteBtn = container.querySelector("#toggleMute");
 
-        const updateButtonLabel = () => {
-            const value = Number(positionInput.value || 0);
-            playAtBtn.textContent = `Play at ${value}s`;
-        };
-
-        positionInput.addEventListener("input", updateButtonLabel);
+        positionInput.addEventListener("input", () => {
+            playAtBtn.textContent = `Play at ${Number(positionInput.value || 0)}s`;
+        });
 
         seekBar.addEventListener("input", () => {
             isSeeking = true;
@@ -277,7 +295,7 @@ function selectServer(serverId) {
 }
 
 /**
- * Global PostMessage Listener for XPass Player Synchronization
+ * Sync State via postMessage
  */
 window.addEventListener("message", (event) => {
     const iframe = document.getElementById("xplay");
@@ -320,4 +338,10 @@ window.addEventListener("message", (event) => {
             if (muteBtn) muteBtn.textContent = isMuted ? "Unmute" : "Mute";
         }
     }
+});
+
+// Auto-run on load to guarantee controls render when XPass is active
+document.addEventListener("DOMContentLoaded", () => {
+    populateSourcesDropdown();
+    renderParentControlsUI();
 });
