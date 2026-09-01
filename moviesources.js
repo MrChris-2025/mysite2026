@@ -15,7 +15,8 @@ const serversList = [
     { id: 'peestream', name: 'Server 10: PeeStream' },
     { id: 'gaia', name: 'Server 11: Gaia' },
     { id: 'flixer', name: 'Server 12: flixer' },
-    { id: 'oneembed', name: 'Server 13: 1Embed' }
+    { id: 'oneembed', name: 'Server 13: 1Embed' },
+    { id: 'xully', name: 'Server 14: xully' }
 ];
 
 const noSandboxSources = ['vault', 'xpass', 'vid', 'oneembed', 'vidfast'];
@@ -57,6 +58,7 @@ function getStreamUrl(server, type, id, season = 1, episode = 1) {
             case "gaia": return `https://gaiaflix.live/watch/${id}?type=tv&s=${season}&e=${episode}`;
             case "flixer": return `https://flixer.gd/watch/tv/${id}/${season}/${episode}`; 
             case "oneembed": return `https://1embed.cc/embed/tv/${id}/${season}/${episode}`;
+                case "xully": return `https://xullys.xyz/watch/${id}?s=${season}&e=${episode}`;
             default: return `https://vidcore.org/embed/tv/${id}/${season}/${episode}`;
         }
     }
