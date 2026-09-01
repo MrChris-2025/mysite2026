@@ -10,7 +10,7 @@ const serversList = [
     { id: 'shuttle', name: 'Server 5: ShuttleTV' },
     { id: 'videasy', name: 'Server 6: Videasy' },
     { id: 'vidfast', name: 'Server 7: VidFast' },
-    { id: 'moonflix', name: 'Server 8: Moonflix' },
+    { id: 'cinemaos', name: 'Server 8: CinemaOS' },
     { id: 'nextbox', name: 'Server 9: NextBox' },
     { id: 'peestream', name: 'Server 10: PeeStream' },
     { id: 'gaia', name: 'Server 11: Gaia' },
@@ -34,11 +34,11 @@ function getStreamUrl(server, type, id, season = 1, episode = 1) {
             case "shuttle": return `https://shuttletv.su/watch/${id}`;
             case "videasy": return `https://player.videasy.net/movie/${id}?color=8834ec`;
             case "vidfast": return `https://vidfast.vc/movie/${id}`;
-            case "moonflix": return `https://cinemaos.tech/player/${id}`;
+            case "cinemaos": return `https://cinemaos.tech/player/${id}`;
             case "nextbox": return `https://nextbox.uno/player/movie/${id}`;
             case "peestream": return `https://peestream.in/embed/?type=movie&tmdbId=${id}`;
             case "gaia": return `https://gaiaflix.live/watch/${id}?type=movie`;
-            case "flixer": return `https://flixer.gd/watch/movie/${id}`;
+            case "flixer": return `https://flixer.gd/watch/movie/${id}`
             case "oneembed": return `https://1embed.cc/embed/movie/${id}`;
             default: return `https://player.videasy.net/movie/${id}?color=8834ec`;
         }
@@ -48,10 +48,10 @@ function getStreamUrl(server, type, id, season = 1, episode = 1) {
             case "vault": return `https://streamvaultsrc.click/embed/tv/${id}/${season}/${episode}`;
             case "xpass": return `https://play.xpass.top/e/tv/${id}/${season}/${episode}`;
             case "nxsha": return `https://web.nxsha.app/embed/tv/${id}/${season}/${episode}`;
-            case "shuttle": return `https://shuttletv.su/watch/${id}?s=${season}&e=${episode}`;
+            case "shuttle": return `https://shuttletv.su/watch/${id}?s={season}$&e={episode}`;
             case "videasy": return `https://player.videasy.net/tv/${id}/${season}/${episode}?autoplayNextEpisode=true&autoPlay=true&nextEpisode=true&color=8834ec`;
             case "vidfast": return `https://vidfast.vc/tv/${id}/${season}/${episode}?autoPlay=true`;
-            case "moonflix": return `https://player.moonflix.website/tv/${tmdb_Id}/${season}/${episode}`;
+            case "cinemaos": return `https://cinemaos.live/tv/watch/${id}&${season}&${episode}`;
             case "nextbox": return `https://nextbox.uno/player/tv/${id}/${season}/${episode}`;
             case "peestream": return `https://peestream.in/embed/?type=show&tmdbId=${id}&season=${season}&episode=${episode}`;
             case "gaia": return `https://gaiaflix.live/watch/${id}?type=tv&s=${season}&e=${episode}`;
@@ -139,10 +139,8 @@ function selectServer(serverId) {
 
     if (window.state && window.state.current) {
         if (window.state.type === "tv") {
-            const seasonEl = document.getElementById('seasonSelect');
-            const episodeEl = document.getElementById('episodeSelect');
-            const s = seasonEl ? seasonEl.value : 1;
-            const e = episodeEl ? episodeEl.value : 1;
+            const s = document.getElementById('seasonSelect').value || 1;
+            const e = document.getElementById('episodeSelect').value || 1;
             loadServerIframe("tv", window.state.current.id, s, e);
         } else {
             loadServerIframe("movie", window.state.current.id);
