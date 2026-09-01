@@ -10,7 +10,7 @@ const serversList = [
     { id: 'shuttle', name: 'Server 5: ShuttleTV' },
     { id: 'videasy', name: 'Server 6: Videasy' },
     { id: 'vidfast', name: 'Server 7: VidFast' },
-    { id: 'cinemaos', name: 'Server 8: CinemaOS' },
+    { id: 'fmov', name: 'Server 8: fmov' },
     { id: 'nextbox', name: 'Server 9: NextBox' },
     { id: 'peestream', name: 'Server 10: PeeStream' },
     { id: 'gaia', name: 'Server 11: Gaia' },
@@ -34,7 +34,7 @@ function getStreamUrl(server, type, id, season = 1, episode = 1) {
             case "shuttle": return `https://shuttletv.su/watch/${id}`;
             case "videasy": return `https://player.videasy.net/movie/${id}?color=8834ec`;
             case "vidfast": return `https://vidfast.vc/movie/${id}`;
-            case "cinemaos": return `https://player.moonflix.website/movie/tmdbId=${id}`;
+            case "fmov": return `https://fmov.my/embed/movie/${id}`;
             case "nextbox": return `https://nextbox.uno/player/movie/${id}`;
             case "peestream": return `https://peestream.in/embed/?type=movie&tmdbId=${id}`;
             case "gaia": return `https://gaiaflix.live/watch/${id}?type=movie`;
@@ -51,7 +51,7 @@ function getStreamUrl(server, type, id, season = 1, episode = 1) {
             case "shuttle": return `https://shuttletv.su/watch/${id}?s={season}$&e={episode}`;
             case "videasy": return `https://player.videasy.net/tv/${id}/${season}/${episode}?autoplayNextEpisode=true&autoPlay=true&nextEpisode=true&color=8834ec`;
             case "vidfast": return `https://vidfast.vc/tv/${id}/${season}/${episode}?autoPlay=true`;
-            case "cinemaos": return `https://fmov.my/embed/tv/${id}/${season}/${episode}`;
+            case "fmov": return `https://fmov.my/embed/tv/${id}/${season}/${episode}`;
             case "nextbox": return `https://nextbox.uno/player/tv/${id}/${season}/${episode}`;
             case "peestream": return `https://peestream.in/embed/?type=show&tmdbId=${id}&season=${season}&episode=${episode}`;
             case "gaia": return `https://gaiaflix.live/watch/${id}?type=tv&s=${season}&e=${episode}`;
