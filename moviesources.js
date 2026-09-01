@@ -8,7 +8,7 @@ const serversList = [
     { id: 'xpass', name: 'Server 3: XPass' },
     { id: 'nxsha', name: 'Server 4: Nxsha' },
     { id: 'shuttle', name: 'Server 5: ShuttleTV' },
-    { id: 'videasy', name: 'Server 6: Videasy' },
+    { id: 'vidcore', name: 'Server 6: Vidcore' },
     { id: 'vidfast', name: 'Server 7: VidFast' },
     { id: 'fmov', name: 'Server 8: fmov' },
     { id: 'nextbox', name: 'Server 9: NextBox' },
@@ -32,7 +32,7 @@ function getStreamUrl(server, type, id, season = 1, episode = 1) {
             case "xpass": return `https://play.xpass.top/e/movie/${id}`;
             case "nxsha": return `https://web.nxsha.app/embed/movie/${id}`;
             case "shuttle": return `https://shuttletv.su/watch/${id}`;
-            case "videasy": return `https://player.videasy.net/movie/${id}?color=8834ec`;
+            case "vidcore": return `https://vidcore.org/embed/movie/${id}`;
             case "vidfast": return `https://vidfast.vc/movie/${id}`;
             case "fmov": return `https://fmov.my/embed/movie/${id}`;
             case "nextbox": return `https://nextbox.uno/player/movie/${id}`;
@@ -49,7 +49,7 @@ function getStreamUrl(server, type, id, season = 1, episode = 1) {
             case "xpass": return `https://play.xpass.top/e/tv/${id}/${season}/${episode}`;
             case "nxsha": return `https://web.nxsha.app/embed/tv/${id}/${season}/${episode}`;
             case "shuttle": return `https://shuttletv.su/watch/${id}?s={season}$&e={episode}`;
-            case "videasy": return `https://player.videasy.net/tv/${id}/${season}/${episode}?autoplayNextEpisode=true&autoPlay=true&nextEpisode=true&color=8834ec`;
+            case "vidcore": return `https://vidcore.org/embed/tv/${id}/${season}/${episode}?autoplayNextEpisode=true&autoPlay=true&nextEpisode=true&color=8834ec`;
             case "vidfast": return `https://vidfast.vc/tv/${id}/${season}/${episode}?autoPlay=true`;
             case "fmov": return `https://fmov.my/embed/tv/${id}/${season}/${episode}`;
             case "nextbox": return `https://nextbox.uno/player/tv/${id}/${season}/${episode}`;
