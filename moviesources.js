@@ -38,7 +38,7 @@ function getStreamUrl(server, type, id, season = 1, episode = 1) {
             case "nextbox": return `https://nextbox.uno/player/movie/${id}`;
             case "peestream": return `https://peestream.in/embed/?type=movie&tmdbId=${id}`;
             case "gaia": return `https://gaiaflix.live/watch/${id}?type=movie`;
-            case "flixer": return `https://flixer.gd/movie/${id}`
+            case "flixer": return `https://flixer.gd/watch/movie/${id}`
             case "oneembed": return `https://1embed.cc/embed/movie/${id}`;
             default: return `https://player.videasy.net/movie/${id}?color=8834ec`;
         }
