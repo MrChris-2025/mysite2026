@@ -21,67 +21,21 @@ const noSandboxSources = ['', 'xpass', 'videasy', 'oneembed', 'vidfast'];
 let activeServer = "videasy";
 
 /**
- * PostMessage API helper for xplay controls
+ * Sends actions to the dynamic target iframe inside player-wrapper
  */
 function sendPlayerAction(action, extra = {}) {
-    const iframe = document.getElementById("xplay-iframe") || document.getElementById("xplay");
-    if (!iframe || !iframe.contentWindow) return;
+    const playerContainer = document.getElementById("player-wrapper");
+    const iframe = playerContainer ? playerContainer.querySelector("iframe") : null;
+    if (!iframe || !iframe.src) return;
 
     try {
-        const targetOrigin = iframe.src ? new URL(iframe.src).origin : "*";
+        const targetOrigin = new URL(iframe.src).origin;
         iframe.contentWindow.postMessage(
             { type: "player.action", action, ...extra },
             targetOrigin
         );
-    } catch (e) {
-        console.warn("Unable to postMessage to xplay iframe:", e);
-    }
-}
-
-/**
- * Creates and injects glassmorphism player control bar for XPlay
- */
-function renderXplayControls(container) {
-    let controlsBar = document.getElementById("xplay-controls-bar");
-    if (!controlsBar) {
-        controlsBar = document.createElement("div");
-        controlsBar.id = "xplay-controls-bar";
-        
-        // Glassmorphic Tailwind styles
-        controlsBar.className = "flex items-center justify-center gap-3 p-3 mt-3 rounded-2xl backdrop-blur-md bg-white/10 border border-white/10 shadow-xl transition-all duration-300";
-
-        controlsBar.innerHTML = `
-            <button onclick="sendPlayerAction('play')" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-semibold backdrop-blur-sm border border-white/10 transition-all">Play</button>
-            <button onclick="sendPlayerAction('pause')" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-semibold backdrop-blur-sm border border-white/10 transition-all">Pause</button>
-            <button onclick="sendPlayerAction('seek', { position: 120 })" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-semibold backdrop-blur-sm border border-white/10 transition-all">-10s</button>
-            <button onclick="sendPlayerAction('playAt', { position: 300 })" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-semibold backdrop-blur-sm border border-white/10 transition-all">+10s</button>
-            <button onclick="sendPlayerAction('setMute', { muted: true })" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-semibold backdrop-blur-sm border border-white/10 transition-all">Mute</button>
-            <button onclick="sendPlayerAction('unmute')" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-semibold backdrop-blur-sm border border-white/10 transition-all">Unmute</button>
-        `;
-        container.appendChild(controlsBar);
-    }
-    controlsBar.classList.remove("hidden");
-}
-
-/**
- * Handles toggling Visibility for Controls and Diagnostics
- */
-function toggleServerUI() {
-    const diagnosticsSection = document.getElementById("diagnostics-section") || document.querySelector(".diagnostics");
-    const xplayControls = document.getElementById("xplay-controls-bar");
-
-    // Hide Diagnostics Section
-    if (diagnosticsSection) {
-        diagnosticsSection.classList.add("hidden");
-        diagnosticsSection.style.display = "none";
-    }
-
-    // Toggle XPlay Glassmorphism Controls
-    if (activeServer === "xpass" || activeServer === "xplay") {
-        const playerContainer = document.getElementById("player-wrapper");
-        if (playerContainer) renderXplayControls(playerContainer);
-    } else if (xplayControls) {
-        xplayControls.classList.add("hidden");
+    } catch (err) {
+        console.error("Failed to post message to iframe:", err);
     }
 }
 
@@ -134,9 +88,9 @@ function loadServerIframe(type, id, season = 1, episode = 1) {
     const streamUrl = getStreamUrl(activeServer, type, id, season, episode);
 
     const frameElement = document.createElement('iframe');
-    frameElement.id = "xplay-iframe";
+    frameElement.id = "xplay";
     frameElement.src = streamUrl;
-    frameElement.className = "w-full h-full border-0 shadow-2xl bg-black rounded-lg";
+    frameElement.className = "w-full h-full border-0 shadow-2xl bg-black rounded-lg backdrop-blur-md";
     frameElement.allowFullscreen = true;
     frameElement.setAttribute("scrolling", "no");
     frameElement.setAttribute("referrerpolicy", "origin");
@@ -150,29 +104,48 @@ function loadServerIframe(type, id, season = 1, episode = 1) {
 
     playerContainer.innerHTML = "";
     playerContainer.appendChild(frameElement);
-
-    // Dynamic UI Update
-    toggleServerUI();
+    
+    // Refresh control visibilities based on current active source
+    updateUiVisibility();
 }
 
 /**
- * Populates server selection dropdown UI elements.
+ * Toggles UI visibility for controls (shows on xpass) and diagnostics (hides on xpass).
+ */
+function updateUiVisibility() {
+    const controlsContainer = document.getElementById("xpass-controls") || document.getElementById("player-controls");
+    const diagnosticsSection = document.getElementById("diagnostics-section") || document.getElementById("diagnostics");
+
+    if (activeServer === "xpass") {
+        if (controlsContainer) controlsContainer.classList.remove("hidden");
+        if (diagnosticsSection) diagnosticsSection.classList.add("hidden");
+    } else {
+        if (controlsContainer) controlsContainer.classList.add("hidden");
+        if (diagnosticsSection) diagnosticsSection.classList.remove("hidden");
+    }
+}
+
+/**
+ * Populates server selection dropdown UI elements with Glassmorphism styles.
  */
 function populateSourcesDropdown() {
     const menu = document.getElementById("sources-menu-options");
     if (!menu) return;
     menu.innerHTML = "";
     
+    // Apply glassmorphism container classes
+    menu.className = "grid grid-cols-2 gap-2 p-3 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl";
+
     serversList.forEach(server => {
         const btn = document.createElement("button");
         btn.type = "button";
         btn.setAttribute("draggable", "false");
         
         const isActive = server.id === activeServer;
-        btn.className = `p-2.5 rounded-lg text-[10px] font-bold transition-all duration-200 flex flex-col items-center justify-center text-center gap-1 border border-white/5 cursor-pointer outline-none ${
+        btn.className = `p-2.5 rounded-lg text-[10px] font-bold transition-all duration-200 flex flex-col items-center justify-center text-center gap-1 cursor-pointer outline-none backdrop-blur-sm ${
             isActive 
-            ? 'bg-purple-600/30 border-purple-500 text-white shadow-lg shadow-purple-500/10' 
-            : 'bg-white/5 text-slate-300 hover:border-purple-500/50 hover:bg-white/10 hover:text-white'
+            ? 'bg-purple-600/40 border border-purple-400/60 text-white shadow-lg shadow-purple-500/20' 
+            : 'bg-white/5 border border-white/10 text-slate-300 hover:border-purple-400/40 hover:bg-white/15 hover:text-white'
         }`;
 
         btn.onclick = () => {
@@ -182,7 +155,7 @@ function populateSourcesDropdown() {
 
         const nameParts = server.name.split(': ');
         btn.innerHTML = `
-            <span class="text-[8px] uppercase tracking-wider text-purple-400 font-extrabold">${nameParts[0] || 'Server'}</span>
+            <span class="text-[8px] uppercase tracking-wider text-purple-300 font-extrabold">${nameParts[0] || 'Server'}</span>
             <span class="text-white truncate max-w-full font-bold">${nameParts[1] || server.id}</span>
         `;
         menu.appendChild(btn);
@@ -202,16 +175,23 @@ function selectServer(serverId) {
     activeServer = serverId;
     updateSelectedSourceText();
     populateSourcesDropdown(); 
+    updateUiVisibility();
 
     if (window.state && window.state.current) {
+        const seasonSelect = document.getElementById('seasonSelect');
+        const episodeSelect = document.getElementById('episodeSelect');
+        
         if (window.state.type === "tv") {
-            const s = document.getElementById('seasonSelect')?.value || 1;
-            const e = document.getElementById('episodeSelect')?.value || 1;
+            const s = seasonSelect ? seasonSelect.value : 1;
+            const e = episodeSelect ? episodeSelect.value : 1;
             loadServerIframe("tv", window.state.current.id, s, e);
         } else {
             loadServerIframe("movie", window.state.current.id);
         }
-    } else {
-        toggleServerUI();
     }
 }
+
+// Initialize on script load
+document.addEventListener("DOMContentLoaded", () => {
+    updateUiVisibility();
+});
