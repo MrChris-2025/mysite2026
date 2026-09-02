@@ -20,9 +20,8 @@ const serversList = [
 ];
 
 const noSandboxSources = ['vault', 'xpass', 'vid', 'oneembed', 'vidfast'];
-let activeServer = "xpass"; // Default set to xpass so controls are ready
+let activeServer = "vidcore";
 
-// Parent Control State Tracking
 let isPlaying = true;
 let isSeeking = false;
 let isMuted = false;
@@ -62,145 +61,12 @@ function getStreamUrl(server, type, id, season = 1, episode = 1) {
             case "nextbox": return `https://nextbox.uno/player/tv/${id}/${season}/${episode}`;
             case "peestream": return `https://peestream.in/embed/?type=show&tmdbId=${id}&season=${season}&episode=${episode}`;
             case "gaia": return `https://gaiaflix.live/watch/${id}?type=tv&s=${season}&e=${episode}`;
-            case "flixer": return `https://flixer.gd/watch/tv/${id}/${season}/${episode}`;
+            case "flixer": return `https://flixer.gd/watch/tv/${id}/${season}/${episode}`; 
             case "oneembed": return `https://1embed.cc/embed/tv/${id}/${season}/${episode}`;
             case "xully": return `https://xullys.xyz/watch/${id}?s=${season}&e=${episode}`;
             default: return `https://vidcore.org/embed/tv/${id}/${season}/${episode}`;
         }
     }
-}
-
-/**
- * Sends a postMessage command to the active iframe.
- */
-function sendPlayerAction(action, extra = {}) {
-    const iframe = document.getElementById("xplay");
-    if (!iframe || !iframe.src) return;
-    try {
-        const targetOrigin = new URL(iframe.src).origin;
-        iframe.contentWindow.postMessage(
-            { type: "player.action", action, ...extra },
-            targetOrigin
-        );
-    } catch (e) {
-        // Suppressed cross-origin logs
-    }
-}
-
-/**
- * Renders the Glassmorphic Controls UI right below player container or iframe.
- */
-function renderParentControlsUI() {
-    let container = document.getElementById("xpass-parent-controls");
-    
-    // If not XPass, hide controls
-    if (activeServer !== "xpass") {
-        if (container) container.style.display = "none";
-        return;
-    }
-
-    // Locate mounting parent node
-    const playerWrapper = document.getElementById("player-wrapper") || document.body;
-
-    if (!container) {
-        container = document.createElement("div");
-        container.id = "xpass-parent-controls";
-        
-        // Inline fallback styling for Glassmorphism
-        container.style.cssText = `
-            margin-top: 12px;
-            padding: 16px;
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            color: #ffffff;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            font-family: system-ui, -apple-system, sans-serif;
-        `;
-
-        container.innerHTML = `
-            <div class="flex items-center justify-between gap-4 flex-wrap" style="display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;">
-                <button id="togglePlay" style="padding:8px 16px; background:rgba(147, 51, 234, 0.8); border:none; color:white; border-radius:8px; font-weight:bold; font-size:12px; cursor:pointer;">Pause</button>
-                
-                <div style="display:flex; align-items:center; gap:8px; flex:1; min-width:200px;">
-                    <span id="posLabel" style="font-size:12px; font-family:monospace;">0</span>
-                    <input type="range" id="seekBar" min="0" max="100" value="0" style="width:100%; cursor:pointer; accent-color:#a855f7;">
-                    <span id="durationLabel" style="font-size:12px; font-family:monospace;">0</span>
-                </div>
-
-                <div style="display:flex; align-items:center; gap:8px;">
-                    <button id="toggleMute" style="padding:8px 12px; background:rgba(255, 255, 255, 0.1); border:none; color:white; border-radius:8px; font-weight:bold; font-size:12px; cursor:pointer;">Mute</button>
-                    <input type="range" id="volumeBar" min="0" max="100" value="100" style="width:80px; cursor:pointer; accent-color:#a855f7;">
-                    <span id="volumeLabel" style="font-size:12px; font-family:monospace; width:24px;">100</span>
-                </div>
-            </div>
-
-            <div style="display:flex; align-items:center; gap:8px; border-top:1px solid rgba(255,255,255,0.1); padding-top:8px;">
-                <input type="number" id="positionInput" placeholder="Sec" value="0" style="width:80px; padding:4px 8px; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.2); border-radius:4px; font-size:12px; color:white; outline:none;">
-                <button id="playAt" style="padding:6px 12px; background:rgba(147, 51, 234, 0.5); border:none; color:white; border-radius:6px; font-size:12px; font-weight:bold; cursor:pointer;">Play at 0s</button>
-            </div>
-        `;
-
-        if (playerWrapper.parentNode) {
-            playerWrapper.parentNode.insertBefore(container, playerWrapper.nextSibling);
-        } else {
-            playerWrapper.appendChild(container);
-        }
-
-        // Event Binding
-        const seekBar = container.querySelector("#seekBar");
-        const positionInput = container.querySelector("#positionInput");
-        const playAtBtn = container.querySelector("#playAt");
-        const toggleBtn = container.querySelector("#togglePlay");
-        const volumeBar = container.querySelector("#volumeBar");
-        const volumeLabel = container.querySelector("#volumeLabel");
-        const muteBtn = container.querySelector("#toggleMute");
-
-        positionInput.addEventListener("input", () => {
-            playAtBtn.textContent = `Play at ${Number(positionInput.value || 0)}s`;
-        });
-
-        seekBar.addEventListener("input", () => {
-            isSeeking = true;
-            container.querySelector("#posLabel").textContent = seekBar.value;
-        });
-
-        seekBar.addEventListener("change", () => {
-            isSeeking = false;
-            sendPlayerAction("seek", { position: Number(seekBar.value) });
-        });
-
-        playAtBtn.addEventListener("click", () => {
-            sendPlayerAction("playAt", { position: Number(positionInput.value || 0) });
-            isPlaying = true;
-            toggleBtn.textContent = "Pause";
-        });
-
-        toggleBtn.addEventListener("click", () => {
-            const action = isPlaying ? "pause" : "play";
-            sendPlayerAction(action);
-            toggleBtn.textContent = isPlaying ? "Play" : "Pause";
-            isPlaying = !isPlaying;
-        });
-
-        volumeBar.addEventListener("input", () => {
-            volumeLabel.textContent = volumeBar.value;
-            sendPlayerAction("setVolume", { volume: Number(volumeBar.value) });
-        });
-
-        muteBtn.addEventListener("click", () => {
-            isMuted = !isMuted;
-            sendPlayerAction("setMute", { muted: isMuted });
-            muteBtn.textContent = isMuted ? "Unmute" : "Mute";
-        });
-    }
-
-    container.style.display = "flex";
 }
 
 /**
@@ -229,9 +95,193 @@ function loadServerIframe(type, id, season = 1, episode = 1) {
 
     playerContainer.innerHTML = "";
     playerContainer.appendChild(frameElement);
-
-    renderParentControlsUI();
 }
+
+/**
+ * Ensures or builds the Glassmorphism Parental Controls panel directly under sources.
+ */
+function renderParentControlsUI() {
+    let controlsContainer = document.getElementById("xpass-parent-controls");
+    const sourcesContainer = document.getElementById("sources-menu-options")?.parentElement || document.getElementById("player-wrapper");
+
+    if (!controlsContainer && sourcesContainer) {
+        controlsContainer = document.createElement("div");
+        controlsContainer.id = "xpass-parent-controls";
+        controlsContainer.className = "hidden mt-4 p-4 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 shadow-xl text-white transition-all duration-300";
+        
+        controlsContainer.innerHTML = `
+            <div class="flex items-center justify-between mb-3 border-b border-white/10 pb-2">
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-purple-400 animate-pulse"></span>
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-purple-300">XPass Controls</h4>
+                </div>
+                <span id="posLabel" class="text-[10px] font-mono text-slate-300">0s</span>
+            </div>
+            
+            <div class="space-y-3">
+                <div class="flex flex-col gap-1">
+                    <input type="range" id="seekBar" value="0" min="0" max="100" class="w-full accent-purple-500 bg-white/20 h-1.5 rounded-lg appearance-none cursor-pointer">
+                    <div class="flex justify-between text-[9px] text-slate-400 font-mono">
+                        <span>0s</span>
+                        <span id="durationLabel">0s</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    <button type="button" id="togglePlay" class="px-3 py-1.5 rounded-lg bg-purple-600/40 hover:bg-purple-600/60 border border-purple-400/30 text-xs font-semibold backdrop-blur-sm transition">Pause</button>
+                    <button type="button" id="toggleMute" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 border border-white/15 text-xs font-semibold backdrop-blur-sm transition">Mute</button>
+                    
+                    <div class="col-span-2 flex items-center gap-1.5">
+                        <input type="number" id="positionInput" value="0" min="0" placeholder="Sec" class="w-16 px-2 py-1 bg-black/30 border border-white/20 rounded-lg text-xs text-white outline-none focus:border-purple-400">
+                        <button type="button" id="playAt" class="flex-1 px-2 py-1.5 rounded-lg bg-purple-600/40 hover:bg-purple-600/60 border border-purple-400/30 text-xs font-semibold backdrop-blur-sm transition truncate">Play at 0s</button>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 pt-1 border-t border-white/5">
+                    <span class="text-[10px] text-slate-300 font-medium">Volume</span>
+                    <input type="range" id="volumeBar" min="0" max="100" value="100" class="flex-1 accent-purple-500 bg-white/20 h-1 rounded-lg appearance-none cursor-pointer">
+                    <span id="volumeLabel" class="text-[10px] font-mono text-slate-300 w-6 text-right">100</span>
+                </div>
+            </div>
+        `;
+
+        sourcesContainer.insertAdjacentElement('afterend', controlsContainer);
+        bindControlEvents();
+    }
+
+    if (controlsContainer) {
+        if (activeServer === 'xpass') {
+            controlsContainer.classList.remove("hidden");
+        } else {
+            controlsContainer.classList.add("hidden");
+        }
+    }
+}
+
+/**
+ * Sends action payload via postMessage to xpass iframe.
+ */
+function sendPlayerAction(action, extra = {}) {
+    const iframe = document.getElementById("xplay");
+    if (!iframe || !iframe.contentWindow) return;
+    
+    try {
+        const targetOrigin = new URL(iframe.src).origin;
+        iframe.contentWindow.postMessage(
+            { type: "player.action", action, ...extra },
+            targetOrigin
+        );
+    } catch (err) {
+        // Safe origin parsing failure handling
+    }
+}
+
+function updateSeekUI(value) {
+    const seekBar = document.getElementById("seekBar");
+    const posLabel = document.getElementById("posLabel");
+    if (seekBar) seekBar.value = value;
+    if (posLabel) posLabel.textContent = `${value}s`;
+}
+
+function bindControlEvents() {
+    const seekBar = document.getElementById("seekBar");
+    const positionInput = document.getElementById("positionInput");
+    const playAtBtn = document.getElementById("playAt");
+    const toggleBtn = document.getElementById("togglePlay");
+    const volumeBar = document.getElementById("volumeBar");
+    const volumeLabel = document.getElementById("volumeLabel");
+    const muteBtn = document.getElementById("toggleMute");
+
+    if (seekBar) {
+        seekBar.addEventListener("input", () => {
+            isSeeking = true;
+            updateSeekUI(Number(seekBar.value));
+        });
+
+        seekBar.addEventListener("change", () => {
+            isSeeking = false;
+            sendPlayerAction("seek", { position: Number(seekBar.value) });
+        });
+    }
+
+    if (positionInput && playAtBtn) {
+        const updateButtonLabel = () => {
+            const value = Number(positionInput.value || 0);
+            playAtBtn.textContent = `Play at ${value}s`;
+        };
+
+        positionInput.addEventListener("input", updateButtonLabel);
+        updateButtonLabel();
+
+        playAtBtn.addEventListener("click", () => {
+            sendPlayerAction("playAt", { position: Number(positionInput.value || 0) });
+            isPlaying = true;
+            if (toggleBtn) toggleBtn.textContent = "Pause";
+        });
+    }
+
+    if (toggleBtn) {
+        toggleBtn.addEventListener("click", () => {
+            const action = isPlaying ? "pause" : "play";
+            sendPlayerAction(action);
+            isPlaying = !isPlaying;
+            toggleBtn.textContent = isPlaying ? "Pause" : "Play";
+        });
+    }
+
+    if (volumeBar && volumeLabel) {
+        volumeBar.addEventListener("input", () => {
+            volumeLabel.textContent = volumeBar.value;
+            sendPlayerAction("setVolume", { volume: Number(volumeBar.value) });
+        });
+    }
+
+    if (muteBtn) {
+        muteBtn.addEventListener("click", () => {
+            isMuted = !isMuted;
+            sendPlayerAction("setMute", { muted: isMuted });
+            muteBtn.textContent = isMuted ? "Unmute" : "Mute";
+        });
+    }
+}
+
+/**
+ * Event listener for incoming iframe events from XPass.
+ */
+window.addEventListener("message", (event) => {
+    const iframe = document.getElementById("xplay");
+    if (!iframe) return;
+
+    try {
+        if (event.origin !== new URL(iframe.src).origin) return;
+    } catch {
+        return;
+    }
+
+    const data = event.data;
+    if (data?.type === "player.event") {
+        const seekBar = document.getElementById("seekBar");
+        const durationLabel = document.getElementById("durationLabel");
+        const volumeBar = document.getElementById("volumeBar");
+        const volumeLabel = document.getElementById("volumeLabel");
+        const muteBtn = document.getElementById("toggleMute");
+
+        if (!isSeeking && data.event?.name === "position") {
+            updateSeekUI(Math.floor(data.event.position));
+            if (data.event.duration && durationLabel && seekBar) {
+                durationLabel.textContent = `${Math.floor(data.event.duration)}s`;
+                seekBar.max = Math.floor(data.event.duration);
+            }
+        }
+
+        if (data.event?.name === "volume") {
+            if (volumeBar) volumeBar.value = data.event.volume;
+            if (volumeLabel) volumeLabel.textContent = data.event.volume;
+            isMuted = Boolean(data.event.muted);
+            if (muteBtn) muteBtn.textContent = isMuted ? "Unmute" : "Mute";
+        }
+    }
+});
 
 /**
  * Populates server selection dropdown UI elements.
@@ -280,6 +330,7 @@ function selectServer(serverId) {
     activeServer = serverId;
     updateSelectedSourceText();
     populateSourcesDropdown(); 
+    renderParentControlsUI();
 
     if (window.state && window.state.current) {
         if (window.state.type === "tv") {
@@ -289,59 +340,5 @@ function selectServer(serverId) {
         } else {
             loadServerIframe("movie", window.state.current.id);
         }
-    } else {
-        renderParentControlsUI();
     }
 }
-
-/**
- * Sync State via postMessage
- */
-window.addEventListener("message", (event) => {
-    const iframe = document.getElementById("xplay");
-    if (!iframe || !iframe.src || activeServer !== "xpass") return;
-
-    try {
-        if (event.origin !== new URL(iframe.src).origin) return;
-    } catch (e) {
-        return;
-    }
-
-    const data = event.data;
-    if (data?.type === "player.event") {
-        const container = document.getElementById("xpass-parent-controls");
-        if (!container) return;
-
-        const seekBar = container.querySelector("#seekBar");
-        const posLabel = container.querySelector("#posLabel");
-        const durationLabel = container.querySelector("#durationLabel");
-        const volumeBar = container.querySelector("#volumeBar");
-        const volumeLabel = container.querySelector("#volumeLabel");
-        const muteBtn = container.querySelector("#toggleMute");
-
-        if (!isSeeking && data.event?.name === "position") {
-            const pos = Math.floor(data.event.position || 0);
-            if (seekBar) seekBar.value = pos;
-            if (posLabel) posLabel.textContent = pos;
-
-            if (data.event.duration) {
-                const dur = Math.floor(data.event.duration);
-                if (durationLabel) durationLabel.textContent = dur;
-                if (seekBar) seekBar.max = dur;
-            }
-        }
-
-        if (data.event?.name === "volume") {
-            if (volumeBar) volumeBar.value = data.event.volume;
-            if (volumeLabel) volumeLabel.textContent = data.event.volume;
-            isMuted = Boolean(data.event.muted);
-            if (muteBtn) muteBtn.textContent = isMuted ? "Unmute" : "Mute";
-        }
-    }
-});
-
-// Auto-run on load to guarantee controls render when XPass is active
-document.addEventListener("DOMContentLoaded", () => {
-    populateSourcesDropdown();
-    renderParentControlsUI();
-});
