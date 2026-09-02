@@ -10,16 +10,17 @@
     
     <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="moviesources.js"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
                         brand: {
-                            DEFAULT: '#8834ec', // Purple accent
+                            DEFAULT: '#8834ec',
                             hover: '#7022d4',
-                            dark: '#06040a',    // Ultra-dark background
-                            card: '#130e20',    // Slate violet-black card color
+                            dark: '#06040a',
+                            card: '#130e20',
                             cardHover: '#1c1530',
                             sidebar: '#110a1c',
                             glass: 'rgba(19, 14, 32, 0.7)',
@@ -80,7 +81,6 @@
             border-radius: 3px;
         }
 
-        /* Hardware acceleration layers to resolve rendering jitters */
         .tv-focusable {
             transition: transform 0.15s ease-out, background-color 0.15s ease-out, box-shadow 0.15s ease-out;
             transform: translate3d(0, 0, 0);
@@ -235,7 +235,7 @@
                     
                     <div class="flex items-center gap-2">
                         <button onclick="carouselPrevPage()" class="p-2 bg-brand-card hover:bg-brand rounded-lg text-slate-300 hover:text-white transition-all">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width.5="2.5" d="M5 15l7-7 7 7"/></svg>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg>
                         </button>
                         
                         <span id="pageIndicator" class="text-xs bg-brand-card text-slate-300 px-4 py-2 rounded-lg">
@@ -243,7 +243,7 @@
                         </span>
 
                         <button onclick="carouselNextPage()" class="p-2 bg-brand-card hover:bg-brand rounded-lg text-slate-300 hover:text-white transition-all">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width.5="2.5" d="M19 9l-7 7-7-7"/></svg>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
                         </button>
                     </div>
                 </div>
@@ -284,24 +284,6 @@
         const TMDB_BASE_URL = "https://api.themoviedb.org/3";
         const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
 
-        const serversList = [
-            { id: 'vixsrc', name: 'Server 1: Vixsrc' },
-            { id: 'nhdapi', name: 'Server 2: nhdapi' },
-            { id: 'xpass', name: 'Server 3: XPass' },
-            { id: 'vaplayer', name: 'Server 4: VAPlayer' },
-            { id: 'filmu', name: 'Server 5: Filmu' },
-            { id: 'videasy', name: 'Server 6: Videasy' },
-            { id: 'vidfast', name: 'Server 7: VidFast' },
-            { id: 'cinemaos', name: 'Server 8: CinemaOS' },
-            { id: 'gaia', name: 'Server 9: Gaia' },
-            { id: 'ernax', name: 'Server 10: Ernax' },
-            { id: 'cinezo', name: 'Server 11: Cinezo' },
-            { id: 'oneembed', name: 'Server 12: 1Embed' },
-            { id: 'cinemabz', name: 'Server 13: Cinema.bz' },
-            { id: 'nextbox', name: 'Server 14: NextBox' }
-        ];
-
-        const noSandboxSources = ['xpass', 'videasy', 'cinemaos’, ‘nhdapi', 'vidfast'];
         let activeServer = "videasy"; 
 
         let currentContentType = 'tv';
@@ -437,45 +419,8 @@
         function loadServerIframe(type, id, season = 1, episode = 1) {
             const playerContainer = document.getElementById("player-wrapper");
             if (!playerContainer) return;
-            let streamUrl = "";
-
-            if (type === "movie") {
-                switch (activeServer) {
-                    case "vixsrc": streamUrl = `https://cinesrc.st/embed/movie/${id}`; break;
-                    case "vidrock": streamUrl = `https://vidrock.ru/movie/${id}`; break; 
-                    case "xpass": streamUrl = `https://play.xpass.top/e/movie/${id}`; break;
-                    case "filmu": streamUrl = `https://embed.filmu.in/movie/${id}`; break;
-                    case "videasy": streamUrl = `https://player.videasy.net/movie/${id}?color=8834ec`; break;
-                    case "vidfast": streamUrl = `https://www.vidfast.net/movie/${id}`; break;
-                    case "cinemaos": streamUrl = `https://cinemaos.tech/player/${id}`; break;
-                    case "nhdapi": streamUrl = `https://nhdapi.com/embed/movie/${id}`; break;
-                        case "gaia": streamUrl = `https://gaiaflix.live/watch/${movieId}?type=movie`; break;
-                    case "ernax": streamUrl = `https://ernax.pro/movie//${id}`; break;
-                    case "cinezo": streamUrl = `https://api.cinezo.net/movie/${id}`; break;
-                    case "oneembed": streamUrl = `https://1embed.cc/embed/movie/${id}`; break;
-                    case "cinemabz": streamUrl = `https://cinema.bz/watch?id=${id}&type=movie`; break;
-                    case "nextbox": streamUrl = `https://nextbox.uno/player/movie/${id}`; break;
-                    default: streamUrl = `https://gaiaflix.live/watch/${tmdb_Id}?type=movie`;
-                }
-            } else {
-                switch (activeServer) {
-                    case "vixsrc": streamUrl = `https://cinesrc.st/embed/tv/${id}?s=${season}&e=${episode}`; break;
-                    case "vidrock": streamUrl = `https://vidrock.ru/tv/${id}/${season}/${episode}`; break;
-                    case "xpass": streamUrl = `https://play.xpass.top/e/tv/${id}/${season}/${episode}`; break;
-                    case "filmu": streamUrl = `https://embed.filmu.in/tv/${id}/${season}/${episode}`; break;
-                    case "videasy": streamUrl = `https://player.videasy.net/tv/${id}/${season}/${episode}?autoplayNextEpisode=true&autoPlay=true&nextEpisode=true&color=8834ec`; break;
-                    case "vidfast": streamUrl = `https://www.vidfast.net/tv/${id}/${season}/${episode}?autoPlay=true`; break;
-                    case "cinemaos": streamUrl = `https://cinemaos.live/tv/watch/${id}&${season}&${episode}`; break;
-                    case "nhdapi": streamUrl = `https://nhdapi.com/embed/tv/${id}/${season}/${episode}`; break;
-                        case "gaia": streamUrl = `https://gaiaflix.live/watch/${id}?type=tv&s=${season}&e=${episode}`; break;
-                    case "ernax": streamUrl = `https://ernax.pro/series/${id}/${season}/${episode}`; break;
-                    case "cinezo": streamUrl = `https://api.cinezo.net/tv/${id}/${season}/${episode}?autoplayNext=true?startAt=630`; break;
-                    case "oneembed": streamUrl = `https://1embed.cc/embed/tv/${id}/${season}/${episode}`; break;
-                    case "cinemabz": streamUrl = `https://cinema.bz/watch?id=${id}&type=tv&season=${season}&episode=${episode}`; break;
-                    case "nextbox": streamUrl = `https://nextbox.uno/player/tv/${id}/${season}/${episode}`; break;
-                    default: streamUrl = `https://vixsrc.to/tv/${id}/${season}/${episode}`;
-                }
-            }
+            
+            const streamUrl = getStreamUrl(type, id, activeServer, season, episode);
 
             const frameElement = document.createElement('iframe');
             frameElement.src = streamUrl;
@@ -611,7 +556,6 @@
                     const year = (item.release_date || item.first_air_date || '').substring(0, 4) || '2026';
                     const summary = item.overview ? (item.overview.length > 95 ? item.overview.slice(0, 95) + '...' : item.overview) : 'No plot description available.';
 
-                    // Layout Fix: Use card overlay absolute anchoring to keep titles permanently locked into frame on Android TV devices
                     pageNode.innerHTML += `
                         <div onclick="selectMediaItem(${item.id}, '${currentContentType}', '${title.replace(/'/g, "\\'")}')" 
                             class="tv-focusable cursor-pointer relative rounded-2xl overflow-hidden h-full bg-brand-card border border-white/5 shadow-lg">
@@ -856,8 +800,6 @@
             }
             state.current = null;
             document.getElementById('playerContainer').classList.add('hidden');
-            
-            // Scroll safely to the absolute top of the page smoothly
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
