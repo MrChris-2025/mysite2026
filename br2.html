@@ -10,17 +10,16 @@
     
     <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="moviesources.js"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
                         brand: {
-                            DEFAULT: '#8834ec',
+                            DEFAULT: '#8834ec', // Purple accent
                             hover: '#7022d4',
-                            dark: '#06040a',
-                            card: '#130e20',
+                            dark: '#06040a',    // Ultra-dark background
+                            card: '#130e20',    // Slate violet-black card color
                             cardHover: '#1c1530',
                             sidebar: '#110a1c',
                             glass: 'rgba(19, 14, 32, 0.7)',
@@ -81,6 +80,7 @@
             border-radius: 3px;
         }
 
+        /* Hardware acceleration layers to resolve rendering jitters */
         .tv-focusable {
             transition: transform 0.15s ease-out, background-color 0.15s ease-out, box-shadow 0.15s ease-out;
             transform: translate3d(0, 0, 0);
@@ -235,7 +235,7 @@
                     
                     <div class="flex items-center gap-2">
                         <button onclick="carouselPrevPage()" class="p-2 bg-brand-card hover:bg-brand rounded-lg text-slate-300 hover:text-white transition-all">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width.5="2.5" d="M5 15l7-7 7 7"/></svg>
                         </button>
                         
                         <span id="pageIndicator" class="text-xs bg-brand-card text-slate-300 px-4 py-2 rounded-lg">
@@ -243,7 +243,7 @@
                         </span>
 
                         <button onclick="carouselNextPage()" class="p-2 bg-brand-card hover:bg-brand rounded-lg text-slate-300 hover:text-white transition-all">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width.5="2.5" d="M19 9l-7 7-7-7"/></svg>
                         </button>
                     </div>
                 </div>
@@ -276,6 +276,7 @@
         <p id="appToastText" class="text-xs text-slate-200"></p>
     </div>
 
+    <script src="moviesources.js"></script>
     <script>
         Parse.initialize("HZy3PHBFneAXdu8Luf2wAUcrglLlN8QzYgVgJSLT", "CyAVtnCjhpKyxRTuSUsLrcTIAMqj7Gk2EosrMMzQ");
         Parse.serverURL = 'https://parseapi.back4app.com/';
@@ -283,8 +284,6 @@
         const TMDB_API_KEY = "1070730380f5fee0d87cf0382670b255";
         const TMDB_BASE_URL = "https://api.themoviedb.org/3";
         const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
-
-        let activeServer = "videasy"; 
 
         let currentContentType = 'tv';
         let searchQuery = '';
@@ -414,35 +413,6 @@
                     loadServerIframe("movie", state.current.id);
                 }
             }
-        }
-
-        function loadServerIframe(type, id, season = 1, episode = 1) {
-            const playerContainer = document.getElementById("player-wrapper");
-            if (!playerContainer) return;
-            
-            const streamUrl = getStreamUrl(type, id, activeServer, season, episode);
-
-            const frameElement = document.createElement('iframe');
-            frameElement.src = streamUrl;
-            frameElement.className = "w-full h-full border-0 shadow-2xl bg-black rounded-lg";
-            frameElement.allowFullscreen = true;
-            frameElement.setAttribute("scrolling", "no");
-            frameElement.setAttribute("referrerpolicy", "origin");
-            frameElement.setAttribute("allow", "autoplay; encrypted-media; picture-in-picture");
-
-            if (noSandboxSources.includes(activeServer)) {
-                frameElement.removeAttribute('sandbox');
-            } else {
-                frameElement.setAttribute('sandbox', 'allow-forms allow-pointer-lock allow-same-origin allow-scripts allow-top-navigation');
-            }
-
-            playerContainer.innerHTML = "";
-            playerContainer.appendChild(frameElement);
-
-            if(watchTimer) clearTimeout(watchTimer);
-            watchTimer = setTimeout(() => {
-                saveToContinueWatching(id, type, state.current.title, season, episode);
-            }, 30000); 
         }
 
         function setContentType(type) {
@@ -800,6 +770,7 @@
             }
             state.current = null;
             document.getElementById('playerContainer').classList.add('hidden');
+            
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
