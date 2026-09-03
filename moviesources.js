@@ -21,7 +21,7 @@ const serversList = [
 ];
 
 const noSandboxSources = ['vault', 'xpass', 'vid', 'oneembed', 'vidfast'];
-let activeServer = "vid";
+let activeServer = "oneembed";
 
 let isPlaying = true;
 let isSeeking = false;
