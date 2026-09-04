@@ -20,7 +20,7 @@ const serversList = [
     { id: 'xully', name: 'Server 15: xully' }
 ];
 
-const noSandboxSources = ['vault', 'xpass', 'vid', 'oneembed', 'vidfast'];
+const noSandboxSources = ['vault', 'xpass', 'yap', 'oneembed', 'vidfast'];
 let activeServer = "oneembed";
 
 let isPlaying = true;
