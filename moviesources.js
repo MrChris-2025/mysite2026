@@ -18,7 +18,8 @@ const serversList = [
     { id: 'oneembed', name: 'Server 13: 1Embed' },
     { id: 'yap', name: 'Server 14: Yap' },
     { id: 'xully', name: 'Server 15: xully' },
-    { id: 'pulp', name: 'Server 16: pulp' }
+    { id: 'pulp', name: 'Server 16: pulp' },
+    { id: 'atlantic', name: 'Server 17: atlantic' }
 ];
 
 const noSandboxSources = ['vault', 'xpass', 'yap', 'oneembed', 'vidfast'];
@@ -50,6 +51,7 @@ function getStreamUrl(server, type, id, season = 1, episode = 1) {
             case "xully": return `https://xullys.xyz/watch/${id}`;
             case "yap": return `https://yapgrid.com/embed/movie/${id}?autoplay=1`;
             case "pulp": return `https://www.pulptv.net/watch/movie/${id}`;
+            case "atlantic": return `https://atlantic.st/watch/${id}`;
             default: return `https://vidcore.org/embed/movie/${id}`;
         }
     } else {
@@ -70,6 +72,7 @@ function getStreamUrl(server, type, id, season = 1, episode = 1) {
             case "xully": return `https://xullys.xyz/watch/${id}?s=${season}&e=${episode}`;
             case "yap": return `https://yapgrid.com/embed/tv/${id}/${season}/${episode}?autoplay=1`;
             case "pulp": return `https://www.pulptv.net/watch/tv/${id}?s=${currentSeason}&e=${currentEpisode}`;
+            case "atlantic": return `https://atlantic.st/watch/${id}/${season}/${episode}`;
             default: return `https://vidcore.org/embed/tv/${id}/${season}/${episode}`;
         }
     }
