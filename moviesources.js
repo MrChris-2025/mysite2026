@@ -52,7 +52,7 @@ function getStreamUrl(server, type, id, season = 1, episode = 1) {
             case "xully": return `https://xullys.xyz/watch/${id}`;
             case "yap": return `https://yapgrid.com/embed/movie/${id}?autoplay=1`;
             case "pulp": return `https://www.pulptv.net/watch/movie/${id}`;
-            case "framextv": return `https://framextv.tech/embed/${tmdbId}`;
+            case "framextv": return `https://framextv.tech/embed/${id}`;
             case "atlantic": return `https://atlantic.st/watch/${id}`;
             default: return `https://vidcore.org/embed/movie/${id}`;
         }
@@ -74,7 +74,7 @@ function getStreamUrl(server, type, id, season = 1, episode = 1) {
             case "xully": return `https://xullys.xyz/watch/${id}?s=${season}&e=${episode}`;
             case "yap": return `https://yapgrid.com/embed/tv/${id}/${season}/${episode}?autoplay=1`;
             case "pulp": return `https://www.pulptv.net/watch/tv/${id}?s=${currentSeason}&e=${currentEpisode}`;
-            case "framextv": return `https://framextv.tech/embed/${tmdbId}/${season}/${episode}`;
+            case "framextv": return `https://framextv.tech/embed/${tmdb_Id}/${season}/${episode}`;
             case "atlantic": return `https://atlantic.st/watch/${id}/${season}/${episode}`;
             default: return `https://vidcore.org/embed/tv/${id}/${season}/${episode}`;
         }
