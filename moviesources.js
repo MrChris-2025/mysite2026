@@ -23,7 +23,7 @@ const serversList = [
     { id: 'atlantic', name: 'Server 18: atlantic' }
 ];
 
-const noSandboxSources = ['vault', 'xpass', 'yap', 'oneembed', 'vidfast'];
+const noSandboxSources = ['vault', 'xpass', 'framextv', 'oneembed', 'vidfast'];
 let activeServer = "oneembed";
 
 let isPlaying = true;
