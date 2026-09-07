@@ -1,4 +1,3 @@
-// endpoints.js
 const SOURCES = [
     { name: "Buffsports", url: "https://livelive24.com/buffsports.json" },
     { name: "Zlatans", url: "https://livelive24.com/test/processed_matches_prioritized.json" },
