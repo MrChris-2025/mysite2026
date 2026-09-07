@@ -1,5 +1,5 @@
 // endpoints.js
-const REMOTE_SOURCES = [
+const SOURCES = [
     { name: "Buffsports", url: "https://livelive24.com/buffsports.json" },
     { name: "Zlatans", url: "https://livelive24.com/test/processed_matches_prioritized.json" },
     { name: "Main", url: "https://livelive24.com/main.json" },
