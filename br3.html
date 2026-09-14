@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StreamVibe - Ultimate Streaming Gallery</title>
+    <title>StreamVibe TV - Side by Side Player</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -11,60 +11,32 @@
             theme: {
                 extend: {
                     colors: {
-                        dark: {
-                            900: '#0a0a0c',
-                            800: '#121216',
-                            700: '#1a1a20',
-                            600: '#262630'
-                        },
-                        accent: {
-                            DEFAULT: '#6366f1',
-                            hover: '#4f46e5'
-                        }
+                        dark: { 900: '#0a0a0c', 800: '#121216', 700: '#1a1a20', 600: '#262630' },
+                        accent: { DEFAULT: '#6366f1', hover: '#4f46e5' }
                     }
                 }
             }
         }
     </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #0a0a0c;
-            color: #f3f4f6;
-            overflow-x: hidden;
-        }
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0a0a0c;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #262630;
-            border-radius: 3px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #6366f1;
-        }
-        .glass-panel {
-            background: rgba(18, 18, 22, 0.75);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-        .card-transition {
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .card-transition:hover, .card-transition.tv-focused {
-            transform: translateY(-4px) scale(1.02);
-            box-shadow: 0 8px 20px -8px rgba(99, 102, 241, 0.4);
-            border-color: rgba(99, 102, 241, 0.8) !important;
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #0a0a0c; color: #f3f4f6; overflow-x: hidden; }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: #0a0a0c; }
+        ::-webkit-scrollbar-thumb { background: #262630; border-radius: 2px; }
+        
+        /* High Performance TV Panels (No blur/shadow filters to eliminate lag/dragging) */
+        .glass-panel { background: #121216; border: 1px solid rgba(255, 255, 255, 0.08); }
+        
+        /* Fast Android TV D-Pad Focus Outline */
+        .tv-focusable { transform: translateZ(0); }
+        .tv-focused {
+            border-color: #6366f1 !important;
             outline: 3px solid #6366f1 !important;
             outline-offset: 2px !important;
+            background-color: #1a1a20 !important;
         }
-        button:focus, input:focus, select:focus, a:focus, .tv-focused {
+        button:focus, input:focus, select:focus, a:focus {
             outline: 3px solid #6366f1 !important;
             outline-offset: 2px !important;
         }
@@ -72,54 +44,41 @@
 </head>
 <body class="min-h-screen flex flex-col selection:bg-accent selection:text-white">
 
-    <!-- Top Navigation Bar -->
+    <!-- Header Navigation -->
     <header class="sticky top-0 z-50 glass-panel border-b border-white/10 px-4 lg:px-8 py-3 flex items-center justify-between">
         <div class="flex items-center space-x-6">
-            <h1 onclick="switchTab('home')" id="nav-logo" tabindex="0" class="tv-focusable text-2xl font-black tracking-wider bg-gradient-to-r from-indigo-400 to-violet-500 bg-clip-text text-transparent cursor-pointer">
+            <h1 onclick="switchTab('home')" id="nav-logo" tabindex="0" class="tv-focusable text-2xl font-black tracking-wider text-indigo-400 cursor-pointer">
                 p<span class="text-white">Stream</span>
             </h1>
             <nav class="hidden md:flex items-center space-x-2">
-                <button onclick="switchTab('home')" id="nav-home" tabindex="0" class="tv-focusable px-4 py-2 rounded-xl text-sm font-medium bg-accent text-white transition-all shadow-lg shadow-accent/25">Home</button>
-                <button onclick="switchTab('movies')" id="nav-movies" tabindex="0" class="tv-focusable px-4 py-2 rounded-xl text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-all">Movies</button>
-                <button onclick="switchTab('tv')" id="nav-tv" tabindex="0" class="tv-focusable px-4 py-2 rounded-xl text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-all">TV Shows</button>
+                <button onclick="switchTab('home')" id="nav-home" tabindex="0" class="tv-focusable px-4 py-2 rounded-xl text-sm font-medium bg-accent text-white">Home</button>
+                <button onclick="switchTab('movies')" id="nav-movies" tabindex="0" class="tv-focusable px-4 py-2 rounded-xl text-sm font-medium text-gray-400">Movies</button>
+                <button onclick="switchTab('tv')" id="nav-tv" tabindex="0" class="tv-focusable px-4 py-2 rounded-xl text-sm font-medium text-gray-400">TV Shows</button>
             </nav>
         </div>
 
         <div class="flex items-center space-x-4">
-            <!-- Search Input -->
-            <div class="relative">
-                <input type="text" id="searchInput" placeholder="Search movies, tv..." onkeydown="handleSearch(event)" tabindex="0"
-                    class="tv-focusable w-40 sm:w-64 bg-dark-800 border border-white/10 rounded-xl px-4 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-accent transition-all">
-            </div>
-            <!-- Live Date & Time -->
-            <div id="liveClock" class="hidden sm:block text-xs font-semibold text-gray-400 bg-dark-800/80 border border-white/5 px-3 py-2 rounded-xl tracking-wide">
+            <input type="text" id="searchInput" placeholder="Search movies, tv..." onkeydown="handleSearch(event)" tabindex="0"
+                class="tv-focusable w-40 sm:w-64 bg-dark-800 border border-white/10 rounded-xl px-4 py-2 text-sm text-white placeholder-gray-500 focus:outline-none">
+            <div id="liveClock" class="hidden sm:block text-xs font-semibold text-gray-400 bg-dark-800 border border-white/5 px-3 py-2 rounded-xl">
                 --/--/---- --:--
             </div>
         </div>
     </header>
 
-    <!-- Mobile Sub-navigation -->
-    <div class="flex md:hidden bg-dark-800/90 border-b border-white/5 px-4 py-2 justify-around">
-        <button onclick="switchTab('home')" id="mob-nav-home" tabindex="0" class="tv-focusable text-xs font-medium text-accent">Home</button>
-        <button onclick="switchTab('movies')" id="mob-nav-movies" tabindex="0" class="tv-focusable text-xs font-medium text-gray-400">Movies</button>
-        <button onclick="switchTab('tv')" id="mob-nav-tv" tabindex="0" class="tv-focusable text-xs font-medium text-gray-400">TV Shows</button>
-    </div>
-
-    <!-- Main Dynamic Content Container -->
-    <main class="flex-grow px-4 lg:px-8 py-6 max-w-7xl mx-auto w-full">
+    <!-- Main Container -->
+    <main class="flex-grow px-4 lg:px-8 py-6 max-w-[1600px] mx-auto w-full">
         
-        <!-- HOME / GALLERY VIEW -->
-        <div id="view-home" class="space-y-8">
-            <!-- Hero Banner Slider / Featured -->
-            <div id="heroBanner" class="relative rounded-3xl overflow-hidden glass-panel border border-white/10 min-h-[320px] flex items-end p-6 lg:p-8 shadow-2xl">
-                <div class="absolute inset-0 bg-gradient-to-t from-dark-900 via-dark-900/45 to-transparent z-10"></div>
-                <div id="heroBg" class="absolute inset-0 bg-cover bg-center filter blur-[1px] opacity-40 transform scale-105 transition-all duration-700"></div>
+        <!-- HOME GALLERY VIEW -->
+        <div id="view-home" class="space-y-6">
+            <div id="heroBanner" class="relative rounded-2xl overflow-hidden glass-panel border border-white/10 min-h-[260px] flex items-end p-6">
+                <div id="heroBg" class="absolute inset-0 bg-cover bg-center opacity-30"></div>
                 <div class="relative z-20 max-w-2xl space-y-3">
-                    <div id="heroBadge" class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-accent text-white uppercase tracking-wider">Trending Today</div>
-                    <h2 id="heroTitle" class="text-2xl lg:text-4xl font-black tracking-tight text-white">Loading...</h2>
-                    <p id="heroOverview" class="text-xs lg:text-sm text-gray-300 line-clamp-2">Please wait while we fetch top cinematic content...</p>
-                    <div class="flex items-center space-x-4 pt-2">
-                        <button id="heroPlayBtn" tabindex="0" class="tv-focusable px-5 py-2.5 rounded-xl bg-accent hover:bg-accent-hover text-white text-sm font-semibold flex items-center space-x-2 transition-all shadow-lg shadow-accent/30">
+                    <div id="heroBadge" class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-accent text-white uppercase">Featured</div>
+                    <h2 id="heroTitle" class="text-2xl lg:text-3xl font-black text-white">Loading...</h2>
+                    <p id="heroOverview" class="text-xs text-gray-300 line-clamp-2">Loading catalog...</p>
+                    <div class="pt-2">
+                        <button id="heroPlayBtn" tabindex="0" class="tv-focusable px-5 py-2 rounded-xl bg-accent text-white text-sm font-semibold flex items-center space-x-2">
                             <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                             <span>Watch Now</span>
                         </button>
@@ -127,91 +86,86 @@
                 </div>
             </div>
 
-            <!-- Category Filter Toggles -->
             <div class="flex items-center justify-between border-b border-white/10 pb-4">
-                <h3 id="sectionTitle" class="text-lg font-bold text-white tracking-wide">Trending Catalog</h3>
+                <h3 id="sectionTitle" class="text-lg font-bold text-white">Catalog Grid</h3>
                 <div class="flex space-x-2 bg-dark-800 p-1 rounded-xl border border-white/5">
-                    <button onclick="setFilter('all')" id="filter-all" tabindex="0" class="tv-focusable px-3 py-1.5 rounded-lg text-xs font-medium bg-accent text-white transition-all">All</button>
-                    <button onclick="setFilter('movie')" id="filter-movie" tabindex="0" class="tv-focusable px-3 py-1.5 rounded-lg text-xs font-medium text-gray-400 hover:text-white transition-all">Movies</button>
-                    <button onclick="setFilter('tv')" id="filter-tv" tabindex="0" class="tv-focusable px-3 py-1.5 rounded-lg text-xs font-medium text-gray-400 hover:text-white transition-all">TV Shows</button>
+                    <button onclick="setFilter('all')" id="filter-all" tabindex="0" class="tv-focusable px-3 py-1.5 rounded-lg text-xs font-medium bg-accent text-white">All</button>
+                    <button onclick="setFilter('movie')" id="filter-movie" tabindex="0" class="tv-focusable px-3 py-1.5 rounded-lg text-xs font-medium text-gray-400">Movies</button>
+                    <button onclick="setFilter('tv')" id="filter-tv" tabindex="0" class="tv-focusable px-3 py-1.5 rounded-lg text-xs font-medium text-gray-400">TV Shows</button>
                 </div>
             </div>
 
-            <!-- Media Gallery Grid (50% smaller card size layout) -->
-            <div id="mediaGrid" class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-2.5 lg:gap-3.5">
-                <!-- Dynamic Cards injected here -->
+            <!-- Small 50% Size Cards Grid -->
+            <div id="mediaGrid" class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-2.5">
+                <!-- Cards injected dynamically -->
             </div>
         </div>
 
-        <!-- PLAYER & CONTROLS VIEW (Side-by-Side Grid layout) -->
-        <div id="view-player" class="hidden space-y-6">
-            <button onclick="closePlayer()" id="backGalleryBtn" tabindex="0" class="tv-focusable px-3 py-1.5 rounded-xl bg-dark-800 hover:bg-dark-700 text-gray-300 text-xs font-medium flex items-center space-x-2 border border-white/10 transition-all">
+        <!-- SIDE-BY-SIDE LANDSCAPE PLAYER VIEW -->
+        <div id="view-player" class="hidden space-y-4">
+            <button onclick="closePlayer()" id="backGalleryBtn" tabindex="0" class="tv-focusable px-3 py-1.5 rounded-xl bg-dark-800 text-gray-300 text-xs font-medium inline-flex items-center space-x-2 border border-white/10">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                 <span>Back to Gallery</span>
             </button>
 
-            <!-- Side-by-Side Grid Layout: Player on left, Sticky sidebar on right -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start relative">
+            <!-- Landscape Side-by-Side Grid Layout -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                 
-                <!-- Left Column: 16:9 Video Iframe Player + Title/Overview -->
-                <div class="lg:col-span-2 space-y-4">
-                    <div class="relative w-full aspect-video rounded-2xl overflow-hidden glass-panel border border-white/10 shadow-2xl bg-black">
+                <!-- LEFT COLUMN: 16:9 Aspect Ratio Iframe Player (Spans 8 Cols) -->
+                <div class="lg:col-span-8 space-y-4">
+                    <div class="relative w-full aspect-video rounded-2xl overflow-hidden glass-panel border border-white/10 bg-black">
                         <iframe id="mediaPlayerFrame" class="w-full h-full border-0" sandbox="allow-same-origin allow-scripts allow-forms allow-pointer-lock" allowfullscreen></iframe>
                     </div>
                     <div>
-                        <h2 id="playerTitle" class="text-2xl font-bold text-white"></h2>
-                        <p id="playerOverview" class="text-xs text-gray-400 mt-2 leading-relaxed"></p>
+                        <h2 id="playerTitle" class="text-xl font-bold text-white"></h2>
+                        <p id="playerOverview" class="text-xs text-gray-400 mt-2 leading-relaxed max-h-24 overflow-y-auto"></p>
                     </div>
                 </div>
 
-                <!-- Right Column: Sticky Sidebar Panel -->
-                <div class="lg:sticky lg:top-24 glass-panel p-5 rounded-2xl border border-white/10 space-y-6 max-h-[85vh] overflow-y-auto">
+                <!-- RIGHT COLUMN: Media Sources, Controls, Selectors & Summary (Spans 4 Cols) -->
+                <div class="lg:col-span-4 glass-panel p-4 rounded-2xl border border-white/10 space-y-4 max-h-[85vh] overflow-y-auto">
                     <!-- Media Sources -->
                     <div>
-                        <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Media Sources</h3>
-                        <div id="sourceOptions" class="grid grid-cols-1 gap-2">
-                            <!-- Injected sources -->
-                        </div>
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Media Sources</h3>
+                        <div id="sourceOptions" class="grid grid-cols-1 gap-2"></div>
                     </div>
 
-                    <!-- TV Show Season & Episode Selectors + Next/Prev & Summary -->
+                    <!-- TV Controls (Season, Episode, Next/Prev, Summary) -->
                     <div id="tvControlsSection" class="hidden space-y-4 border-t border-white/10 pt-4">
-                        <div class="grid grid-cols-2 gap-3">
+                        <div class="grid grid-cols-2 gap-2">
                             <div>
-                                <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1.5">Season</label>
-                                <select id="seasonSelect" onchange="onSeasonChange()" tabindex="0" class="tv-focusable w-full bg-dark-800 border border-white/10 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-accent">
+                                <label class="block text-[10px] font-bold uppercase text-gray-400 mb-1">Season</label>
+                                <select id="seasonSelect" onchange="onSeasonChange()" tabindex="0" class="tv-focusable w-full bg-dark-800 border border-white/10 rounded-xl px-2.5 py-2 text-xs text-white">
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1.5">Episode</label>
-                                <select id="episodeSelect" onchange="onEpisodeDropdownChange()" tabindex="0" class="tv-focusable w-full bg-dark-800 border border-white/10 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-accent">
+                                <label class="block text-[10px] font-bold uppercase text-gray-400 mb-1">Episode</label>
+                                <select id="episodeSelect" onchange="onEpisodeDropdownChange()" tabindex="0" class="tv-focusable w-full bg-dark-800 border border-white/10 rounded-xl px-2.5 py-2 text-xs text-white">
                                 </select>
                             </div>
                         </div>
 
-                        <!-- Next / Previous Episode Navigation Buttons -->
-                        <div class="grid grid-cols-2 gap-3">
-                            <button id="prevEpBtn" onclick="changeEpisodeOffset(-1)" tabindex="0" class="tv-focusable px-3 py-2 rounded-xl bg-dark-800 hover:bg-dark-700 text-gray-300 text-xs font-semibold flex items-center justify-center space-x-1 border border-white/10 transition-all disabled:opacity-40 disabled:pointer-events-none">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-                                <span>Previous Ep</span>
+                        <!-- Previous / Next Episode Navigation Buttons -->
+                        <div class="grid grid-cols-2 gap-2">
+                            <button id="prevEpBtn" onclick="changeEpisodeOffset(-1)" tabindex="0" class="tv-focusable px-3 py-2 rounded-xl bg-dark-800 text-gray-300 text-xs font-semibold flex items-center justify-center space-x-1 border border-white/10 disabled:opacity-40">
+                                <span>&larr; Previous</span>
                             </button>
-                            <button id="nextEpBtn" onclick="changeEpisodeOffset(1)" tabindex="0" class="tv-focusable px-3 py-2 rounded-xl bg-dark-800 hover:bg-dark-700 text-gray-300 text-xs font-semibold flex items-center justify-center space-x-1 border border-white/10 transition-all disabled:opacity-40 disabled:pointer-events-none">
-                                <span>Next Ep</span>
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                            <button id="nextEpBtn" onclick="changeEpisodeOffset(1)" tabindex="0" class="tv-focusable px-3 py-2 rounded-xl bg-dark-800 text-gray-300 text-xs font-semibold flex items-center justify-center space-x-1 border border-white/10 disabled:opacity-40">
+                                <span>Next &rarr;</span>
                             </button>
                         </div>
 
-                        <!-- Episode Summary Section -->
-                        <div class="border-t border-white/10 pt-4">
-                            <h4 id="episodeSummaryTitle" class="text-xs font-bold uppercase tracking-wider text-accent mb-1.5">Episode Summary</h4>
-                            <p id="episodeSummaryText" class="text-xs text-gray-300 leading-relaxed">Select an episode to view summary.</p>
+                        <!-- Episode Summary -->
+                        <div class="border-t border-white/10 pt-3">
+                            <h4 id="episodeSummaryTitle" class="text-xs font-bold uppercase text-accent mb-1">Episode Summary</h4>
+                            <p id="episodeSummaryText" class="text-xs text-gray-300 leading-relaxed"></p>
                         </div>
                     </div>
 
-                    <!-- Movie Summary Section (Shown for Movies) -->
-                    <div id="movieSummarySection" class="border-t border-white/10 pt-4">
-                        <h4 class="text-xs font-bold uppercase tracking-wider text-accent mb-1.5">Movie Plot Summary</h4>
-                        <p id="movieSummaryText" class="text-xs text-gray-300 leading-relaxed">Loading plot summary...</p>
+                    <!-- Movie Summary -->
+                    <div id="movieSummarySection" class="border-t border-white/10 pt-3">
+                        <h4 class="text-xs font-bold uppercase text-accent mb-1">Plot Summary</h4>
+                        <p id="movieSummaryText" class="text-xs text-gray-300 leading-relaxed"></p>
                     </div>
                 </div>
 
@@ -220,135 +174,73 @@
 
     </main>
 
-    <!-- Footer -->
-    <footer class="mt-auto border-t border-white/5 py-6 text-center text-xs text-gray-500">
-        StreamVibe Aggregator &bull; Powered by TMDB API
+    <footer class="mt-auto border-t border-white/5 py-4 text-center text-xs text-gray-500">
+        StreamVibe TV Aggregator &bull; Powered by TMDB API
     </footer>
 
-    <!-- Application Script Logic -->
     <script>
         const TMDB_KEY = '1070730380f5fee0d87cf0382670b255';
         const TMDB_BASE = 'https://api.themoviedb.org/3';
         
-        let currentTab = 'home';
-        let currentFilter = 'all';
-        let mediaDataList = [];
-        let activeMedia = null;
-        let currentSeasonNum = 1;
-        let currentSeasonInternalId = '';
-        let currentEpisodeInternalId = '';
-        let currentEpisodesList = [];
-        let currentEpisodeIndex = 0;
-        let showSlug = '';
-        let activeSourceIndex = 0;
-
-        // Android TV Spatial Navigation Handling
-        let focusIndex = 0;
-        let lastFocusedElement = null;
+        let currentTab = 'home', currentFilter = 'all', mediaDataList = [], activeMedia = null;
+        let currentSeasonNum = 1, currentSeasonInternalId = '', currentEpisodeInternalId = '';
+        let currentEpisodesList = [], currentEpisodeIndex = 0, showSlug = '', activeSourceIndex = 0;
+        let cachedFocusables = [], focusIndex = 0;
 
         window.addEventListener('DOMContentLoaded', () => {
             updateClock();
             setInterval(updateClock, 10000);
             fetchMediaCatalog();
-
-            // Global Key Listener for Android TV Remote
             window.addEventListener('keydown', handleRemoteNavigation);
         });
 
-        function getFocusableElements() {
-            return Array.from(document.querySelectorAll('.tv-focusable, button:not(.hidden), input:not(.hidden), select:not(.hidden), [tabindex="0"]:not(.hidden)'))
-                .filter(el => {
-                    const viewHome = document.getElementById('view-home');
-                    const viewPlayer = document.getElementById('view-player');
-                    const isHomeHidden = viewHome.classList.contains('hidden');
-                    const isPlayerHidden = viewPlayer.classList.contains('hidden');
-                    
-                    const isInHome = viewHome.contains(el);
-                    const isInPlayer = viewPlayer.contains(el);
-
-                    if (isHomeHidden && isInHome) return false;
-                    if (isPlayerHidden && isInPlayer) return false;
-                    return true;
-                });
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('liveClock').innerText = now.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }).replace(',', '');
         }
 
-        function updateFocusVisuals(elements, newIndex) {
-            elements.forEach((el, idx) => {
-                if (idx === newIndex) {
-                    el.classList.add('tv-focused');
-                    el.focus();
-                    lastFocusedElement = el;
-                    el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
-                } else {
-                    el.classList.remove('tv-focused');
-                }
-            });
+        function refreshFocusables() {
+            const vHome = document.getElementById('view-home');
+            const vPlayer = document.getElementById('view-player');
+            const isHome = !vHome.classList.contains('hidden');
+            const activeView = isHome ? vHome : vPlayer;
+            cachedFocusables = Array.from(document.querySelectorAll('.tv-focusable, header input, header button, #backGalleryBtn'))
+                .filter(el => activeView.contains(el) || el.closest('header'));
         }
 
         function handleRemoteNavigation(e) {
-            const focusables = getFocusableElements();
-            if (focusables.length === 0) return;
+            if (!['ArrowRight', 'ArrowLeft', 'ArrowDown', 'ArrowUp'].includes(e.key)) return;
+            e.preventDefault();
+            
+            refreshFocusables();
+            if (!cachedFocusables.length) return;
 
-            let currentIndex = focusables.indexOf(document.activeElement);
-            if (currentIndex === -1) currentIndex = focusIndex;
+            let curr = cachedFocusables.indexOf(document.activeElement);
+            if (curr === -1) curr = focusIndex;
 
-            let nextIndex = currentIndex;
+            let next = curr;
             const cols = window.innerWidth >= 1024 ? 10 : (window.innerWidth >= 768 ? 8 : (window.innerWidth >= 640 ? 6 : 4));
 
-            switch(e.key) {
-                case 'ArrowRight':
-                    e.preventDefault();
-                    nextIndex = Math.min(currentIndex + 1, focusables.length - 1);
-                    break;
-                case 'ArrowLeft':
-                    e.preventDefault();
-                    nextIndex = Math.max(currentIndex - 1, 0);
-                    break;
-                case 'ArrowDown':
-                    e.preventDefault();
-                    if (focusables[currentIndex].classList.contains('media-card')) {
-                        nextIndex = Math.min(currentIndex + cols, focusables.length - 1);
-                    } else {
-                        nextIndex = Math.min(currentIndex + 1, focusables.length - 1);
-                    }
-                    break;
-                case 'ArrowUp':
-                    e.preventDefault();
-                    if (focusables[currentIndex].classList.contains('media-card')) {
-                        nextIndex = Math.max(currentIndex - cols, 0);
-                    } else {
-                        nextIndex = Math.max(currentIndex - 1, 0);
-                    }
-                    break;
+            if (e.key === 'ArrowRight') next = Math.min(curr + 1, cachedFocusables.length - 1);
+            else if (e.key === 'ArrowLeft') next = Math.max(curr - 1, 0);
+            else if (e.key === 'ArrowDown') next = cachedFocusables[curr]?.classList.contains('media-card') ? Math.min(curr + cols, cachedFocusables.length - 1) : Math.min(curr + 1, cachedFocusables.length - 1);
+            else if (e.key === 'ArrowUp') next = cachedFocusables[curr]?.classList.contains('media-card') ? Math.max(curr - cols, 0) : Math.max(curr - 1, 0);
+
+            focusIndex = next;
+            const target = cachedFocusables[focusIndex];
+            if (target) {
+                target.focus();
+                target.scrollIntoView({ behavior: 'instant', block: 'nearest' });
             }
-
-            focusIndex = nextIndex;
-            updateFocusVisuals(focusables, focusIndex);
-        }
-
-        function updateClock() {
-            const now = new Date();
-            const options = { month: '2-digit', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
-            document.getElementById('liveClock').innerText = now.toLocaleDateString('en-US', options).replace(',', '');
         }
 
         function switchTab(tab) {
             currentTab = tab;
             ['home', 'movies', 'tv'].forEach(t => {
                 const btn = document.getElementById(`nav-${t}`);
-                const mobBtn = document.getElementById(`mob-nav-${t}`);
-                if (btn) {
-                    btn.className = `tv-focusable px-4 py-2 rounded-xl text-sm font-medium transition-all ${t === tab ? 'bg-accent text-white shadow-lg shadow-accent/25' : 'text-gray-400 hover:text-white hover:bg-white/5'}`;
-                }
-                if (mobBtn) {
-                    mobBtn.className = `tv-focusable text-xs font-medium ${t === tab ? 'text-accent' : 'text-gray-400'}`;
-                }
+                if (btn) btn.className = `tv-focusable px-4 py-2 rounded-xl text-sm font-medium ${t === tab ? 'bg-accent text-white' : 'text-gray-400'}`;
             });
-
-            if (tab === 'movies') currentFilter = 'movie';
-            else if (tab === 'tv') currentFilter = 'tv';
-            else currentFilter = 'all';
-
+            currentFilter = tab === 'movies' ? 'movie' : (tab === 'tv' ? 'tv' : 'all');
             fetchMediaCatalog();
         }
 
@@ -356,9 +248,7 @@
             currentFilter = filter;
             ['all', 'movie', 'tv'].forEach(f => {
                 const btn = document.getElementById(`filter-${f}`);
-                if(btn) {
-                    btn.className = `tv-focusable px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${f === filter ? 'bg-accent text-white' : 'text-gray-400 hover:text-white'}`;
-                }
+                if(btn) btn.className = `tv-focusable px-3 py-1.5 rounded-lg text-xs font-medium ${f === filter ? 'bg-accent text-white' : 'text-gray-400'}`;
             });
             renderGrid();
         }
@@ -366,98 +256,60 @@
         async function fetchMediaCatalog(query = '') {
             try {
                 let url = `${TMDB_BASE}/trending/all/day?api_key=${TMDB_KEY}`;
-                if (query) {
-                    url = `${TMDB_BASE}/search/multi?api_key=${TMDB_KEY}&query=${encodeURIComponent(query)}`;
-                } else if (currentFilter === 'movie') {
-                    url = `${TMDB_BASE}/trending/movie/day?api_key=${TMDB_KEY}`;
-                } else if (currentFilter === 'tv') {
-                    url = `${TMDB_BASE}/trending/tv/day?api_key=${TMDB_KEY}`;
-                }
+                if (query) url = `${TMDB_BASE}/search/multi?api_key=${TMDB_KEY}&query=${encodeURIComponent(query)}`;
+                else if (currentFilter !== 'all') url = `${TMDB_BASE}/trending/${currentFilter}/day?api_key=${TMDB_KEY}`;
 
                 const res = await fetch(url);
                 const data = await res.json();
                 mediaDataList = (data.results || []).filter(item => item.media_type === 'movie' || item.media_type === 'tv' || item.title || item.name);
-                
-                if (!query && mediaDataList.length > 0) {
-                    setupHero(mediaDataList[0]);
-                }
+                if (!query && mediaDataList.length) setupHero(mediaDataList[0]);
                 renderGrid();
-            } catch (err) {
-                console.error('Error fetching TMDB data:', err);
-            }
+            } catch (err) { console.error(err); }
         }
 
         function setupHero(item) {
-            const title = item.title || item.name;
-            document.getElementById('heroTitle').innerText = title;
-            document.getElementById('heroOverview').innerText = item.overview || 'No description available.';
-            if (item.backdrop_path) {
-                document.getElementById('heroBg').style.backgroundImage = `url(https://image.tmdb.org/t/p/original${item.backdrop_path})`;
-            }
+            document.getElementById('heroTitle').innerText = item.title || item.name;
+            document.getElementById('heroOverview').innerText = item.overview || '';
+            if (item.backdrop_path) document.getElementById('heroBg').style.backgroundImage = `url(https://image.tmdb.org/t/p/w780${item.backdrop_path})`;
             document.getElementById('heroPlayBtn').onclick = () => openPlayer(item);
         }
 
         function renderGrid() {
             const grid = document.getElementById('mediaGrid');
             grid.innerHTML = '';
-
             let filtered = mediaDataList;
             if (currentFilter !== 'all') {
                 filtered = mediaDataList.filter(item => item.media_type === currentFilter || (currentFilter === 'movie' && item.title) || (currentFilter === 'tv' && item.name));
             }
-
-            if (filtered.length === 0) {
-                grid.innerHTML = `<div class="col-span-full text-center py-12 text-gray-500">No media streams found.</div>`;
+            if (!filtered.length) {
+                grid.innerHTML = `<div class="col-span-full text-center py-8 text-gray-500">No media streams found.</div>`;
                 return;
             }
-
             filtered.forEach(item => {
                 const title = item.title || item.name;
-                const poster = item.poster_path ? `https://image.tmdb.org/t/p/w342${item.poster_path}` : 'https://via.placeholder.com/300x450?text=No+Image';
-                const type = item.media_type || (item.title ? 'movie' : 'tv');
-                const year = (item.release_date || item.first_air_date || '').split('-')[0] || 'N/A';
-                const rating = item.vote_average ? item.vote_average.toFixed(1) : 'NR';
-
+                const poster = item.poster_path ? `https://image.tmdb.org/t/p/w185${item.poster_path}` : 'https://via.placeholder.com/185x278';
                 const card = document.createElement('div');
-                card.className = 'media-card tv-focusable glass-panel rounded-xl overflow-hidden card-transition cursor-pointer flex flex-col group border border-white/5';
+                card.className = 'media-card tv-focusable glass-panel rounded-lg overflow-hidden cursor-pointer flex flex-col border border-white/5';
                 card.setAttribute('tabindex', '0');
                 card.onclick = () => openPlayer(item);
                 card.innerHTML = `
-                    <div class="relative aspect-[2/3] w-full overflow-hidden bg-dark-800">
-                        <img src="${poster}" alt="${title}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-                        <div class="absolute top-1 right-1 bg-dark-900/80 backdrop-blur-md px-1.5 py-0.5 rounded text-[9px] font-bold text-accent border border-white/10">
-                            ★ ${rating}
-                        </div>
-                        <div class="absolute bottom-1 left-1 bg-dark-900/80 backdrop-blur-md px-1 py-0.5 rounded text-[8px] font-semibold uppercase text-gray-300">
-                            ${type}
-                        </div>
+                    <div class="relative aspect-[2/3] w-full bg-dark-800">
+                        <img src="${poster}" alt="${title}" loading="lazy" class="w-full h-full object-cover">
                     </div>
-                    <div class="p-2 flex flex-col justify-between flex-grow">
-                        <h4 class="text-xs font-semibold text-white truncate">${title}</h4>
-                        <span class="text-[10px] text-gray-400 mt-0.5">${year}</span>
+                    <div class="p-1.5 flex flex-col justify-between">
+                        <h4 class="text-[11px] font-semibold text-white truncate">${title}</h4>
                     </div>
                 `;
                 grid.appendChild(card);
             });
+            refreshFocusables();
         }
 
         function handleSearch(e) {
-            if (e.key === 'Enter') {
-                const query = e.target.value.trim();
-                if (query) {
-                    fetchMediaCatalog(query);
-                } else {
-                    fetchMediaCatalog();
-                }
-            }
+            if (e.key === 'Enter') fetchMediaCatalog(e.target.value.trim());
         }
 
-        function generateSlug(title) {
-            return (title || 'show')
-                .toLowerCase()
-                .replace(/[^a-z0-9 ]/g, '')
-                .replace(/\s+/g, '-');
-        }
+        function generateSlug(t) { return (t || 'show').toLowerCase().replace(/[^a-z0-9 ]/g, '').replace(/\s+/g, '-'); }
 
         async function openPlayer(item) {
             activeMedia = item;
@@ -467,128 +319,97 @@
 
             document.getElementById('view-home').classList.add('hidden');
             document.getElementById('view-player').classList.remove('hidden');
-
             document.getElementById('playerTitle').innerText = title;
             document.getElementById('playerOverview').innerText = item.overview || '';
 
             const tvControls = document.getElementById('tvControlsSection');
-            const movieSummarySection = document.getElementById('movieSummarySection');
+            const movieSummary = document.getElementById('movieSummarySection');
             
             if (type === 'tv') {
                 tvControls.classList.remove('hidden');
-                movieSummarySection.classList.add('hidden');
+                movieSummary.classList.add('hidden');
                 showSlug = generateSlug(title);
                 await loadTvDetails(item.id);
             } else {
                 tvControls.classList.add('hidden');
-                movieSummarySection.classList.remove('hidden');
-                document.getElementById('movieSummaryText').innerText = item.overview || 'No movie plot summary available.';
+                movieSummary.classList.remove('hidden');
+                document.getElementById('movieSummaryText').innerText = item.overview || '';
                 loadSources(type, item.id);
             }
-
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            
-            setTimeout(() => {
-                const focusables = getFocusableElements();
-                if (focusables.length > 0) {
-                    focusIndex = 0;
-                    updateFocusVisuals(focusables, focusIndex);
-                }
-            }, 100);
+            window.scrollTo(0,0);
+            refreshFocusables();
         }
 
         function closePlayer() {
             document.getElementById('mediaPlayerFrame').src = '';
             document.getElementById('view-player').classList.add('hidden');
             document.getElementById('view-home').classList.remove('hidden');
-
-            setTimeout(() => {
-                const focusables = getFocusableElements();
-                if (focusables.length > 0) {
-                    focusIndex = 0;
-                    updateFocusVisuals(focusables, focusIndex);
-                }
-            }, 100);
+            refreshFocusables();
         }
 
         function getSourceUrls(type, id) {
-            if (type === 'movie') {
-                return {
-                    pstream: `https://pstream.cfd/media/tmdb-movie-${id}`,
-                    cinevaro: `https://cinevaro.app/media/tmdb-movie-${id}`,
-                    basementx: `https://basementx.lol/media/tmdb-movie-${id}`
-                };
-            } else {
-                return {
-                    pstream: `https://pstream.cfd/media/tmdb-tv-${id}-${showSlug}/${currentSeasonInternalId}/${currentEpisodeInternalId}`,
-                    cinevaro: `https://cinevaro.app/media/tmdb-tv-${id}-${showSlug}/${currentSeasonInternalId}/${currentEpisodeInternalId}`,
-                    basementx: `https://basementx.lol/media/tmdb-tv-${id}-${showSlug}/${currentSeasonInternalId}/${currentEpisodeInternalId}`
-                };
-            }
+            return type === 'movie' ? {
+                pstream: `https://pstream.cfd/media/tmdb-movie-${id}`,
+                cinevaro: `https://cinevaro.app/media/tmdb-movie-${id}`,
+                basementx: `https://basementx.lol/media/tmdb-movie-${id}`
+            } : {
+                pstream: `https://pstream.cfd/media/tmdb-tv-${id}-${showSlug}/${currentSeasonInternalId}/${currentEpisodeInternalId}`,
+                cinevaro: `https://cinevaro.app/media/tmdb-tv-${id}-${showSlug}/${currentSeasonInternalId}/${currentEpisodeInternalId}`,
+                basementx: `https://basementx.lol/media/tmdb-tv-${id}-${showSlug}/${currentSeasonInternalId}/${currentEpisodeInternalId}`
+            };
         }
 
         function loadSources(type, id) {
             const container = document.getElementById('sourceOptions');
             container.innerHTML = '';
-
             const urls = getSourceUrls(type, id);
-
             const sources = [
                 { name: 'Primary Stream (P-Stream)', url: urls.pstream },
                 { name: 'CineVaro', url: urls.cinevaro },
                 { name: 'BasementX', url: urls.basementx }
             ];
-
             document.getElementById('mediaPlayerFrame').src = sources[activeSourceIndex].url;
 
             sources.forEach((src, idx) => {
                 const btn = document.createElement('button');
-                btn.className = `tv-focusable w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all flex items-center justify-between ${idx === activeSourceIndex ? 'bg-accent text-white shadow-lg shadow-accent/20' : 'bg-dark-800 text-gray-300 hover:bg-dark-700 border border-white/5'}`;
+                btn.className = `tv-focusable w-full text-left px-3 py-2 rounded-xl text-xs font-medium flex items-center justify-between ${idx === activeSourceIndex ? 'bg-accent text-white' : 'bg-dark-800 text-gray-300'}`;
                 btn.setAttribute('tabindex', '0');
-                btn.innerHTML = `<span>${src.name}</span><span class="text-[10px] opacity-75">${idx === activeSourceIndex ? 'Active' : 'Switch'}</span>`;
+                btn.innerHTML = `<span>${src.name}</span><span class="text-[10px]">${idx === activeSourceIndex ? 'Active' : 'Switch'}</span>`;
                 btn.onclick = () => {
                     activeSourceIndex = idx;
                     document.getElementById('mediaPlayerFrame').src = src.url;
-                    Array.from(container.children).forEach((b, i) => {
-                        b.className = `tv-focusable w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all flex items-center justify-between ${i === activeSourceIndex ? 'bg-accent text-white shadow-lg shadow-accent/20' : 'bg-dark-800 text-gray-300 hover:bg-dark-700 border border-white/5'}`;
-                        b.lastChild.innerText = i === activeSourceIndex ? 'Active' : 'Switch';
-                    });
+                    loadSources(type, id);
                 };
                 container.appendChild(btn);
             });
+            refreshFocusables();
         }
 
         async function loadTvDetails(showId) {
             try {
                 const res = await fetch(`${TMDB_BASE}/tv/${showId}?api_key=${TMDB_KEY}`);
                 const data = await res.json();
-                
                 const seasonSelect = document.getElementById('seasonSelect');
                 seasonSelect.innerHTML = '';
-
                 const seasons = (data.seasons || []).filter(s => s.season_number > 0);
-                seasons.forEach(season => {
+                seasons.forEach(s => {
                     const opt = document.createElement('option');
-                    opt.value = season.season_number;
-                    opt.dataset.seasonId = season.id;
-                    opt.innerText = season.name || `Season ${season.season_number}`;
+                    opt.value = s.season_number;
+                    opt.dataset.seasonId = s.id;
+                    opt.innerText = s.name || `Season ${s.season_number}`;
                     seasonSelect.appendChild(opt);
                 });
-
-                if (seasons.length > 0) {
+                if (seasons.length) {
                     currentSeasonInternalId = seasons[0].id;
                     currentSeasonNum = seasons[0].season_number;
                     await loadEpisodesForSeason(showId, currentSeasonNum);
                 }
-            } catch (err) {
-                console.error('Error fetching TV details:', err);
-            }
+            } catch (e) { console.error(e); }
         }
 
         async function onSeasonChange() {
             const select = document.getElementById('seasonSelect');
-            const selectedOpt = select.options[select.selectedIndex];
-            currentSeasonInternalId = selectedOpt.dataset.seasonId;
+            currentSeasonInternalId = select.options[select.selectedIndex].dataset.seasonId;
             currentSeasonNum = parseInt(select.value);
             await loadEpisodesForSeason(activeMedia.id, currentSeasonNum);
         }
@@ -597,9 +418,7 @@
             try {
                 const res = await fetch(`${TMDB_BASE}/tv/${showId}/season/${seasonNum}?api_key=${TMDB_KEY}`);
                 const data = await res.json();
-                
                 currentEpisodesList = data.episodes || [];
-                
                 const episodeSelect = document.getElementById('episodeSelect');
                 episodeSelect.innerHTML = '';
                 currentEpisodesList.forEach((ep, idx) => {
@@ -608,22 +427,12 @@
                     opt.innerText = `E${ep.episode_number}: ${ep.name || 'Episode ' + ep.episode_number}`;
                     episodeSelect.appendChild(opt);
                 });
-
-                if (currentEpisodesList.length > 0) {
-                    selectEpisodeByIndex(0);
-                } else {
-                    document.getElementById('episodeSummaryTitle').innerText = 'Episode Summary';
-                    document.getElementById('episodeSummaryText').innerText = 'No episodes found for this season.';
-                }
-            } catch (err) {
-                console.error('Error fetching episodes:', err);
-            }
+                if (currentEpisodesList.length) selectEpisodeByIndex(0);
+            } catch (e) { console.error(e); }
         }
 
         function onEpisodeDropdownChange() {
-            const select = document.getElementById('episodeSelect');
-            const idx = parseInt(select.value, 10);
-            selectEpisodeByIndex(idx);
+            selectEpisodeByIndex(parseInt(document.getElementById('episodeSelect').value, 10));
         }
 
         function selectEpisodeByIndex(idx) {
@@ -631,35 +440,16 @@
             currentEpisodeIndex = idx;
             const ep = currentEpisodesList[idx];
             currentEpisodeInternalId = ep.id;
-
-            // Sync dropdown
-            const epSelect = document.getElementById('episodeSelect');
-            if (epSelect) epSelect.value = idx;
-
-            // Sync prev/next buttons
-            const prevBtn = document.getElementById('prevEpBtn');
-            const nextBtn = document.getElementById('nextEpBtn');
-            if (prevBtn) prevBtn.disabled = currentEpisodeIndex <= 0;
-            if (nextBtn) nextBtn.disabled = currentEpisodeIndex >= currentEpisodesList.length - 1;
-
-            // Update Episode Summary
+            document.getElementById('episodeSelect').value = idx;
+            document.getElementById('prevEpBtn').disabled = currentEpisodeIndex <= 0;
+            document.getElementById('nextEpBtn').disabled = currentEpisodeIndex >= currentEpisodesList.length - 1;
             document.getElementById('episodeSummaryTitle').innerText = `S${String(currentSeasonNum).padStart(2,'0')}E${String(ep.episode_number).padStart(2,'0')} - ${ep.name || ''}`;
-            document.getElementById('episodeSummaryText').innerText = ep.overview || 'No summary available for this episode.';
-
-            updatePlayerSourceForTv();
+            document.getElementById('episodeSummaryText').innerText = ep.overview || 'No overview available.';
+            if (activeMedia) loadSources(activeMedia.media_type || 'tv', activeMedia.id);
         }
 
         function changeEpisodeOffset(offset) {
-            const newIndex = currentEpisodeIndex + offset;
-            if (newIndex >= 0 && newIndex < currentEpisodesList.length) {
-                selectEpisodeByIndex(newIndex);
-            }
-        }
-
-        function updatePlayerSourceForTv() {
-            if (!activeMedia) return;
-            const type = activeMedia.media_type || (activeMedia.title ? 'movie' : 'tv');
-            loadSources(type, activeMedia.id);
+            selectEpisodeByIndex(currentEpisodeIndex + offset);
         }
     </script>
 </body>
