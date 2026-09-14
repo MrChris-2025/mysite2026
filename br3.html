@@ -214,7 +214,7 @@
         let showSlug = '';
         let activeSourceIndex = 0;
 
-        // Android TV Spatial Navigation & Scroll Blocking
+        // Android TV Spatial Navigation Handling
         let focusIndex = 0;
         let lastFocusedElement = null;
 
@@ -225,17 +225,12 @@
 
             // Global Key Listener for Android TV Remote (D-pad & Enter / Media Keys)
             window.addEventListener('keydown', handleRemoteNavigation);
-            
-            // Block mouse/trackpad scrolling completely
-            window.addEventListener('wheel', (e) => e.preventDefault(), { passive: false });
-            window.addEventListener('scroll', () => {
-                if (window.scrollY !== 0) window.scrollTo(0, 0);
-            });
         });
 
         function getFocusableElements() {
             return Array.from(document.querySelectorAll('.tv-focusable, button:not(.hidden), input:not(.hidden), select:not(.hidden), [tabindex="0"]:not(.hidden)'))
                 .filter(el => {
+                    // Filter out elements inside hidden views
                     const viewHome = document.getElementById('view-home');
                     const viewPlayer = document.getElementById('view-player');
                     const isHomeHidden = viewHome.classList.contains('hidden');
@@ -256,6 +251,8 @@
                     el.classList.add('tv-focused');
                     el.focus();
                     lastFocusedElement = el;
+                    // Auto scroll view element into viewport nicely for TV UX
+                    el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
                 } else {
                     el.classList.remove('tv-focused');
                 }
@@ -266,6 +263,7 @@
             const focusables = getFocusableElements();
             if (focusables.length === 0) return;
 
+            // Find current active index
             let currentIndex = focusables.indexOf(document.activeElement);
             if (currentIndex === -1) currentIndex = focusIndex;
 
@@ -283,6 +281,7 @@
                     break;
                 case 'ArrowDown':
                     e.preventDefault();
+                    // If focusing inside media grid, move down by grid columns roughly
                     if (focusables[currentIndex].classList.contains('media-card')) {
                         nextIndex = Math.min(currentIndex + cols, focusables.length - 1);
                     } else {
@@ -298,9 +297,9 @@
                     }
                     break;
                 case 'Enter':
-                    e.preventDefault();
+                    // Let native click/action fire or trigger explicitly
                     if (document.activeElement && typeof document.activeElement.click === 'function') {
-                        document.activeElement.click();
+                        // Prevent double-firing if click event handles it automatically
                     }
                     break;
             }
@@ -426,7 +425,6 @@
 
         function handleSearch(e) {
             if (e.key === 'Enter') {
-                e.preventDefault();
                 const query = e.target.value.trim();
                 if (query) {
                     fetchMediaCatalog(query);
@@ -466,6 +464,9 @@
                 loadSources(type, item.id);
             }
 
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            // Re-index focus to back button on player view open
             setTimeout(() => {
                 const focusables = getFocusableElements();
                 if (focusables.length > 0) {
@@ -480,6 +481,7 @@
             document.getElementById('view-player').classList.add('hidden');
             document.getElementById('view-home').classList.remove('hidden');
 
+            // Reset focus back to grid content view
             setTimeout(() => {
                 const focusables = getFocusableElements();
                 if (focusables.length > 0) {
@@ -604,7 +606,7 @@
             }
         }
 
-        async function updatePlayerSourceForTv() {
+        function updatePlayerSourceForTv() {
             if (!activeMedia) return;
             const type = activeMedia.media_type || (activeMedia.title ? 'movie' : 'tv');
             loadSources(type, activeMedia.id);
