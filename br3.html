@@ -40,17 +40,12 @@
 </head>
 <body class="min-h-screen flex flex-col selection:bg-accent selection:text-white antialiased font-normal">
 
-    <!-- Header Navigation -->
+    <!-- Header Navigation (Home/Movies/TV removed) -->
     <header class="sticky top-0 z-50 bg-dark-900 border-b border-white/10 px-4 lg:px-8 py-3.5 flex items-center justify-between">
         <div class="flex items-center space-x-8">
-            <h1 onclick="switchTab('home')" id="nav-logo" tabindex="0" class="tv-focusable text-2xl font-bold tracking-wider text-accent cursor-pointer rounded-lg px-1">
+            <h1 onclick="closePlayer()" id="nav-logo" tabindex="0" class="tv-focusable text-2xl font-bold tracking-wider text-accent cursor-pointer rounded-lg px-1">
                 p<span class="text-white font-bold">Stream</span>
             </h1>
-            <nav class="flex items-center space-x-2">
-                <button onclick="switchTab('home')" id="nav-home" tabindex="0" class="tv-focusable px-4 py-2 rounded-xl text-xs font-bold bg-accent text-white">Home</button>
-                <button onclick="switchTab('movies')" id="nav-movies" tabindex="0" class="tv-focusable px-4 py-2 rounded-xl text-xs font-bold text-gray-400 hover:text-white">Movies</button>
-                <button onclick="switchTab('tv')" id="nav-tv" tabindex="0" class="tv-focusable px-4 py-2 rounded-xl text-xs font-bold text-gray-400 hover:text-white">TV Shows</button>
-            </nav>
         </div>
 
         <div class="flex items-center space-x-4">
@@ -69,32 +64,87 @@
         
         <!-- VIEW 1: HOME GALLERY -->
         <div id="view-home" class="space-y-6">
-            <div id="heroBanner" class="relative rounded-2xl overflow-hidden tv-card min-h-[260px] flex items-end p-6 lg:p-8">
-                <div id="heroBg" class="absolute inset-0 bg-cover bg-center opacity-30"></div>
-                <div class="relative z-20 max-w-2xl space-y-3">
-                    <div id="heroBadge" class="inline-block px-3 py-1 rounded-full text-[10px] font-bold bg-accent text-white uppercase tracking-wider">Featured</div>
-                    <h2 id="heroTitle" class="text-2xl lg:text-3xl font-bold text-white">Loading...</h2>
+            
+            <!-- Hero Carousel (Premieres This Week) -->
+            <div id="heroBanner" class="relative rounded-2xl overflow-hidden tv-card min-h-[280px] flex items-end p-6 lg:p-8">
+                <div id="heroBg" class="absolute inset-0 bg-cover bg-center opacity-30 transition-all duration-500"></div>
+                <div class="relative z-20 max-w-2xl space-y-3 w-full">
+                    <div class="flex items-center space-x-2">
+                        <span id="heroBadge" class="inline-block px-3 py-1 rounded-full text-[10px] font-bold bg-accent text-white uppercase tracking-wider">New This Week</span>
+                        <span id="heroDateBadge" class="inline-block px-2.5 py-1 rounded-full text-[10px] font-bold bg-dark-800 text-gray-300 border border-white/10"></span>
+                    </div>
+                    <h2 id="heroTitle" class="text-2xl lg:text-3xl font-bold text-white">Loading Premieres...</h2>
                     <p id="heroOverview" class="text-xs text-gray-300 line-clamp-2">Loading catalog...</p>
-                    <div class="pt-2">
+                    <div class="pt-2 flex items-center justify-between">
                         <button id="heroPlayBtn" tabindex="0" class="tv-focusable px-5 py-2.5 rounded-xl bg-accent text-white text-xs font-bold flex items-center space-x-2">
                             <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                             <span>Watch Now</span>
                         </button>
+
+                        <!-- Carousel Controls -->
+                        <div class="flex items-center space-x-3">
+                            <div id="carouselDots" class="flex space-x-1.5"></div>
+                            <div class="flex space-x-1">
+                                <button onclick="prevHeroSlide()" tabindex="0" class="tv-focusable p-2 rounded-xl bg-dark-800 text-gray-300 border border-white/10 text-xs font-bold">&larr;</button>
+                                <button onclick="nextHeroSlide()" tabindex="0" class="tv-focusable p-2 rounded-xl bg-dark-800 text-gray-300 border border-white/10 text-xs font-bold">&rarr;</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="flex items-center justify-between border-b border-white/10 pb-4">
-                <h3 id="sectionTitle" class="text-base font-bold text-white">Trending Catalog</h3>
-                <div class="flex space-x-2 bg-dark-800 p-1 rounded-xl border border-white/5">
-                    <button onclick="setFilter('all')" id="filter-all" tabindex="0" class="tv-focusable px-3 py-1.5 rounded-lg text-xs font-bold bg-accent text-white">All</button>
-                    <button onclick="setFilter('movie')" id="filter-movie" tabindex="0" class="tv-focusable px-3 py-1.5 rounded-lg text-xs font-bold text-gray-400">Movies</button>
-                    <button onclick="setFilter('tv')" id="filter-tv" tabindex="0" class="tv-focusable px-3 py-1.5 rounded-lg text-xs font-bold text-gray-400">TV Shows</button>
+            <!-- Filter Controls Bar (Type, Genre, Year) -->
+            <div class="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-4">
+                <div class="flex items-center space-x-3">
+                    <h3 id="sectionTitle" class="text-base font-bold text-white">Catalog</h3>
+                    <div class="flex space-x-1.5 bg-dark-800 p-1 rounded-xl border border-white/5">
+                        <button onclick="setFilter('all')" id="filter-all" tabindex="0" class="tv-focusable px-3 py-1.5 rounded-lg text-xs font-bold bg-accent text-white">All</button>
+                        <button onclick="setFilter('movie')" id="filter-movie" tabindex="0" class="tv-focusable px-3 py-1.5 rounded-lg text-xs font-bold text-gray-400">Movies</button>
+                        <button onclick="setFilter('tv')" id="filter-tv" tabindex="0" class="tv-focusable px-3 py-1.5 rounded-lg text-xs font-bold text-gray-400">TV Shows</button>
+                    </div>
+                </div>
+
+                <!-- Genre & Year Drop-downs -->
+                <div class="flex items-center space-x-3">
+                    <div>
+                        <select id="genreSelect" onchange="onFilterChange()" tabindex="0" class="tv-focusable bg-dark-800 border border-white/10 rounded-xl px-3 py-1.5 text-xs font-bold text-white focus:outline-none">
+                            <option value="">All Genres</option>
+                            <option value="28">Action</option>
+                            <option value="12">Adventure</option>
+                            <option value="16">Animation</option>
+                            <option value="35">Comedy</option>
+                            <option value="80">Crime</option>
+                            <option value="99">Documentary</option>
+                            <option value="18">Drama</option>
+                            <option value="10751">Family</option>
+                            <option value="14">Fantasy</option>
+                            <option value="27">Horror</option>
+                            <option value="878">Sci-Fi</option>
+                            <option value="53">Thriller</option>
+                        </select>
+                    </div>
+                    <div>
+                        <select id="yearSelect" onchange="onFilterChange()" tabindex="0" class="tv-focusable bg-dark-800 border border-white/10 rounded-xl px-3 py-1.5 text-xs font-bold text-white focus:outline-none">
+                            <option value="">All Years</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
+            <!-- Media Gallery Grid -->
             <div id="mediaGrid" class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-3">
                 <!-- Dynamically populated cards -->
+            </div>
+
+            <!-- Gallery Pagination Controls -->
+            <div class="flex items-center justify-between border-t border-white/10 pt-4">
+                <button id="prevPageBtn" onclick="changePage(-1)" tabindex="0" class="tv-focusable px-4 py-2 rounded-xl bg-dark-800 text-gray-300 text-xs font-bold border border-white/10 disabled:opacity-30 disabled:pointer-events-none">
+                    &larr; Previous Page
+                </button>
+                <span id="pageIndicator" class="text-xs font-bold text-gray-400">Page 1 of 1</span>
+                <button id="nextPageBtn" onclick="changePage(1)" tabindex="0" class="tv-focusable px-4 py-2 rounded-xl bg-dark-800 text-gray-300 text-xs font-bold border border-white/10 disabled:opacity-30 disabled:pointer-events-none">
+                    Next Page &rarr;
+                </button>
             </div>
         </div>
 
@@ -114,7 +164,7 @@
                             <p id="playerOverview" class="text-xs text-gray-400 leading-relaxed max-h-28 overflow-y-auto"></p>
                         </div>
 
-                        <!-- Previous / Next Episode Navigation Buttons (Positioned under iframe to the right) -->
+                        <!-- Previous / Next Episode Navigation Buttons -->
                         <div id="underPlayerNav" class="hidden flex-shrink-0 flex items-center space-x-2 pt-1">
                             <button id="prevEpBtn" onclick="changeEpisodeOffset(-1)" tabindex="0" class="tv-focusable px-3.5 py-2 rounded-xl bg-dark-800 text-gray-300 text-xs font-bold flex items-center justify-center space-x-1 border border-white/10 disabled:opacity-30 disabled:pointer-events-none">
                                 <span>&larr; Previous</span>
@@ -129,7 +179,6 @@
                 <!-- RIGHT COLUMN: Media Sources Header + Close Button & Controls -->
                 <div class="md:col-span-4 tv-card p-5 rounded-2xl space-y-5">
                     
-                    <!-- Media Sources Header with Close Button to the Right -->
                     <div>
                         <div class="flex items-center justify-between mb-3">
                             <h3 class="text-[11px] font-bold uppercase tracking-wider text-gray-400">Media Sources</h3>
@@ -138,9 +187,7 @@
                                 <span>Close</span>
                             </button>
                         </div>
-                        <div id="sourceOptions" class="space-y-2">
-                            <!-- Dynamic sources injected here -->
-                        </div>
+                        <div id="sourceOptions" class="space-y-2"></div>
                     </div>
 
                     <!-- TV Dropdowns Controls -->
@@ -158,7 +205,6 @@
                             </div>
                         </div>
 
-                        <!-- Episode Summary -->
                         <div class="border-t border-white/10 pt-4">
                             <h4 id="episodeSummaryTitle" class="text-xs font-bold uppercase text-accent mb-1.5"></h4>
                             <p id="episodeSummaryText" class="text-xs text-gray-300 leading-relaxed max-h-36 overflow-y-auto"></p>
@@ -186,7 +232,8 @@
         const TMDB_KEY = '1070730380f5fee0d87cf0382670b255';
         const TMDB_BASE = 'https://api.themoviedb.org/3';
         
-        let currentTab = 'home', currentFilter = 'all', mediaDataList = [], activeMedia = null;
+        let currentFilter = 'all', mediaDataList = [], activeMedia = null;
+        let currentPage = 1, totalPages = 1, heroIndex = 0, heroItems = [], heroTimer = null;
         let currentSeasonNum = 1, currentSeasonInternalId = '', currentEpisodeInternalId = '';
         let currentEpisodesList = [], currentEpisodeIndex = 0, showSlug = '', activeSourceIndex = 0;
         let cachedFocusables = [], focusIndex = 0;
@@ -194,11 +241,12 @@
         window.addEventListener('DOMContentLoaded', () => {
             updateClock();
             setInterval(updateClock, 10000);
+            populateYearDropdown();
+            fetchWeeklyPremieres();
             fetchMediaCatalog();
             window.addEventListener('keydown', handleRemoteNavigation);
         });
 
-        /* 12-Hour Clock Format (No Seconds) */
         function updateClock() {
             const now = new Date();
             const dateStr = now.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
@@ -206,12 +254,159 @@
             document.getElementById('liveClock').innerText = `${dateStr} ${timeStr}`;
         }
 
+        function populateYearDropdown() {
+            const select = document.getElementById('yearSelect');
+            for (let y = 2026; y >= 1990; y--) {
+                const opt = document.createElement('option');
+                opt.value = y;
+                opt.innerText = y;
+                select.appendChild(opt);
+            }
+        }
+
+        /* Fetch Week's Premieres for Hero Carousel */
+        async function fetchWeeklyPremieres() {
+            try {
+                // Sept 14, 2026 current week window
+                const url = `${TMDB_BASE}/discover/tv?api_key=${TMDB_KEY}&air_date.gte=2026-09-14&air_date.lte=2026-09-20&sort_by=popularity.desc`;
+                const res = await fetch(url);
+                const data = await res.json();
+                heroItems = (data.results || []).slice(0, 5);
+                if (!heroItems.length) {
+                    const fallbackRes = await fetch(`${TMDB_BASE}/trending/all/week?api_key=${TMDB_KEY}`);
+                    const fallbackData = await fallbackRes.json();
+                    heroItems = (fallbackData.results || []).slice(0, 5);
+                }
+                renderHeroCarousel();
+            } catch (e) { console.error(e); }
+        }
+
+        function renderHeroCarousel() {
+            if (!heroItems.length) return;
+            const item = heroItems[heroIndex];
+            document.getElementById('heroTitle').innerText = item.title || item.name;
+            document.getElementById('heroOverview').innerText = item.overview || 'No description available.';
+            document.getElementById('heroDateBadge').innerText = item.first_air_date || item.release_date || 'Premiering Now';
+            if (item.backdrop_path) document.getElementById('heroBg').style.backgroundImage = `url(https://image.tmdb.org/t/p/w1280${item.backdrop_path})`;
+            document.getElementById('heroPlayBtn').onclick = () => openPlayer(item);
+
+            const dots = document.getElementById('carouselDots');
+            dots.innerHTML = '';
+            heroItems.forEach((_, idx) => {
+                const dot = document.createElement('div');
+                dot.className = `w-2 h-2 rounded-full ${idx === heroIndex ? 'bg-accent' : 'bg-white/20'}`;
+                dots.appendChild(dot);
+            });
+
+            clearInterval(heroTimer);
+            heroTimer = setInterval(() => nextHeroSlide(), 7000);
+        }
+
+        function nextHeroSlide() {
+            if (!heroItems.length) return;
+            heroIndex = (heroIndex + 1) % heroItems.length;
+            renderHeroCarousel();
+        }
+
+        function prevHeroSlide() {
+            if (!heroItems.length) return;
+            heroIndex = (heroIndex - 1 + heroItems.length) % heroItems.length;
+            renderHeroCarousel();
+        }
+
+        function setFilter(filter) {
+            currentFilter = filter;
+            currentPage = 1;
+            ['all', 'movie', 'tv'].forEach(f => {
+                const btn = document.getElementById(`filter-${f}`);
+                if(btn) btn.className = `tv-focusable px-3 py-1.5 rounded-lg text-xs font-bold ${f === filter ? 'bg-accent text-white' : 'text-gray-400'}`;
+            });
+            fetchMediaCatalog();
+        }
+
+        function onFilterChange() {
+            currentPage = 1;
+            fetchMediaCatalog();
+        }
+
+        async function fetchMediaCatalog(query = '') {
+            try {
+                const genre = document.getElementById('genreSelect').value;
+                const year = document.getElementById('yearSelect').value;
+
+                let url = '';
+                if (query) {
+                    url = `${TMDB_BASE}/search/multi?api_key=${TMDB_KEY}&query=${encodeURIComponent(query)}&page=${currentPage}`;
+                } else if (genre || year) {
+                    const targetType = currentFilter === 'tv' ? 'tv' : 'movie';
+                    url = `${TMDB_BASE}/discover/${targetType}?api_key=${TMDB_KEY}&page=${currentPage}${genre ? '&with_genres=' + genre : ''}${year ? '&primary_release_year=' + year + '&first_air_date_year=' + year : ''}`;
+                } else if (currentFilter !== 'all') {
+                    url = `${TMDB_BASE}/trending/${currentFilter}/day?api_key=${TMDB_KEY}&page=${currentPage}`;
+                } else {
+                    url = `${TMDB_BASE}/trending/all/day?api_key=${TMDB_KEY}&page=${currentPage}`;
+                }
+
+                const res = await fetch(url);
+                const data = await res.json();
+                totalPages = Math.min(data.total_pages || 1, 500);
+                mediaDataList = (data.results || []).filter(item => item.media_type === 'movie' || item.media_type === 'tv' || item.title || item.name);
+                
+                document.getElementById('pageIndicator').innerText = `Page ${currentPage} of ${totalPages}`;
+                document.getElementById('prevPageBtn').disabled = currentPage <= 1;
+                document.getElementById('nextPageBtn').disabled = currentPage >= totalPages;
+
+                renderGrid();
+            } catch (err) { console.error(err); }
+        }
+
+        function changePage(offset) {
+            if (currentPage + offset >= 1 && currentPage + offset <= totalPages) {
+                currentPage += offset;
+                fetchMediaCatalog();
+                window.scrollTo(0, 300);
+            }
+        }
+
+        function renderGrid() {
+            const grid = document.getElementById('mediaGrid');
+            grid.innerHTML = '';
+            if (!mediaDataList.length) {
+                grid.innerHTML = `<div class="col-span-full text-center py-8 text-gray-500 font-normal">No media streams found.</div>`;
+                return;
+            }
+            mediaDataList.forEach(item => {
+                const title = item.title || item.name;
+                const poster = item.poster_path ? `https://image.tmdb.org/t/p/w185${item.poster_path}` : 'https://via.placeholder.com/185x278';
+                const card = document.createElement('div');
+                card.className = 'media-card tv-focusable tv-card rounded-lg overflow-hidden cursor-pointer flex flex-col';
+                card.setAttribute('tabindex', '0');
+                card.onclick = () => openPlayer(item);
+                card.innerHTML = `
+                    <div class="relative aspect-[2/3] w-full bg-dark-800">
+                        <img src="${poster}" alt="${title}" loading="lazy" class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-1.5 flex flex-col justify-between">
+                        <h4 class="text-[11px] font-bold text-white truncate">${title}</h4>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+            refreshFocusables();
+        }
+
+        function handleSearch(e) {
+            if (e.key === 'Enter') {
+                currentPage = 1;
+                fetchMediaCatalog(e.target.value.trim());
+            }
+        }
+
         function refreshFocusables() {
             const vHome = document.getElementById('view-home');
             const vPlayer = document.getElementById('view-player');
             const isHome = !vHome.classList.contains('hidden');
             const activeView = isHome ? vHome : vPlayer;
-            cachedFocusables = Array.from(document.querySelectorAll('.tv-focusable, header input, header button'))
+            cachedFocusables = Array.from(document.querySelectorAll('.tv-focusable, header input'))
                 .filter(el => activeView.contains(el) || el.closest('header'));
         }
 
@@ -239,81 +434,6 @@
                 target.focus();
                 target.scrollIntoView({ behavior: 'instant', block: 'nearest' });
             }
-        }
-
-        function switchTab(tab) {
-            currentTab = tab;
-            ['home', 'movies', 'tv'].forEach(t => {
-                const btn = document.getElementById(`nav-${t}`);
-                if (btn) btn.className = `tv-focusable px-4 py-2 rounded-xl text-xs font-bold ${t === tab ? 'bg-accent text-white' : 'text-gray-400 hover:text-white'}`;
-            });
-            currentFilter = tab === 'movies' ? 'movie' : (tab === 'tv' ? 'tv' : 'all');
-            fetchMediaCatalog();
-        }
-
-        function setFilter(filter) {
-            currentFilter = filter;
-            ['all', 'movie', 'tv'].forEach(f => {
-                const btn = document.getElementById(`filter-${f}`);
-                if(btn) btn.className = `tv-focusable px-3 py-1.5 rounded-lg text-xs font-bold ${f === filter ? 'bg-accent text-white' : 'text-gray-400'}`;
-            });
-            renderGrid();
-        }
-
-        async function fetchMediaCatalog(query = '') {
-            try {
-                let url = `${TMDB_BASE}/trending/all/day?api_key=${TMDB_KEY}`;
-                if (query) url = `${TMDB_BASE}/search/multi?api_key=${TMDB_KEY}&query=${encodeURIComponent(query)}`;
-                else if (currentFilter !== 'all') url = `${TMDB_BASE}/trending/${currentFilter}/day?api_key=${TMDB_KEY}`;
-
-                const res = await fetch(url);
-                const data = await res.json();
-                mediaDataList = (data.results || []).filter(item => item.media_type === 'movie' || item.media_type === 'tv' || item.title || item.name);
-                if (!query && mediaDataList.length) setupHero(mediaDataList[0]);
-                renderGrid();
-            } catch (err) { console.error(err); }
-        }
-
-        function setupHero(item) {
-            document.getElementById('heroTitle').innerText = item.title || item.name;
-            document.getElementById('heroOverview').innerText = item.overview || '';
-            if (item.backdrop_path) document.getElementById('heroBg').style.backgroundImage = `url(https://image.tmdb.org/t/p/w780${item.backdrop_path})`;
-            document.getElementById('heroPlayBtn').onclick = () => openPlayer(item);
-        }
-
-        function renderGrid() {
-            const grid = document.getElementById('mediaGrid');
-            grid.innerHTML = '';
-            let filtered = mediaDataList;
-            if (currentFilter !== 'all') {
-                filtered = mediaDataList.filter(item => item.media_type === currentFilter || (currentFilter === 'movie' && item.title) || (currentFilter === 'tv' && item.name));
-            }
-            if (!filtered.length) {
-                grid.innerHTML = `<div class="col-span-full text-center py-8 text-gray-500 font-normal">No media streams found.</div>`;
-                return;
-            }
-            filtered.forEach(item => {
-                const title = item.title || item.name;
-                const poster = item.poster_path ? `https://image.tmdb.org/t/p/w185${item.poster_path}` : 'https://via.placeholder.com/185x278';
-                const card = document.createElement('div');
-                card.className = 'media-card tv-focusable tv-card rounded-lg overflow-hidden cursor-pointer flex flex-col';
-                card.setAttribute('tabindex', '0');
-                card.onclick = () => openPlayer(item);
-                card.innerHTML = `
-                    <div class="relative aspect-[2/3] w-full bg-dark-800">
-                        <img src="${poster}" alt="${title}" loading="lazy" class="w-full h-full object-cover">
-                    </div>
-                    <div class="p-1.5 flex flex-col justify-between">
-                        <h4 class="text-[11px] font-bold text-white truncate">${title}</h4>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
-            refreshFocusables();
-        }
-
-        function handleSearch(e) {
-            if (e.key === 'Enter') fetchMediaCatalog(e.target.value.trim());
         }
 
         function generateSlug(t) { return (t || 'show').toLowerCase().replace(/[^a-z0-9 ]/g, '').replace(/\s+/g, '-'); }
