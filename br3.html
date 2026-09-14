@@ -58,8 +58,8 @@
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .card-transition:hover, .card-transition.tv-focused {
-            transform: translateY(-6px) scale(1.02);
-            box-shadow: 0 12px 30px -10px rgba(99, 102, 241, 0.4);
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 8px 20px -8px rgba(99, 102, 241, 0.4);
             border-color: rgba(99, 102, 241, 0.8) !important;
             outline: 3px solid #6366f1 !important;
             outline-offset: 2px !important;
@@ -91,7 +91,7 @@
                 <input type="text" id="searchInput" placeholder="Search movies, tv..." onkeydown="handleSearch(event)" tabindex="0"
                     class="tv-focusable w-40 sm:w-64 bg-dark-800 border border-white/10 rounded-xl px-4 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-accent transition-all">
             </div>
-            <!-- Live Date & Time (No Seconds) -->
+            <!-- Live Date & Time -->
             <div id="liveClock" class="hidden sm:block text-xs font-semibold text-gray-400 bg-dark-800/80 border border-white/5 px-3 py-2 rounded-xl tracking-wide">
                 --/--/---- --:--
             </div>
@@ -111,16 +111,16 @@
         <!-- HOME / GALLERY VIEW -->
         <div id="view-home" class="space-y-8">
             <!-- Hero Banner Slider / Featured -->
-            <div id="heroBanner" class="relative rounded-3xl overflow-hidden glass-panel border border-white/10 min-h-[380px] flex items-end p-6 lg:p-10 shadow-2xl">
+            <div id="heroBanner" class="relative rounded-3xl overflow-hidden glass-panel border border-white/10 min-h-[320px] flex items-end p-6 lg:p-8 shadow-2xl">
                 <div class="absolute inset-0 bg-gradient-to-t from-dark-900 via-dark-900/45 to-transparent z-10"></div>
                 <div id="heroBg" class="absolute inset-0 bg-cover bg-center filter blur-[1px] opacity-40 transform scale-105 transition-all duration-700"></div>
-                <div class="relative z-20 max-w-2xl space-y-4">
+                <div class="relative z-20 max-w-2xl space-y-3">
                     <div id="heroBadge" class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-accent text-white uppercase tracking-wider">Trending Today</div>
-                    <h2 id="heroTitle" class="text-3xl lg:text-5xl font-black tracking-tight text-white">Loading...</h2>
-                    <p id="heroOverview" class="text-sm lg:text-base text-gray-300 line-clamp-3">Please wait while we fetch top cinematic content...</p>
+                    <h2 id="heroTitle" class="text-2xl lg:text-4xl font-black tracking-tight text-white">Loading...</h2>
+                    <p id="heroOverview" class="text-xs lg:text-sm text-gray-300 line-clamp-2">Please wait while we fetch top cinematic content...</p>
                     <div class="flex items-center space-x-4 pt-2">
-                        <button id="heroPlayBtn" tabindex="0" class="tv-focusable px-6 py-3 rounded-xl bg-accent hover:bg-accent-hover text-white font-semibold flex items-center space-x-2 transition-all shadow-lg shadow-accent/30">
-                            <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                        <button id="heroPlayBtn" tabindex="0" class="tv-focusable px-5 py-2.5 rounded-xl bg-accent hover:bg-accent-hover text-white text-sm font-semibold flex items-center space-x-2 transition-all shadow-lg shadow-accent/30">
+                            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                             <span>Watch Now</span>
                         </button>
                     </div>
@@ -129,7 +129,7 @@
 
             <!-- Category Filter Toggles -->
             <div class="flex items-center justify-between border-b border-white/10 pb-4">
-                <h3 id="sectionTitle" class="text-xl font-bold text-white tracking-wide">Trending Catalog</h3>
+                <h3 id="sectionTitle" class="text-lg font-bold text-white tracking-wide">Trending Catalog</h3>
                 <div class="flex space-x-2 bg-dark-800 p-1 rounded-xl border border-white/5">
                     <button onclick="setFilter('all')" id="filter-all" tabindex="0" class="tv-focusable px-3 py-1.5 rounded-lg text-xs font-medium bg-accent text-white transition-all">All</button>
                     <button onclick="setFilter('movie')" id="filter-movie" tabindex="0" class="tv-focusable px-3 py-1.5 rounded-lg text-xs font-medium text-gray-400 hover:text-white transition-all">Movies</button>
@@ -137,76 +137,68 @@
                 </div>
             </div>
 
-            <!-- Media Gallery Grid -->
-            <div id="mediaGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 lg:gap-6">
+            <!-- Media Gallery Grid (50% smaller card size layout) -->
+            <div id="mediaGrid" class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-2.5 lg:gap-3.5">
                 <!-- Dynamic Cards injected here -->
             </div>
         </div>
 
-        <!-- PLAYER & CONTROLS VIEW (Side-by-Side Grid layout with sticky sidebar) -->
+        <!-- PLAYER & CONTROLS VIEW (Side-by-Side Grid layout) -->
         <div id="view-player" class="hidden space-y-6">
-            <button onclick="closePlayer()" id="backGalleryBtn" tabindex="0" class="tv-focusable px-4 py-2 rounded-xl bg-dark-800 hover:bg-dark-700 text-gray-300 font-medium flex items-center space-x-2 border border-white/10 transition-all">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+            <button onclick="closePlayer()" id="backGalleryBtn" tabindex="0" class="tv-focusable px-3 py-1.5 rounded-xl bg-dark-800 hover:bg-dark-700 text-gray-300 text-xs font-medium flex items-center space-x-2 border border-white/10 transition-all">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                 <span>Back to Gallery</span>
             </button>
 
             <!-- Side-by-Side Grid Layout: Player on left, Sticky sidebar on right -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start relative">
                 
-                <!-- Left Column: Video Iframe Player + Title/Overview (Spans 2 cols) -->
+                <!-- Left Column: 16:9 Video Iframe Player + Title/Overview -->
                 <div class="lg:col-span-2 space-y-4">
                     <div class="relative w-full aspect-video rounded-2xl overflow-hidden glass-panel border border-white/10 shadow-2xl bg-black">
                         <iframe id="mediaPlayerFrame" class="w-full h-full border-0" sandbox="allow-same-origin allow-scripts allow-forms allow-pointer-lock" allowfullscreen></iframe>
                     </div>
                     <div>
                         <h2 id="playerTitle" class="text-2xl font-bold text-white"></h2>
-                        <p id="playerOverview" class="text-sm text-gray-400 mt-2 leading-relaxed"></p>
+                        <p id="playerOverview" class="text-xs text-gray-400 mt-2 leading-relaxed"></p>
                     </div>
                 </div>
 
-                <!-- Right Column: Sticky Sidebar Panel placed to the right of the iframe player -->
-                <div class="lg:sticky lg:top-24 glass-panel p-5 rounded-2xl border border-white/10 space-y-6 max-h-[80vh] overflow-y-auto">
+                <!-- Right Column: Sticky Sidebar Panel -->
+                <div class="lg:sticky lg:top-24 glass-panel p-5 rounded-2xl border border-white/10 space-y-6 max-h-[85vh] overflow-y-auto">
                     <!-- Media Sources -->
                     <div>
-                        <h3 class="text-sm font-bold uppercase tracking-wider text-gray-400 mb-3">Media Sources</h3>
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Media Sources</h3>
                         <div id="sourceOptions" class="grid grid-cols-1 gap-2">
                             <!-- Injected sources -->
                         </div>
                     </div>
 
-                    <!-- TV Show Season & Episode Selectors + Next/Prev & Summary (Hidden for Movies) -->
+                    <!-- TV Show Season & Episode Selectors + Next/Prev & Summary -->
                     <div id="tvControlsSection" class="hidden space-y-4 border-t border-white/10 pt-4">
                         <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Season</label>
-                                <select id="seasonSelect" onchange="onSeasonChange()" tabindex="0" class="tv-focusable w-full bg-dark-800 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-accent">
+                                <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1.5">Season</label>
+                                <select id="seasonSelect" onchange="onSeasonChange()" tabindex="0" class="tv-focusable w-full bg-dark-800 border border-white/10 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-accent">
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Episode</label>
-                                <select id="episodeSelect" onchange="onEpisodeDropdownChange()" tabindex="0" class="tv-focusable w-full bg-dark-800 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-accent">
+                                <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1.5">Episode</label>
+                                <select id="episodeSelect" onchange="onEpisodeDropdownChange()" tabindex="0" class="tv-focusable w-full bg-dark-800 border border-white/10 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-accent">
                                 </select>
                             </div>
                         </div>
 
                         <!-- Next / Previous Episode Navigation Buttons -->
                         <div class="grid grid-cols-2 gap-3">
-                            <button id="prevEpBtn" onclick="changeEpisodeOffset(-1)" tabindex="0" class="tv-focusable px-4 py-2.5 rounded-xl bg-dark-800 hover:bg-dark-700 text-gray-300 text-xs font-semibold flex items-center justify-center space-x-1 border border-white/10 transition-all disabled:opacity-40 disabled:pointer-events-none">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                            <button id="prevEpBtn" onclick="changeEpisodeOffset(-1)" tabindex="0" class="tv-focusable px-3 py-2 rounded-xl bg-dark-800 hover:bg-dark-700 text-gray-300 text-xs font-semibold flex items-center justify-center space-x-1 border border-white/10 transition-all disabled:opacity-40 disabled:pointer-events-none">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                                 <span>Previous Ep</span>
                             </button>
-                            <button id="nextEpBtn" onclick="changeEpisodeOffset(1)" tabindex="0" class="tv-focusable px-4 py-2.5 rounded-xl bg-dark-800 hover:bg-dark-700 text-gray-300 text-xs font-semibold flex items-center justify-center space-x-1 border border-white/10 transition-all disabled:opacity-40 disabled:pointer-events-none">
+                            <button id="nextEpBtn" onclick="changeEpisodeOffset(1)" tabindex="0" class="tv-focusable px-3 py-2 rounded-xl bg-dark-800 hover:bg-dark-700 text-gray-300 text-xs font-semibold flex items-center justify-center space-x-1 border border-white/10 transition-all disabled:opacity-40 disabled:pointer-events-none">
                                 <span>Next Ep</span>
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                             </button>
-                        </div>
-
-                        <!-- Episode Quick Grid Pills -->
-                        <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Episode Selector Grid</label>
-                            <div id="episodeList" class="grid grid-cols-5 gap-1.5 max-h-36 overflow-y-auto p-1.5 bg-dark-900/50 rounded-xl border border-white/5">
-                                <!-- Episodes injected here -->
-                            </div>
                         </div>
 
                         <!-- Episode Summary Section -->
@@ -259,7 +251,7 @@
             setInterval(updateClock, 10000);
             fetchMediaCatalog();
 
-            // Global Key Listener for Android TV Remote (D-pad & Enter / Media Keys)
+            // Global Key Listener for Android TV Remote
             window.addEventListener('keydown', handleRemoteNavigation);
         });
 
@@ -301,7 +293,7 @@
             if (currentIndex === -1) currentIndex = focusIndex;
 
             let nextIndex = currentIndex;
-            const cols = window.innerWidth >= 1024 ? 5 : (window.innerWidth >= 768 ? 4 : (window.innerWidth >= 640 ? 3 : 2));
+            const cols = window.innerWidth >= 1024 ? 10 : (window.innerWidth >= 768 ? 8 : (window.innerWidth >= 640 ? 6 : 4));
 
             switch(e.key) {
                 case 'ArrowRight':
@@ -336,7 +328,7 @@
 
         function updateClock() {
             const now = new Date();
-            const options = { month: '2-digit', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false };
+            const options = { month: '2-digit', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
             document.getElementById('liveClock').innerText = now.toLocaleDateString('en-US', options).replace(',', '');
         }
 
@@ -421,28 +413,28 @@
 
             filtered.forEach(item => {
                 const title = item.title || item.name;
-                const poster = item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : 'https://via.placeholder.com/500x750?text=No+Image';
+                const poster = item.poster_path ? `https://image.tmdb.org/t/p/w342${item.poster_path}` : 'https://via.placeholder.com/300x450?text=No+Image';
                 const type = item.media_type || (item.title ? 'movie' : 'tv');
                 const year = (item.release_date || item.first_air_date || '').split('-')[0] || 'N/A';
                 const rating = item.vote_average ? item.vote_average.toFixed(1) : 'NR';
 
                 const card = document.createElement('div');
-                card.className = 'media-card tv-focusable glass-panel rounded-2xl overflow-hidden card-transition cursor-pointer flex flex-col group border border-white/5';
+                card.className = 'media-card tv-focusable glass-panel rounded-xl overflow-hidden card-transition cursor-pointer flex flex-col group border border-white/5';
                 card.setAttribute('tabindex', '0');
                 card.onclick = () => openPlayer(item);
                 card.innerHTML = `
                     <div class="relative aspect-[2/3] w-full overflow-hidden bg-dark-800">
                         <img src="${poster}" alt="${title}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-                        <div class="absolute top-2 right-2 bg-dark-900/80 backdrop-blur-md px-2 py-1 rounded-lg text-xs font-bold text-accent border border-white/10">
+                        <div class="absolute top-1 right-1 bg-dark-900/80 backdrop-blur-md px-1.5 py-0.5 rounded text-[9px] font-bold text-accent border border-white/10">
                             ★ ${rating}
                         </div>
-                        <div class="absolute bottom-2 left-2 bg-dark-900/80 backdrop-blur-md px-2 py-0.5 rounded text-[10px] font-semibold uppercase text-gray-300">
+                        <div class="absolute bottom-1 left-1 bg-dark-900/80 backdrop-blur-md px-1 py-0.5 rounded text-[8px] font-semibold uppercase text-gray-300">
                             ${type}
                         </div>
                     </div>
-                    <div class="p-3 flex flex-col justify-between flex-grow">
-                        <h4 class="text-sm font-semibold text-white truncate">${title}</h4>
-                        <span class="text-xs text-gray-400 mt-1">${year}</span>
+                    <div class="p-2 flex flex-col justify-between flex-grow">
+                        <h4 class="text-xs font-semibold text-white truncate">${title}</h4>
+                        <span class="text-[10px] text-gray-400 mt-0.5">${year}</span>
                     </div>
                 `;
                 grid.appendChild(card);
@@ -551,14 +543,14 @@
 
             sources.forEach((src, idx) => {
                 const btn = document.createElement('button');
-                btn.className = `tv-focusable w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all flex items-center justify-between ${idx === activeSourceIndex ? 'bg-accent text-white shadow-lg shadow-accent/20' : 'bg-dark-800 text-gray-300 hover:bg-dark-700 border border-white/5'}`;
+                btn.className = `tv-focusable w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all flex items-center justify-between ${idx === activeSourceIndex ? 'bg-accent text-white shadow-lg shadow-accent/20' : 'bg-dark-800 text-gray-300 hover:bg-dark-700 border border-white/5'}`;
                 btn.setAttribute('tabindex', '0');
-                btn.innerHTML = `<span>${src.name}</span><span class="text-xs opacity-75">${idx === activeSourceIndex ? 'Active' : 'Switch'}</span>`;
+                btn.innerHTML = `<span>${src.name}</span><span class="text-[10px] opacity-75">${idx === activeSourceIndex ? 'Active' : 'Switch'}</span>`;
                 btn.onclick = () => {
                     activeSourceIndex = idx;
                     document.getElementById('mediaPlayerFrame').src = src.url;
                     Array.from(container.children).forEach((b, i) => {
-                        b.className = `tv-focusable w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all flex items-center justify-between ${i === activeSourceIndex ? 'bg-accent text-white shadow-lg shadow-accent/20' : 'bg-dark-800 text-gray-300 hover:bg-dark-700 border border-white/5'}`;
+                        b.className = `tv-focusable w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all flex items-center justify-between ${i === activeSourceIndex ? 'bg-accent text-white shadow-lg shadow-accent/20' : 'bg-dark-800 text-gray-300 hover:bg-dark-700 border border-white/5'}`;
                         b.lastChild.innerText = i === activeSourceIndex ? 'Active' : 'Switch';
                     });
                 };
@@ -617,19 +609,6 @@
                     episodeSelect.appendChild(opt);
                 });
 
-                const episodeList = document.getElementById('episodeList');
-                episodeList.innerHTML = '';
-
-                currentEpisodesList.forEach((ep, idx) => {
-                    const epBtn = document.createElement('button');
-                    epBtn.className = `tv-focusable py-1.5 rounded-lg text-xs font-semibold transition-all ${idx === currentEpisodeIndex ? 'bg-accent text-white' : 'bg-dark-800 text-gray-400 hover:bg-dark-700 hover:text-white border border-white/5'}`;
-                    epBtn.setAttribute('tabindex', '0');
-                    epBtn.innerText = `E${ep.episode_number}`;
-                    epBtn.title = ep.name;
-                    epBtn.onclick = () => selectEpisodeByIndex(idx);
-                    episodeList.appendChild(epBtn);
-                });
-
                 if (currentEpisodesList.length > 0) {
                     selectEpisodeByIndex(0);
                 } else {
@@ -656,14 +635,6 @@
             // Sync dropdown
             const epSelect = document.getElementById('episodeSelect');
             if (epSelect) epSelect.value = idx;
-
-            // Sync grid buttons
-            const episodeList = document.getElementById('episodeList');
-            if (episodeList) {
-                Array.from(episodeList.children).forEach((b, i) => {
-                    b.className = `tv-focusable py-1.5 rounded-lg text-xs font-semibold transition-all ${i === currentEpisodeIndex ? 'bg-accent text-white' : 'bg-dark-800 text-gray-400 hover:bg-dark-700 hover:text-white border border-white/5'}`;
-                });
-            }
 
             // Sync prev/next buttons
             const prevBtn = document.getElementById('prevEpBtn');
