@@ -25,7 +25,7 @@ const serversList = [
 ];
 
 const noSandboxSources = ['vault', 'xpass', 'yap', 'oneembed', 'vidfast'];
-let activeServer = "framextv";
+let activeServer = "xpass";
 
 let isPlaying = true;
 let isSeeking = false;
