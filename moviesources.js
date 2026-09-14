@@ -20,7 +20,8 @@ const serversList = [
     { id: 'xully', name: 'Server 15: xully' },
     { id: 'pulp', name: 'Server 16: pulp' },
     { id: 'framextv', name: 'Server 17: FrameXTV' },
-    { id: 'atlantic', name: 'Server 18: atlantic' }
+    { id: 'atlantic', name: 'Server 18: atlantic' },
+    { id: 'pstream', name: 'Server 19: pstream' }
 ];
 
 const noSandboxSources = ['vault', 'xpass', 'yap', 'oneembed', 'vidfast'];
@@ -76,6 +77,7 @@ function getStreamUrl(server, type, id, season = 1, episode = 1) {
             case "pulp": return `https://www.pulptv.net/watch/tv/${id}?s=${currentSeason}&e=${currentEpisode}`;
             case "framextv": return `https://framextv.tech/embed/${id}/${season}/${episode}`;
             case "atlantic": return `https://atlantic.st/watch/${id}/${season}/${episode}`;
+            case "pstream": return `https://pstream.cfd/media/tmdb-tv-${id}-${showSlug}/${currentSeasonInternalId}/${currentEpisodeInternalId}`;
             default: return `https://vidcore.org/embed/tv/${id}/${season}/${episode}`;
         }
     }
