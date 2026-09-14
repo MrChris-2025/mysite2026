@@ -57,12 +57,14 @@
         .card-transition {
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .card-transition:hover {
+        .card-transition:hover, .card-transition.tv-focused {
             transform: translateY(-6px) scale(1.02);
-            box-shadow: 0 12px 30px -10px rgba(99, 102, 241, 0.3);
-            border-color: rgba(99, 102, 241, 0.4);
+            box-shadow: 0 12px 30px -10px rgba(99, 102, 241, 0.4);
+            border-color: rgba(99, 102, 241, 0.8) !important;
+            outline: 3px solid #6366f1 !important;
+            outline-offset: 2px !important;
         }
-        button:focus, input:focus, select:focus, a:focus {
+        button:focus, input:focus, select:focus, a:focus, .tv-focused {
             outline: 3px solid #6366f1 !important;
             outline-offset: 2px !important;
         }
@@ -73,21 +75,21 @@
     <!-- Top Navigation Bar -->
     <header class="sticky top-0 z-50 glass-panel border-b border-white/10 px-4 lg:px-8 py-3 flex items-center justify-between">
         <div class="flex items-center space-x-6">
-            <h1 onclick="switchTab('home')" class="text-2xl font-black tracking-wider bg-gradient-to-r from-indigo-400 to-violet-500 bg-clip-text text-transparent cursor-pointer">
-                STREAM<span class="text-white">VIBE</span>
+            <h1 onclick="switchTab('home')" id="nav-logo" tabindex="0" class="tv-focusable text-2xl font-black tracking-wider bg-gradient-to-r from-indigo-400 to-violet-500 bg-clip-text text-transparent cursor-pointer">
+                p<span class="text-white">Stream</span>
             </h1>
             <nav class="hidden md:flex items-center space-x-2">
-                <button onclick="switchTab('home')" id="nav-home" class="px-4 py-2 rounded-xl text-sm font-medium bg-accent text-white transition-all shadow-lg shadow-accent/25">Home</button>
-                <button onclick="switchTab('movies')" id="nav-movies" class="px-4 py-2 rounded-xl text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-all">Movies</button>
-                <button onclick="switchTab('tv')" id="nav-tv" class="px-4 py-2 rounded-xl text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-all">TV Shows</button>
+                <button onclick="switchTab('home')" id="nav-home" tabindex="0" class="tv-focusable px-4 py-2 rounded-xl text-sm font-medium bg-accent text-white transition-all shadow-lg shadow-accent/25">Home</button>
+                <button onclick="switchTab('movies')" id="nav-movies" tabindex="0" class="tv-focusable px-4 py-2 rounded-xl text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-all">Movies</button>
+                <button onclick="switchTab('tv')" id="nav-tv" tabindex="0" class="tv-focusable px-4 py-2 rounded-xl text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-all">TV Shows</button>
             </nav>
         </div>
 
         <div class="flex items-center space-x-4">
             <!-- Search Input -->
             <div class="relative">
-                <input type="text" id="searchInput" placeholder="Search movies, tv..." onkeydown="handleSearch(event)"
-                    class="w-40 sm:w-64 bg-dark-800 border border-white/10 rounded-xl px-4 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-accent transition-all">
+                <input type="text" id="searchInput" placeholder="Search movies, tv..." onkeydown="handleSearch(event)" tabindex="0"
+                    class="tv-focusable w-40 sm:w-64 bg-dark-800 border border-white/10 rounded-xl px-4 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-accent transition-all">
             </div>
             <!-- Live Date & Time (No Seconds) -->
             <div id="liveClock" class="hidden sm:block text-xs font-semibold text-gray-400 bg-dark-800/80 border border-white/5 px-3 py-2 rounded-xl tracking-wide">
@@ -98,9 +100,9 @@
 
     <!-- Mobile Sub-navigation -->
     <div class="flex md:hidden bg-dark-800/90 border-b border-white/5 px-4 py-2 justify-around">
-        <button onclick="switchTab('home')" id="mob-nav-home" class="text-xs font-medium text-accent">Home</button>
-        <button onclick="switchTab('movies')" id="mob-nav-movies" class="text-xs font-medium text-gray-400">Movies</button>
-        <button onclick="switchTab('tv')" id="mob-nav-tv" class="text-xs font-medium text-gray-400">TV Shows</button>
+        <button onclick="switchTab('home')" id="mob-nav-home" tabindex="0" class="tv-focusable text-xs font-medium text-accent">Home</button>
+        <button onclick="switchTab('movies')" id="mob-nav-movies" tabindex="0" class="tv-focusable text-xs font-medium text-gray-400">Movies</button>
+        <button onclick="switchTab('tv')" id="mob-nav-tv" tabindex="0" class="tv-focusable text-xs font-medium text-gray-400">TV Shows</button>
     </div>
 
     <!-- Main Dynamic Content Container -->
@@ -117,7 +119,7 @@
                     <h2 id="heroTitle" class="text-3xl lg:text-5xl font-black tracking-tight text-white">Loading...</h2>
                     <p id="heroOverview" class="text-sm lg:text-base text-gray-300 line-clamp-3">Please wait while we fetch top cinematic content...</p>
                     <div class="flex items-center space-x-4 pt-2">
-                        <button id="heroPlayBtn" class="px-6 py-3 rounded-xl bg-accent hover:bg-accent-hover text-white font-semibold flex items-center space-x-2 transition-all shadow-lg shadow-accent/30">
+                        <button id="heroPlayBtn" tabindex="0" class="tv-focusable px-6 py-3 rounded-xl bg-accent hover:bg-accent-hover text-white font-semibold flex items-center space-x-2 transition-all shadow-lg shadow-accent/30">
                             <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                             <span>Watch Now</span>
                         </button>
@@ -129,9 +131,9 @@
             <div class="flex items-center justify-between border-b border-white/10 pb-4">
                 <h3 id="sectionTitle" class="text-xl font-bold text-white tracking-wide">Trending Catalog</h3>
                 <div class="flex space-x-2 bg-dark-800 p-1 rounded-xl border border-white/5">
-                    <button onclick="setFilter('all')" id="filter-all" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-accent text-white transition-all">All</button>
-                    <button onclick="setFilter('movie')" id="filter-movie" class="px-3 py-1.5 rounded-lg text-xs font-medium text-gray-400 hover:text-white transition-all">Movies</button>
-                    <button onclick="setFilter('tv')" id="filter-tv" class="px-3 py-1.5 rounded-lg text-xs font-medium text-gray-400 hover:text-white transition-all">TV Shows</button>
+                    <button onclick="setFilter('all')" id="filter-all" tabindex="0" class="tv-focusable px-3 py-1.5 rounded-lg text-xs font-medium bg-accent text-white transition-all">All</button>
+                    <button onclick="setFilter('movie')" id="filter-movie" tabindex="0" class="tv-focusable px-3 py-1.5 rounded-lg text-xs font-medium text-gray-400 hover:text-white transition-all">Movies</button>
+                    <button onclick="setFilter('tv')" id="filter-tv" tabindex="0" class="tv-focusable px-3 py-1.5 rounded-lg text-xs font-medium text-gray-400 hover:text-white transition-all">TV Shows</button>
                 </div>
             </div>
 
@@ -143,7 +145,7 @@
 
         <!-- PLAYER & CONTROLS VIEW (Side-by-Side Grid layout) -->
         <div id="view-player" class="hidden space-y-6">
-            <button onclick="closePlayer()" class="px-4 py-2 rounded-xl bg-dark-800 hover:bg-dark-700 text-gray-300 font-medium flex items-center space-x-2 border border-white/10 transition-all">
+            <button onclick="closePlayer()" id="backGalleryBtn" tabindex="0" class="tv-focusable px-4 py-2 rounded-xl bg-dark-800 hover:bg-dark-700 text-gray-300 font-medium flex items-center space-x-2 border border-white/10 transition-all">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                 <span>Back to Gallery</span>
             </button>
@@ -175,7 +177,7 @@
                     <div id="tvControlsSection" class="hidden space-y-4 border-t border-white/10 pt-4">
                         <div>
                             <label class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Season</label>
-                            <select id="seasonSelect" onchange="onSeasonChange()" class="w-full bg-dark-800 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-accent">
+                            <select id="seasonSelect" onchange="onSeasonChange()" tabindex="0" class="tv-focusable w-full bg-dark-800 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-accent">
                             </select>
                         </div>
                         <div>
@@ -210,13 +212,102 @@
         let currentSeasonInternalId = '';
         let currentEpisodeInternalId = '';
         let showSlug = '';
-        let activeSourceIndex = 0; // Track the currently selected source index
+        let activeSourceIndex = 0;
+
+        // Android TV Spatial Navigation & Scroll Blocking
+        let focusIndex = 0;
+        let lastFocusedElement = null;
 
         window.addEventListener('DOMContentLoaded', () => {
             updateClock();
             setInterval(updateClock, 10000);
             fetchMediaCatalog();
+
+            // Global Key Listener for Android TV Remote (D-pad & Enter / Media Keys)
+            window.addEventListener('keydown', handleRemoteNavigation);
+            
+            // Block mouse/trackpad scrolling completely
+            window.addEventListener('wheel', (e) => e.preventDefault(), { passive: false });
+            window.addEventListener('scroll', () => {
+                if (window.scrollY !== 0) window.scrollTo(0, 0);
+            });
         });
+
+        function getFocusableElements() {
+            return Array.from(document.querySelectorAll('.tv-focusable, button:not(.hidden), input:not(.hidden), select:not(.hidden), [tabindex="0"]:not(.hidden)'))
+                .filter(el => {
+                    const viewHome = document.getElementById('view-home');
+                    const viewPlayer = document.getElementById('view-player');
+                    const isHomeHidden = viewHome.classList.contains('hidden');
+                    const isPlayerHidden = viewPlayer.classList.contains('hidden');
+                    
+                    const isInHome = viewHome.contains(el);
+                    const isInPlayer = viewPlayer.contains(el);
+
+                    if (isHomeHidden && isInHome) return false;
+                    if (isPlayerHidden && isInPlayer) return false;
+                    return true;
+                });
+        }
+
+        function updateFocusVisuals(elements, newIndex) {
+            elements.forEach((el, idx) => {
+                if (idx === newIndex) {
+                    el.classList.add('tv-focused');
+                    el.focus();
+                    lastFocusedElement = el;
+                } else {
+                    el.classList.remove('tv-focused');
+                }
+            });
+        }
+
+        function handleRemoteNavigation(e) {
+            const focusables = getFocusableElements();
+            if (focusables.length === 0) return;
+
+            let currentIndex = focusables.indexOf(document.activeElement);
+            if (currentIndex === -1) currentIndex = focusIndex;
+
+            let nextIndex = currentIndex;
+            const cols = window.innerWidth >= 1024 ? 5 : (window.innerWidth >= 768 ? 4 : (window.innerWidth >= 640 ? 3 : 2));
+
+            switch(e.key) {
+                case 'ArrowRight':
+                    e.preventDefault();
+                    nextIndex = Math.min(currentIndex + 1, focusables.length - 1);
+                    break;
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    nextIndex = Math.max(currentIndex - 1, 0);
+                    break;
+                case 'ArrowDown':
+                    e.preventDefault();
+                    if (focusables[currentIndex].classList.contains('media-card')) {
+                        nextIndex = Math.min(currentIndex + cols, focusables.length - 1);
+                    } else {
+                        nextIndex = Math.min(currentIndex + 1, focusables.length - 1);
+                    }
+                    break;
+                case 'ArrowUp':
+                    e.preventDefault();
+                    if (focusables[currentIndex].classList.contains('media-card')) {
+                        nextIndex = Math.max(currentIndex - cols, 0);
+                    } else {
+                        nextIndex = Math.max(currentIndex - 1, 0);
+                    }
+                    break;
+                case 'Enter':
+                    e.preventDefault();
+                    if (document.activeElement && typeof document.activeElement.click === 'function') {
+                        document.activeElement.click();
+                    }
+                    break;
+            }
+
+            focusIndex = nextIndex;
+            updateFocusVisuals(focusables, focusIndex);
+        }
 
         function updateClock() {
             const now = new Date();
@@ -230,10 +321,10 @@
                 const btn = document.getElementById(`nav-${t}`);
                 const mobBtn = document.getElementById(`mob-nav-${t}`);
                 if (btn) {
-                    btn.className = t === tab ? 'px-4 py-2 rounded-xl text-sm font-medium bg-accent text-white transition-all shadow-lg shadow-accent/25' : 'px-4 py-2 rounded-xl text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-all';
+                    btn.className = `tv-focusable px-4 py-2 rounded-xl text-sm font-medium transition-all ${t === tab ? 'bg-accent text-white shadow-lg shadow-accent/25' : 'text-gray-400 hover:text-white hover:bg-white/5'}`;
                 }
                 if (mobBtn) {
-                    mobBtn.className = t === tab ? 'text-xs font-medium text-accent' : 'text-xs font-medium text-gray-400';
+                    mobBtn.className = `tv-focusable text-xs font-medium ${t === tab ? 'text-accent' : 'text-gray-400'}`;
                 }
             });
 
@@ -249,7 +340,7 @@
             ['all', 'movie', 'tv'].forEach(f => {
                 const btn = document.getElementById(`filter-${f}`);
                 if(btn) {
-                    btn.className = f === filter ? 'px-3 py-1.5 rounded-lg text-xs font-medium bg-accent text-white transition-all' : 'px-3 py-1.5 rounded-lg text-xs font-medium text-gray-400 hover:text-white transition-all';
+                    btn.className = `tv-focusable px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${f === filter ? 'bg-accent text-white' : 'text-gray-400 hover:text-white'}`;
                 }
             });
             renderGrid();
@@ -311,7 +402,8 @@
                 const rating = item.vote_average ? item.vote_average.toFixed(1) : 'NR';
 
                 const card = document.createElement('div');
-                card.className = 'glass-panel rounded-2xl overflow-hidden card-transition cursor-pointer flex flex-col group border border-white/5';
+                card.className = 'media-card tv-focusable glass-panel rounded-2xl overflow-hidden card-transition cursor-pointer flex flex-col group border border-white/5';
+                card.setAttribute('tabindex', '0');
                 card.onclick = () => openPlayer(item);
                 card.innerHTML = `
                     <div class="relative aspect-[2/3] w-full overflow-hidden bg-dark-800">
@@ -334,6 +426,7 @@
 
         function handleSearch(e) {
             if (e.key === 'Enter') {
+                e.preventDefault();
                 const query = e.target.value.trim();
                 if (query) {
                     fetchMediaCatalog(query);
@@ -352,7 +445,7 @@
 
         async function openPlayer(item) {
             activeMedia = item;
-            activeSourceIndex = 0; // Reset to default source on new media
+            activeSourceIndex = 0;
             const type = item.media_type || (item.title ? 'movie' : 'tv');
             const title = item.title || item.name;
 
@@ -373,13 +466,27 @@
                 loadSources(type, item.id);
             }
 
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            setTimeout(() => {
+                const focusables = getFocusableElements();
+                if (focusables.length > 0) {
+                    focusIndex = 0;
+                    updateFocusVisuals(focusables, focusIndex);
+                }
+            }, 100);
         }
 
         function closePlayer() {
             document.getElementById('mediaPlayerFrame').src = '';
             document.getElementById('view-player').classList.add('hidden');
             document.getElementById('view-home').classList.remove('hidden');
+
+            setTimeout(() => {
+                const focusables = getFocusableElements();
+                if (focusables.length > 0) {
+                    focusIndex = 0;
+                    updateFocusVisuals(focusables, focusIndex);
+                }
+            }, 100);
         }
 
         function getSourceUrls(type, id) {
@@ -410,18 +517,18 @@
                 { name: 'BasementX', url: urls.basementx }
             ];
 
-            // Set iframe to currently remembered active provider source
             document.getElementById('mediaPlayerFrame').src = sources[activeSourceIndex].url;
 
             sources.forEach((src, idx) => {
                 const btn = document.createElement('button');
-                btn.className = `w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all flex items-center justify-between ${idx === activeSourceIndex ? 'bg-accent text-white shadow-lg shadow-accent/20' : 'bg-dark-800 text-gray-300 hover:bg-dark-700 border border-white/5'}`;
+                btn.className = `tv-focusable w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all flex items-center justify-between ${idx === activeSourceIndex ? 'bg-accent text-white shadow-lg shadow-accent/20' : 'bg-dark-800 text-gray-300 hover:bg-dark-700 border border-white/5'}`;
+                btn.setAttribute('tabindex', '0');
                 btn.innerHTML = `<span>${src.name}</span><span class="text-xs opacity-75">${idx === activeSourceIndex ? 'Active' : 'Switch'}</span>`;
                 btn.onclick = () => {
-                    activeSourceIndex = idx; // Remember the selected provider
+                    activeSourceIndex = idx;
                     document.getElementById('mediaPlayerFrame').src = src.url;
                     Array.from(container.children).forEach((b, i) => {
-                        b.className = `w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all flex items-center justify-between ${i === activeSourceIndex ? 'bg-accent text-white shadow-lg shadow-accent/20' : 'bg-dark-800 text-gray-300 hover:bg-dark-700 border border-white/5'}`;
+                        b.className = `tv-focusable w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all flex items-center justify-between ${i === activeSourceIndex ? 'bg-accent text-white shadow-lg shadow-accent/20' : 'bg-dark-800 text-gray-300 hover:bg-dark-700 border border-white/5'}`;
                         b.lastChild.innerText = i === activeSourceIndex ? 'Active' : 'Switch';
                     });
                 };
@@ -480,13 +587,14 @@
 
                 episodes.forEach(ep => {
                     const epBtn = document.createElement('button');
-                    epBtn.className = `py-2 rounded-lg text-xs font-semibold transition-all ${ep.id === currentEpisodeInternalId ? 'bg-accent text-white' : 'bg-dark-800 text-gray-400 hover:bg-dark-700 hover:text-white border border-white/5'}`;
+                    epBtn.className = `tv-focusable py-2 rounded-lg text-xs font-semibold transition-all ${ep.id === currentEpisodeInternalId ? 'bg-accent text-white' : 'bg-dark-800 text-gray-400 hover:bg-dark-700 hover:text-white border border-white/5'}`;
+                    epBtn.setAttribute('tabindex', '0');
                     epBtn.innerText = `E${ep.episode_number}`;
                     epBtn.title = ep.name;
                     epBtn.onclick = () => {
                         currentEpisodeInternalId = ep.id;
-                        Array.from(episodeList.children).forEach(b => b.className = 'py-2 rounded-lg text-xs font-semibold bg-dark-800 text-gray-400 hover:bg-dark-700 hover:text-white border border-white/5');
-                        epBtn.className = 'py-2 rounded-lg text-xs font-semibold bg-accent text-white';
+                        Array.from(episodeList.children).forEach(b => b.className = 'tv-focusable py-2 rounded-lg text-xs font-semibold bg-dark-800 text-gray-400 hover:bg-dark-700 hover:text-white border border-white/5');
+                        epBtn.className = 'tv-focusable py-2 rounded-lg text-xs font-semibold bg-accent text-white';
                         updatePlayerSourceForTv();
                     };
                     episodeList.appendChild(epBtn);
@@ -496,7 +604,7 @@
             }
         }
 
-        function updatePlayerSourceForTv() {
+        async function updatePlayerSourceForTv() {
             if (!activeMedia) return;
             const type = activeMedia.media_type || (activeMedia.title ? 'movie' : 'tv');
             loadSources(type, activeMedia.id);
