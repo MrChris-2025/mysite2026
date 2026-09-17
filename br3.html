@@ -40,7 +40,7 @@
 </head>
 <body class="min-h-screen flex flex-col selection:bg-accent selection:text-white antialiased font-normal">
 
-    <!-- Header Navigation (Home/Movies/TV removed) -->
+    <!-- Header Navigation -->
     <header class="sticky top-0 z-50 bg-dark-900 border-b border-white/10 px-4 lg:px-8 py-3.5 flex items-center justify-between">
         <div class="flex items-center space-x-8">
             <h1 onclick="closePlayer()" id="nav-logo" tabindex="0" class="tv-focusable text-2xl font-bold tracking-wider text-accent cursor-pointer rounded-lg px-1">
@@ -49,9 +49,10 @@
         </div>
 
         <div class="flex items-center space-x-4">
-            <div class="relative">
-                <input type="text" id="searchInput" placeholder="Search movies, tv..." onkeydown="handleSearch(event)" tabindex="0"
-                    class="tv-focusable w-48 sm:w-64 bg-dark-800 border border-white/10 rounded-xl px-4 py-2 text-xs text-white placeholder-gray-500 focus:outline-none">
+            <div class="relative flex items-center">
+                <input type="text" id="searchInput" placeholder="Live search movies, tv..." tabindex="0" autocomplete="off"
+                    class="tv-focusable w-52 sm:w-72 bg-dark-800 border border-white/10 rounded-xl px-4 py-2 pr-8 text-xs text-white placeholder-gray-500 focus:outline-none">
+                <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-2.5 text-gray-400 hover:text-white text-xs font-bold p-1">✕</button>
             </div>
             <div id="liveClock" class="text-xs font-bold text-gray-400 bg-dark-800 border border-white/5 px-3 py-2 rounded-xl">
                 --/--/---- --:-- --
@@ -65,16 +66,17 @@
         <!-- VIEW 1: HOME GALLERY -->
         <div id="view-home" class="space-y-6">
             
-            <!-- Hero Carousel (Premieres This Week) -->
-            <div id="heroBanner" class="relative rounded-2xl overflow-hidden tv-card min-h-[280px] flex items-end p-6 lg:p-8">
+            <!-- Hero Carousel (Popular Premieres & Trending) -->
+            <div id="heroBanner" class="relative rounded-2xl overflow-hidden tv-card min-h-[320px] flex items-end p-6 lg:p-8">
                 <div id="heroBg" class="absolute inset-0 bg-cover bg-center opacity-30 transition-all duration-500"></div>
                 <div class="relative z-20 max-w-2xl space-y-3 w-full">
                     <div class="flex items-center space-x-2">
-                        <span id="heroBadge" class="inline-block px-3 py-1 rounded-full text-[10px] font-bold bg-accent text-white uppercase tracking-wider">New This Week</span>
+                        <span id="heroBadge" class="inline-block px-3 py-1 rounded-full text-[10px] font-bold bg-accent text-white uppercase tracking-wider">Top Premiere</span>
                         <span id="heroDateBadge" class="inline-block px-2.5 py-1 rounded-full text-[10px] font-bold bg-dark-800 text-gray-300 border border-white/10"></span>
+                        <span id="heroRatingBadge" class="inline-block px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">★ --</span>
                     </div>
                     <h2 id="heroTitle" class="text-2xl lg:text-3xl font-bold text-white">Loading Premieres...</h2>
-                    <p id="heroOverview" class="text-xs text-gray-300 line-clamp-2">Loading catalog...</p>
+                    <p id="heroOverview" class="text-xs text-gray-300 line-clamp-2">Loading top weekly shows and releases...</p>
                     <div class="pt-2 flex items-center justify-between">
                         <button id="heroPlayBtn" tabindex="0" class="tv-focusable px-5 py-2.5 rounded-xl bg-accent text-white text-xs font-bold flex items-center space-x-2">
                             <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
@@ -83,7 +85,7 @@
 
                         <!-- Carousel Controls -->
                         <div class="flex items-center space-x-3">
-                            <div id="carouselDots" class="flex space-x-1.5"></div>
+                            <div id="carouselDots" class="flex space-x-1.5 max-w-[160px] overflow-hidden"></div>
                             <div class="flex space-x-1">
                                 <button onclick="prevHeroSlide()" tabindex="0" class="tv-focusable p-2 rounded-xl bg-dark-800 text-gray-300 border border-white/10 text-xs font-bold">&larr;</button>
                                 <button onclick="nextHeroSlide()" tabindex="0" class="tv-focusable p-2 rounded-xl bg-dark-800 text-gray-300 border border-white/10 text-xs font-bold">&rarr;</button>
@@ -93,7 +95,7 @@
                 </div>
             </div>
 
-            <!-- Filter Controls Bar (Type, Genre, Year) -->
+            <!-- Filter Controls Bar -->
             <div class="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-4">
                 <div class="flex items-center space-x-3">
                     <h3 id="sectionTitle" class="text-base font-bold text-white">Catalog</h3>
@@ -102,10 +104,11 @@
                         <button onclick="setFilter('movie')" id="filter-movie" tabindex="0" class="tv-focusable px-3 py-1.5 rounded-lg text-xs font-bold text-gray-400">Movies</button>
                         <button onclick="setFilter('tv')" id="filter-tv" tabindex="0" class="tv-focusable px-3 py-1.5 rounded-lg text-xs font-bold text-gray-400">TV Shows</button>
                     </div>
+                    <div id="searchStatusTag" class="hidden text-xs font-bold bg-accent/20 text-accent border border-accent/40 px-3 py-1 rounded-xl"></div>
                 </div>
 
                 <!-- Genre & Year Drop-downs -->
-                <div class="flex items-center space-x-3">
+                <div id="dropdownFilters" class="flex items-center space-x-3">
                     <div>
                         <select id="genreSelect" onchange="onFilterChange()" tabindex="0" class="tv-focusable bg-dark-800 border border-white/10 rounded-xl px-3 py-1.5 text-xs font-bold text-white focus:outline-none">
                             <option value="">All Genres</option>
@@ -118,9 +121,16 @@
                             <option value="18">Drama</option>
                             <option value="10751">Family</option>
                             <option value="14">Fantasy</option>
+                            <option value="36">History</option>
                             <option value="27">Horror</option>
+                            <option value="10402">Music</option>
+                            <option value="9648">Mystery</option>
+                            <option value="10749">Romance</option>
                             <option value="878">Sci-Fi</option>
+                            <option value="10770">TV Movie</option>
                             <option value="53">Thriller</option>
+                            <option value="10752">War</option>
+                            <option value="37">Western</option>
                         </select>
                     </div>
                     <div>
@@ -152,7 +162,7 @@
         <div id="view-player" class="hidden">
             <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
                 
-                <!-- LEFT COLUMN: Player & Bottom-Right Ep Navigation -->
+                <!-- LEFT COLUMN: Player & Ep Navigation -->
                 <div class="md:col-span-8 space-y-4">
                     <div class="relative w-full aspect-video rounded-2xl overflow-hidden tv-card bg-black">
                         <iframe id="mediaPlayerFrame" class="w-full h-full border-0" sandbox="allow-same-origin allow-scripts allow-forms allow-pointer-lock" allowfullscreen></iframe>
@@ -164,7 +174,7 @@
                             <p id="playerOverview" class="text-xs text-gray-400 leading-relaxed max-h-28 overflow-y-auto"></p>
                         </div>
 
-                        <!-- Previous / Next Episode Navigation Buttons -->
+                        <!-- Previous / Next Episode Navigation -->
                         <div id="underPlayerNav" class="hidden flex-shrink-0 flex items-center space-x-2 pt-1">
                             <button id="prevEpBtn" onclick="changeEpisodeOffset(-1)" tabindex="0" class="tv-focusable px-3.5 py-2 rounded-xl bg-dark-800 text-gray-300 text-xs font-bold flex items-center justify-center space-x-1 border border-white/10 disabled:opacity-30 disabled:pointer-events-none">
                                 <span>&larr; Previous</span>
@@ -176,9 +186,8 @@
                     </div>
                 </div>
 
-                <!-- RIGHT COLUMN: Media Sources Header + Close Button & Controls -->
+                <!-- RIGHT COLUMN: Media Sources Header + Controls -->
                 <div class="md:col-span-4 tv-card p-5 rounded-2xl space-y-5">
-                    
                     <div>
                         <div class="flex items-center justify-between mb-3">
                             <h3 class="text-[11px] font-bold uppercase tracking-wider text-gray-400">Media Sources</h3>
@@ -236,12 +245,13 @@
         let currentPage = 1, totalPages = 1, heroIndex = 0, heroItems = [], heroTimer = null;
         let currentSeasonNum = 1, currentSeasonInternalId = '', currentEpisodeInternalId = '';
         let currentEpisodesList = [], currentEpisodeIndex = 0, showSlug = '', activeSourceIndex = 0;
-        let cachedFocusables = [], focusIndex = 0;
+        let cachedFocusables = [], focusIndex = 0, searchDebounce = null, searchQuery = '';
 
         window.addEventListener('DOMContentLoaded', () => {
             updateClock();
             setInterval(updateClock, 10000);
             populateYearDropdown();
+            setupLiveSearch();
             fetchWeeklyPremieres();
             fetchMediaCatalog();
             window.addEventListener('keydown', handleRemoteNavigation);
@@ -264,18 +274,88 @@
             }
         }
 
-        /* Fetch Week's Premieres for Hero Carousel */
+        function setupLiveSearch() {
+            const input = document.getElementById('searchInput');
+            const handler = () => {
+                const query = input.value.trim();
+                document.getElementById('clearSearchBtn').classList.toggle('hidden', !query);
+                
+                clearTimeout(searchDebounce);
+                searchDebounce = setTimeout(() => {
+                    searchQuery = query;
+                    currentPage = 1;
+                    if (document.getElementById('view-player').classList.contains('hidden') === false) {
+                        closePlayer();
+                    }
+                    fetchMediaCatalog();
+                }, 300);
+            };
+
+            input.addEventListener('input', handler);
+            input.addEventListener('keyup', handler);
+            input.addEventListener('change', handler);
+        }
+
+        function clearSearch() {
+            const input = document.getElementById('searchInput');
+            input.value = '';
+            searchQuery = '';
+            document.getElementById('clearSearchBtn').classList.add('hidden');
+            currentPage = 1;
+            fetchMediaCatalog();
+        }
+
+        /* Expanded Hero Carousel: Popular/High-Rating shows (No Soap Operas, Talk Shows, or Anime) */
         async function fetchWeeklyPremieres() {
             try {
-                // Sept 14, 2026 current week window
-                const url = `${TMDB_BASE}/discover/tv?api_key=${TMDB_KEY}&air_date.gte=2026-09-14&air_date.lte=2026-09-20&sort_by=popularity.desc`;
-                const res = await fetch(url);
+                const today = new Date().toISOString().split('T')[0];
+                const res = await fetch(`https://api.tvmaze.com/schedule?country=US&date=${today}`);
                 const data = await res.json();
-                heroItems = (data.results || []).slice(0, 5);
-                if (!heroItems.length) {
-                    const fallbackRes = await fetch(`${TMDB_BASE}/trending/all/week?api_key=${TMDB_KEY}`);
+                
+                const excludedGenres = ['Soap', 'Talk', 'News', 'Variety', 'Anime', 'Talk Show', 'Game Show', 'Reality'];
+                
+                let filtered = (data || []).filter(item => {
+                    const show = item.show || {};
+                    const type = show.type || '';
+                    const genres = show.genres || [];
+                    
+                    const isExcluded = excludedGenres.some(g => genres.includes(g) || type.includes(g));
+                    return !isExcluded;
+                });
+
+                // Sort by show popularity / weight from TVMaze
+                filtered.sort((a, b) => ((b.show && b.show.weight) || 0) - ((a.show && a.show.weight) || 0));
+
+                heroItems = [];
+                const maxItems = 15;
+
+                for (let i = 0; i < filtered.length && heroItems.length < maxItems; i++) {
+                    const ep = filtered[i];
+                    const showName = ep.show ? ep.show.name : '';
+                    const tmdbRes = await fetch(`${TMDB_BASE}/search/tv?api_key=${TMDB_KEY}&query=${encodeURIComponent(showName)}`);
+                    const tmdbData = await tmdbRes.json();
+                    
+                    if (tmdbData.results && tmdbData.results.length) {
+                        const tmdbItem = tmdbData.results[0];
+                        // Filter out lower rated shows if rating available
+                        if (tmdbItem.vote_average === 0 || tmdbItem.vote_average >= 6.0) {
+                            tmdbItem.custom_air_date = `AIRING ${ep.airdate || today}`;
+                            tmdbItem.ep_title = ep.name ? ` - ${ep.name}` : '';
+                            heroItems.push(tmdbItem);
+                        }
+                    }
+                }
+
+                // Fallback / top up with TMDB Trending if fewer than 10 items found
+                if (heroItems.length < 10) {
+                    const fallbackRes = await fetch(`${TMDB_BASE}/trending/tv/week?api_key=${TMDB_KEY}`);
                     const fallbackData = await fallbackRes.json();
-                    heroItems = (fallbackData.results || []).slice(0, 5);
+                    (fallbackData.results || []).forEach(item => {
+                        if (heroItems.length < maxItems && !heroItems.some(h => h.id === item.id)) {
+                            item.custom_air_date = `TRENDING THIS WEEK`;
+                            heroItems.push(item);
+                        }
+                    });
                 }
                 renderHeroCarousel();
             } catch (e) { console.error(e); }
@@ -284,9 +364,13 @@
         function renderHeroCarousel() {
             if (!heroItems.length) return;
             const item = heroItems[heroIndex];
-            document.getElementById('heroTitle').innerText = item.title || item.name;
+            document.getElementById('heroTitle').innerText = (item.title || item.name) + (item.ep_title || '');
             document.getElementById('heroOverview').innerText = item.overview || 'No description available.';
-            document.getElementById('heroDateBadge').innerText = item.first_air_date || item.release_date || 'Premiering Now';
+            document.getElementById('heroDateBadge').innerText = item.custom_air_date || 'Airing This Week';
+            
+            const rating = item.vote_average ? item.vote_average.toFixed(1) : '7.5';
+            document.getElementById('heroRatingBadge').innerText = `★ ${rating}`;
+
             if (item.backdrop_path) document.getElementById('heroBg').style.backgroundImage = `url(https://image.tmdb.org/t/p/w1280${item.backdrop_path})`;
             document.getElementById('heroPlayBtn').onclick = () => openPlayer(item);
 
@@ -294,7 +378,7 @@
             dots.innerHTML = '';
             heroItems.forEach((_, idx) => {
                 const dot = document.createElement('div');
-                dot.className = `w-2 h-2 rounded-full ${idx === heroIndex ? 'bg-accent' : 'bg-white/20'}`;
+                dot.className = `w-2 h-2 rounded-full flex-shrink-0 ${idx === heroIndex ? 'bg-accent' : 'bg-white/20'}`;
                 dots.appendChild(dot);
             });
 
@@ -329,27 +413,42 @@
             fetchMediaCatalog();
         }
 
-        async function fetchMediaCatalog(query = '') {
+        async function fetchMediaCatalog() {
             try {
                 const genre = document.getElementById('genreSelect').value;
                 const year = document.getElementById('yearSelect').value;
+                const tag = document.getElementById('searchStatusTag');
+                const dropdowns = document.getElementById('dropdownFilters');
 
                 let url = '';
-                if (query) {
-                    url = `${TMDB_BASE}/search/multi?api_key=${TMDB_KEY}&query=${encodeURIComponent(query)}&page=${currentPage}`;
-                } else if (genre || year) {
-                    const targetType = currentFilter === 'tv' ? 'tv' : 'movie';
-                    url = `${TMDB_BASE}/discover/${targetType}?api_key=${TMDB_KEY}&page=${currentPage}${genre ? '&with_genres=' + genre : ''}${year ? '&primary_release_year=' + year + '&first_air_date_year=' + year : ''}`;
-                } else if (currentFilter !== 'all') {
-                    url = `${TMDB_BASE}/trending/${currentFilter}/day?api_key=${TMDB_KEY}&page=${currentPage}`;
+                if (searchQuery) {
+                    tag.innerText = `Results for: "${searchQuery}"`;
+                    tag.classList.remove('hidden');
+                    dropdowns.classList.add('opacity-40', 'pointer-events-none');
+                    url = `${TMDB_BASE}/search/multi?api_key=${TMDB_KEY}&query=${encodeURIComponent(searchQuery)}&page=${currentPage}`;
                 } else {
-                    url = `${TMDB_BASE}/trending/all/day?api_key=${TMDB_KEY}&page=${currentPage}`;
+                    tag.classList.add('hidden');
+                    dropdowns.classList.remove('opacity-40', 'pointer-events-none');
+                    if (genre || year) {
+                        const targetType = currentFilter === 'tv' ? 'tv' : 'movie';
+                        url = `${TMDB_BASE}/discover/${targetType}?api_key=${TMDB_KEY}&page=${currentPage}${genre ? '&with_genres=' + genre : ''}${year ? '&primary_release_year=' + year + '&first_air_date_year=' + year : ''}`;
+                    } else if (currentFilter !== 'all') {
+                        url = `${TMDB_BASE}/trending/${currentFilter}/day?api_key=${TMDB_KEY}&page=${currentPage}`;
+                    } else {
+                        url = `${TMDB_BASE}/trending/all/day?api_key=${TMDB_KEY}&page=${currentPage}`;
+                    }
                 }
 
                 const res = await fetch(url);
                 const data = await res.json();
                 totalPages = Math.min(data.total_pages || 1, 500);
-                mediaDataList = (data.results || []).filter(item => item.media_type === 'movie' || item.media_type === 'tv' || item.title || item.name);
+                
+                let results = data.results || [];
+                if (currentFilter !== 'all') {
+                    results = results.filter(item => item.media_type === currentFilter || (currentFilter === 'movie' && item.title) || (currentFilter === 'tv' && item.name));
+                }
+                
+                mediaDataList = results.filter(item => item.title || item.name);
                 
                 document.getElementById('pageIndicator').innerText = `Page ${currentPage} of ${totalPages}`;
                 document.getElementById('prevPageBtn').disabled = currentPage <= 1;
@@ -392,13 +491,6 @@
                 grid.appendChild(card);
             });
             refreshFocusables();
-        }
-
-        function handleSearch(e) {
-            if (e.key === 'Enter') {
-                currentPage = 1;
-                fetchMediaCatalog(e.target.value.trim());
-            }
         }
 
         function refreshFocusables() {
