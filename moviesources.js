@@ -71,7 +71,7 @@ function getStreamUrl(server, type, id, season = 1, episode = 1) {
             case "gaia": return `https://gaiaflix.live/watch/${id}?type=tv&s=${season}&e=${episode}`;
             case "flixer": return `https://flixer.gd/watch/tv/${id}/${season}/${episode}`; 
             case "oneembed": return `https://1embed.cc/embed/tv/${id}/${season}/${episode}`;
-            case "xully": return `https://nhdapi.com/tv/${tmdbId}?s=${season}&e=${episode}`;
+            case "xully": return `https://nhdapi.com/tv/${tmdb_Id}?s=${season}&e=${episode}`;
             case "yap": return `https://yapgrid.com/embed/tv/${id}/${season}/${episode}?autoplay=1`;
             case "pulp": return `https://www.pulptv.net/watch/tv/${id}?s=${currentSeason}&e=${currentEpisode}`;
             case "framextv": return `https://framextv.tech/embed/${id}/${season}/${episode}`;
