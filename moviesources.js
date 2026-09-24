@@ -44,7 +44,7 @@ function getStreamUrl(server, type, id, season = 1, episode = 1) {
             case "vidcore": return `https://vidcore.org/embed/movie/${id}?autoplay=true`;
             case "vidfast": return `https://vidfast.vc/movie/${id}`;
             case "fmov": return `https://fmov.my/embed/movie/${id}`;
-            case "nextbox": return `https://nextbox.uno/player/movie/${id}`;
+            case "nextbox": return `https://video.moviepire.co/embed/movie/${id}`;
             case "peestream": return `https://peestream.in/embed/?type=movie&tmdbId=${id}`;
             case "gaia": return `https://gaiaflix.live/watch/${id}?type=movie`;
             case "flixer": return `https://flixer.gd/watch/movie/${id}`;
@@ -66,7 +66,7 @@ function getStreamUrl(server, type, id, season = 1, episode = 1) {
             case "vidcore": return `https://vidcore.org/embed/tv/${id}/${season}/${episode}?autoplay=true`;
             case "vidfast": return `https://vidfast.vc/tv/${id}/${season}/${episode}?autoPlay=true`;
             case "fmov": return `https://fmov.my/embed/tv/${id}/${season}/${episode}`;
-            case "nextbox": return `https://nextbox.uno/player/tv/${id}/${season}/${episode}`;
+            case "nextbox": return `https://video.moviepire.co/embed/tv/${id}/${season}/${episode}`;
             case "peestream": return `https://peestream.in/embed/?type=show&tmdbId=${id}&season=${season}&episode=${episode}`;
             case "gaia": return `https://gaiaflix.live/watch/${id}?type=tv&s=${season}&e=${episode}`;
             case "flixer": return `https://flixer.gd/watch/tv/${id}/${season}/${episode}`; 
