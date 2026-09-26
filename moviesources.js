@@ -17,7 +17,7 @@ const serversList = [
     { id: 'flixer', name: 'Server 12: flixer' },
     { id: 'oneembed', name: 'Server 13: 1Embed' },
     { id: 'yap', name: 'Server 14: Yap' },
-    { id: 'xully', name: 'Server 15: xully' },
+    { id: 'nhdapi', name: 'Server 15: nhdapi' },
     { id: 'pulp', name: 'Server 16: pulp' },
     { id: 'framextv', name: 'Server 17: FrameXTV' },
     { id: 'atlantic', name: 'Server 18: atlantic' }
@@ -49,7 +49,7 @@ function getStreamUrl(server, type, id, season = 1, episode = 1) {
             case "gaia": return `https://gaiaflix.live/watch/${id}?type=movie`;
             case "flixer": return `https://flixer.gd/watch/movie/${id}`;
             case "oneembed": return `https://1embed.cc/embed/movie/${id}`;
-            case "xully": return `https://nhdapi.com/movie/${tmdbId}`;
+            case "nhdapi": return `https://nhdapi.com/movie/${tmdbId}`;
             case "yap": return `https://yapgrid.com/embed/movie/${id}?autoplay=1`;
             case "pulp": return `https://www.pulptv.net/watch/movie/${id}`;
             case "framextv": return `https://framextv.tech/embed/${id}`;
@@ -71,7 +71,7 @@ function getStreamUrl(server, type, id, season = 1, episode = 1) {
             case "gaia": return `https://gaiaflix.live/watch/${id}?type=tv&s=${season}&e=${episode}`;
             case "flixer": return `https://flixer.gd/watch/tv/${id}/${season}/${episode}`; 
             case "oneembed": return `https://1embed.cc/embed/tv/${id}/${season}/${episode}`;
-            case "xully": return `https://nhdapi.com/tv/${id}?s=${season}&e=${episode}`;
+            case "nhdapi": return `https://nhdapi.com/tv/${id}?s=${season}&e=${episode}`;
             case "yap": return `https://yapgrid.com/embed/tv/${id}/${season}/${episode}?autoplay=1`;
             case "pulp": return `https://www.pulptv.net/watch/tv/${id}?s=${currentSeason}&e=${currentEpisode}`;
             case "framextv": return `https://framextv.tech/embed/${id}/${season}/${episode}`;
